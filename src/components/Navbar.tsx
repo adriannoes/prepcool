@@ -88,7 +88,6 @@ const Navbar = () => {
         </Link>
         <Link to="/apoiar" className="text-gray-700 hover:text-coral transition-colors font-medium">
           <span className="flex items-center gap-2">
-            <HelpCircle size={18} />
             Quer nos apoiar?
           </span>
         </Link>
