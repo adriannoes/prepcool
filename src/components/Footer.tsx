@@ -73,7 +73,7 @@ const Footer = () => {
               contato@prepcool.ai
             </a>
             <p className="text-gray-600">
-              São Paulo, SP<br />
+              De Curitiba para o mundo!<br />
               Brasil
             </p>
           </div>
