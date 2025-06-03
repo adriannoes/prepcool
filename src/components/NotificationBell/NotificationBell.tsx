@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +19,6 @@ const NotificationBell = () => {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -29,7 +27,6 @@ const NotificationBell = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
     timeoutRef.current = setTimeout(() => {
       markAsRead(notificationId);
     }, 500);
@@ -44,7 +41,6 @@ const NotificationBell = () => {
   const handleNotificationClick = (notification: any) => {
     markAsRead(notification.id);
     setIsOpen(false);
-    
     if (notification.link_destino) {
       navigate(notification.link_destino);
     }
@@ -78,7 +74,6 @@ const NotificationBell = () => {
           </Badge>
         )}
       </button>
-
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
           <div className="p-4 border-b border-gray-100">
@@ -87,7 +82,6 @@ const NotificationBell = () => {
               <p className="text-sm text-gray-600">{unreadCount} não lidas</p>
             )}
           </div>
-          
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-6 text-center text-gray-500">
@@ -128,7 +122,6 @@ const NotificationBell = () => {
               ))
             )}
           </div>
-          
           {notifications.length > 0 && (
             <div className="p-3 border-t border-gray-100 text-center">
               <button 
@@ -145,4 +138,4 @@ const NotificationBell = () => {
   );
 };
 
-export default NotificationBell;
+export default NotificationBell; 

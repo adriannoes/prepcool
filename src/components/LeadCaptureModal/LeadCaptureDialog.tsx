@@ -1,8 +1,4 @@
-
-import React, { useState } from 'react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,121 +10,22 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import useLeadCaptureForm from './useLeadCaptureForm';
+import type { LeadCaptureModalProps } from './types';
 
-// Validador de telefone brasileiro mais flexível
-// Aceita formatos: (XX) XXXXX-XXXX, (XX)XXXXX-XXXX, XXXXXXXXXXX, etc.
-const formSchema = z.object({
-  name: z.string().min(3, { message: "Nome deve ter no mínimo 3 caracteres" }),
-  phone: z.string().min(10, { message: "Telefone deve ter pelo menos 10 dígitos" })
-    .refine((value) => {
-      // Remove todos os caracteres não-numéricos
-      const numbers = value.replace(/\D/g, '');
-      // Verifica se tem entre 10 e 11 dígitos (números fixos e celulares no Brasil)
-      return numbers.length >= 10 && numbers.length <= 11;
-    }, { message: "Telefone inválido. Use o formato: (XX) XXXXX-XXXX" }),
-  email: z.string().email({ message: "E-mail inválido" }),
-  objetivos: z.string().max(300, { message: "Máximo de 300 caracteres" }).optional()
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface LeadCaptureModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const PIPEFY_WEBHOOK_URL = 'https://ipaas.pipefy.com/api/v1/webhooks/5OGl3Tq0S97bvsfpG4X0b/sync';
-
-const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      phone: '',
-      email: '',
-      objetivos: ''
-    },
-  });
-
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
-    setSubmissionStatus('idle');
-    
-    try {
-      // Formata o telefone para enviar apenas os números
-      const phoneNumbers = data.phone.replace(/\D/g, '');
-      
-      // Send data to Pipefy webhook
-      const response = await fetch(PIPEFY_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          phone: phoneNumbers, // Envia apenas os números do telefone
-          email: data.email,
-          objetivos: data.objetivos || '' // Include objectives field
-        }),
-      });
-      
-      // Check if response is successful (status code 200-299)
-      if (response.ok) {
-        setSubmissionStatus('success');
-        toast.success('Inscrição realizada com sucesso!');
-        form.reset();
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setSubmissionStatus('error');
-        toast.error('Tivemos um problema. Por favor, tente novamente.');
-        console.error('Form submission error:', response.status, response.statusText);
-      }
-    } catch (error) {
-      setSubmissionStatus('error');
-      toast.error('Tivemos um problema. Por favor, tente novamente.');
-      console.error('Form submission error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const formatPhoneNumber = (value: string) => {
-    // Remove all non-digits
-    let cleaned = value.replace(/\D/g, '');
-    
-    // Limit to max 11 digits
-    cleaned = cleaned.substring(0, 11);
-    
-    // Format as (XX) XXXXX-XXXX or (XX) XXXX-XXXX
-    if (cleaned.length <= 10) {
-      if (cleaned.length > 6) {
-        return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 6)}-${cleaned.substring(6)}`;
-      } else if (cleaned.length > 2) {
-        return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2)}`;
-      } else if (cleaned.length > 0) {
-        return `(${cleaned}`;
-      }
-    } else {
-      // For 11 digits (with 9 prefix for mobile phones)
-      return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 7)}-${cleaned.substring(7)}`;
-    }
-    
-    return value;
-  };
-  
-  const handleRetry = () => {
-    setSubmissionStatus('idle');
-  };
+const LeadCaptureDialog: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) => {
+  const {
+    form,
+    isSubmitting,
+    submissionStatus,
+    onSubmit,
+    formatPhoneNumber,
+    handleRetry,
+    remainingChars,
+  } = useLeadCaptureForm(onClose);
 
   const objetivosValue = form.watch('objetivos') || '';
-  const remainingChars = 300 - objetivosValue.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -282,4 +179,4 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
   );
 };
 
-export default LeadCaptureModal;
+export default LeadCaptureDialog; 
