@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import NotificationBell from './NotificationBell';
+import NotificationBell from '../NotificationBell';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,7 +19,6 @@ const Navbar = () => {
         setIsScrolled(false);
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -50,7 +48,7 @@ const Navbar = () => {
     navigate('/dashboard');
     setIsMenuOpen(false);
   };
-  
+
   return (
     <nav 
       className={`w-full py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 transition-all duration-300 ${
@@ -62,8 +60,6 @@ const Navbar = () => {
           Prep<span className="text-coral">Cool</span>
         </Link>
       </div>
-      
-      {/* Mobile menu button */}
       <button 
         className="md:hidden text-gray-700 hover:text-coral transition-colors"
         onClick={toggleMenu}
@@ -71,8 +67,6 @@ const Navbar = () => {
       >
         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
-
-      {/* Desktop navigation */}
       <div className="hidden md:flex items-center space-x-8">
         {!user && (
           <>
@@ -102,8 +96,6 @@ const Navbar = () => {
           </>
         )}
       </div>
-
-      {/* Login/Logout button - always visible on desktop */}
       <div className="hidden md:flex items-center space-x-4">
         {user ? (
           <Button 
@@ -122,8 +114,6 @@ const Navbar = () => {
           </Link>
         )}
       </div>
-
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg p-6 flex flex-col space-y-6 animate-fade-in z-50">
           {!user && (
@@ -187,4 +177,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar; 
