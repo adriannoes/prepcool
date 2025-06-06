@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -32,8 +31,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_IN') {
           // Redirect to dashboard only on sign in, not on sign up
           navigate('/dashboard');
-        } else if (event === 'SIGNED_OUT') {
-          navigate('/login');
         }
       }
     );
