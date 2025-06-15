@@ -1,0 +1,52 @@
+---
+description: Context about the videos from YouTube related with Filosofia
+globs: 
+alwaysApply: false
+---
+  {
+    "topico_id": "08d6b0a9-49ad-4fd5-a85a-94f9618f6a8c",
+    "titulo": "Super revisão de Filosofia Antiga e Medieval para o ENEM – ProEnem",
+    "url": "https://www.youtube.com/watch?v=Zy7EwpV3qqI"
+  },
+  {
+    "topico_id": "08d6b0a9-49ad-4fd5-a85a-94f9618f6a8c",
+    "titulo": "Filosofia no ENEM – aula 2 (Filosofia Antiga) – Prof. Ernani Júnior",
+    "url": "https://www.youtube.com/watch?v=T33P5FvGlt0"
+  },
+  {
+    "topico_id": "08d6b0a9-49ad-4fd5-a85a-94f9618f6a8c",
+    "titulo": "Introdução à Filosofia Antiga | Pré-Socráticos e Mitologia – Gabarita Geo",
+    "url": "https://www.youtube.com/watch?v=8UZvdkau7eQ"
+  },
+
+  {
+    "topico_id": "3d845cbc-3fcc-4e72-9c67-565be1adcfee",
+    "titulo": "Super revisão de Filosofia Moderna e Contemporânea para o ENEM",
+    "url": "https://www.youtube.com/watch?v=bv9obMrnFyY"
+  },
+  {
+    "topico_id": "3d845cbc-3fcc-4e72-9c67-565be1adcfee",
+    "titulo": "A Modernidade – Filosofia Moderna – Preparatório ENEM",
+    "url": "https://www.youtube.com/watch?v=IOPir9GymRA"
+  },
+  {
+    "topico_id": "3d845cbc-3fcc-4e72-9c67-565be1adcfee",
+    "titulo": "#RevisãoENEM | Filosofia Moderna em 30 minutos – Curso EM",
+    "url": "https://www.youtube.com/watch?v=Xo0HCfP9QFo"
+  },
+
+  {
+    "topico_id": "d839dd19-15da-4472-af3e-10ef36853ff6",
+    "titulo": "Filosofia Contemporânea no ENEM: como esse tema é cobrado? – Prof. Ernani Júnior",
+    "url": "https://www.youtube.com/watch?v=vtV9YtIWkLM"
+  },
+  {
+    "topico_id": "d839dd19-15da-4472-af3e-10ef36853ff6",
+    "titulo": "Weber – Filosofia Contemporânea – Preparatório ENEM",
+    "url": "https://www.youtube.com/watch?v=P81Hxq8b_aM"
+  },
+  {
+    "topico_id": "d839dd19-15da-4472-af3e-10ef36853ff6",
+    "titulo": "Filosofia Contemporânea – Brasil Escola",
+    "url": "https://www.youtube.com/watch?v=eRz1MMwuSZg"
+  }

@@ -1,0 +1,68 @@
+---
+description: Context about the videos from YouTube related with Geografia
+globs: 
+alwaysApply: false
+---
+  {
+    "topico_id": "e3564217-5d8e-419d-9e54-8d537861913d",
+    "titulo": "Cartografia no Enem: como esse tema é cobrado? – Brasil Escola",
+    "url": "https://www.youtube.com/watch?v=zHxRW7xdgbs"
+  },
+  {
+    "topico_id": "e3564217-5d8e-419d-9e54-8d537861913d",
+    "titulo": "Cartografia: projeções cartográficas – Aula 7 ENEM",
+    "url": "https://www.youtube.com/watch?v=JhDu6gR8Br4"
+  },
+  {
+    "topico_id": "e3564217-5d8e-419d-9e54-8d537861913d",
+    "titulo": "Introdução à Cartografia ENEM – Aula completa",
+    "url": "https://www.youtube.com/watch?v=dEMBovdjezI"
+  },
+
+  {
+    "topico_id": "1aa645d5-8558-4839-8b12-6cff7e75bdf6",
+    "titulo": "Introdução à Geografia Física ENEM",
+    "url": "https://www.youtube.com/watch?v=xp1JOJ7FJuE"
+  },
+  {
+    "topico_id": "1aa645d5-8558-4839-8b12-6cff7e75bdf6",
+    "titulo": "Tudo de Geografia Física para o ENEM 2025",
+    "url": "https://www.youtube.com/watch?v=tkn-YU7rleQ"
+  },
+  {
+    "topico_id": "1aa645d5-8558-4839-8b12-6cff7e75bdf6",
+    "titulo": "Revisão de Geografia Física para o ENEM",
+    "url": "https://www.youtube.com/watch?v=dHkV5VViAz0"
+  },
+
+  {
+    "topico_id": "2856e7ad-82c0-4614-9cf6-ff403d621cab",
+    "titulo": "Revisão de Geografia Humana para o ENEM",
+    "url": "https://www.youtube.com/watch?v=72FZRgo_r7g"
+  },
+  {
+    "topico_id": "2856e7ad-82c0-4614-9cf6-ff403d621cab",
+    "titulo": "Gabaritar Geografia Humana – Enem e Fuvest",
+    "url": "https://www.youtube.com/watch?v=Y9V955N13NE"
+  },
+  {
+    "topico_id": "2856e7ad-82c0-4614-9cf6-ff403d621cab",
+    "titulo": "Revisão Pré-ENEM – Geografia Humana e Econômica",
+    "url": "https://www.youtube.com/watch?v=pr6H-cvmTR4"
+  },
+
+  {
+    "topico_id": "fa2a9654-df28-40ee-a97d-6c6969ff098e",
+    "titulo": "Geopolítica | Top Conteúdo ENEM 2023",
+    "url": "https://www.youtube.com/watch?v=VYfMr7FcDq0"
+  },
+  {
+    "topico_id": "fa2a9654-df28-40ee-a97d-6c6969ff098e",
+    "titulo": "Geopolítica – Resumo de Geografia para o ENEM",
+    "url": "https://www.youtube.com/watch?v=2uXUSLF10R0"
+  },
+  {
+    "topico_id": "fa2a9654-df28-40ee-a97d-6c6969ff098e",
+    "titulo": "Geopolítica e Atualidades para ENEM (06/2024)",
+    "url": "https://www.youtube.com/watch?v=kraGnvT2bHA"
+  }

@@ -4,12 +4,6 @@
 
 ## How can I edit this code?
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/8ca9b7e0-0b53-4a41-b4e0-6e82c571400e) and start prompting.
-
 Changes made via Lovable will be committed automatically to this repo.
 
 **Project context @ Cursor **

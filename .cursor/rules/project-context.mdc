@@ -1,5 +1,5 @@
 ---
-description: 
+description: Context about our project (technology stack, user flows, features, etc)
 globs: 
 alwaysApply: false
 ---

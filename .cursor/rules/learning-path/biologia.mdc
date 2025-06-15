@@ -1,0 +1,84 @@
+---
+description: Context about the videos from YouTube related with Biologia
+globs: 
+alwaysApply: false
+---
+{
+  "topico_id": "bb8e6c08-aa6f-4969-88d0-5ab175524099",
+  "titulo": "Ecologia | ProEnem – conceitos essenciais para o ENEM",
+  "url": "https://www.youtube.com/watch?v=uAP4l8eNWbI"
+},
+{
+  "topico_id": "bb8e6c08-aa6f-4969-88d0-5ab175524099",
+  "titulo": "Relações Ecológicas – Biologia com Samuel Cunha",
+  "url": "https://www.youtube.com/watch?v=cpmcIciaIWc"
+},
+{
+  "topico_id": "bb8e6c08-aa6f-4969-88d0-5ab175524099",
+  "titulo": "Teia Trófica & Ciclos Biogeoquímicos – Mundo Edu",
+  "url": "https://www.youtube.com/watch?v=Gh7hsluxaxs"
+},
+
+{
+  "topico_id": "37a5dd2e-ba97-4409-8b7c-abaa4f2bc39c",
+  "titulo": "Citologia – AULA do ZERO (Me Salva!)",
+  "url": "https://www.youtube.com/watch?v=AdStjV1aDUE"
+},
+{
+  "topico_id": "37a5dd2e-ba97-4409-8b7c-abaa4f2bc39c",
+  "titulo": "Introdução à Genética | Prof. Paulo Jubilut",
+  "url": "https://www.youtube.com/watch?v=2rqEmRrtkYc"
+},
+{
+  "topico_id": "37a5dd2e-ba97-4409-8b7c-abaa4f2bc39c",
+  "titulo": "Genética – Biologia com Samuel Cunha",
+  "url": "https://www.youtube.com/watch?v=tUtj4HIg4Wo"
+},
+
+{
+  "topico_id": "97792dcb-50e6-4316-a381-ee490d02debd",
+  "titulo": "Sistema Nervoso | Prof. Paulo Jubilut",
+  "url": "https://www.youtube.com/watch?v=_prsDDg_cJM"
+},
+{
+  "topico_id": "97792dcb-50e6-4316-a381-ee490d02debd",
+  "titulo": "Sistema Respiratório – Biologia com Samuel Cunha",
+  "url": "https://www.youtube.com/watch?v=6BAypTlvWQM"
+},
+{
+  "topico_id": "97792dcb-50e6-4316-a381-ee490d02debd",
+  "titulo": "Sistema Digestivo: Anatomia e Funções – Curso Enem Gratuito",
+  "url": "https://www.youtube.com/watch?v=bvB3lmDUldo"
+},
+
+{
+  "topico_id": "60fff677-27cc-4541-a6b8-3bf871f9f6de",
+  "titulo": "Reino Vegetal – Introdução à Botânica (Samuel Cunha)",
+  "url": "https://www.youtube.com/watch?v=EAVhBfwLUhk"
+},
+{
+  "topico_id": "60fff677-27cc-4541-a6b8-3bf871f9f6de",
+  "titulo": "(Quase) Tudo de Botânica ENEM em 20 min – Flavio de Falcão",
+  "url": "https://www.youtube.com/watch?v=FM1IcnI3a0s"
+},
+{
+  "topico_id": "60fff677-27cc-4541-a6b8-3bf871f9f6de",
+  "titulo": "Angiospermas: características das plantas – Curso Enem Gratuito",
+  "url": "https://www.youtube.com/watch?v=AJSPe1iaR-4"
+},
+
+{
+  "topico_id": "2638df16-73ac-4aae-81c9-7d4e6e79e03d",
+  "titulo": "Reino Animalia – Introdução à Zoologia (Samuel Cunha)",
+  "url": "https://www.youtube.com/watch?v=wX2T2CaVmaA"
+},
+{
+  "topico_id": "2638df16-73ac-4aae-81c9-7d4e6e79e03d",
+  "titulo": "Reino Animal: características gerais – Curso Enem Gratuito",
+  "url": "https://www.youtube.com/watch?v=l10BQ1bBCbQ"
+},
+{
+  "topico_id": "2638df16-73ac-4aae-81c9-7d4e6e79e03d",
+  "titulo": "Reino Animal – Brasil Escola",
+  "url": "https://www.youtube.com/watch?v=IiKMViEdAAc"
+}

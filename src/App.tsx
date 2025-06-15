@@ -1,4 +1,3 @@
-
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -66,12 +65,13 @@ function App() {
                     <Route path="/aprendizado/:disciplina" element={<AprendizadoDisciplina />} />
                     <Route path="/simulado" element={<SimuladosList />} />
                     <Route path="/simulado/:id" element={<Simulado />} />
-                    <Route path="/redacao" element={<Redacao />} />
-                    <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
                     <Route path="/diagnostico" element={<Diagnostico />} />
                     <Route path="/plano" element={<Plano />} />
                     <Route path="/plano/historico" element={<PlanoHistorico />} />
                   </Route>
+                  {/* Redação sem proteção de autenticação */}
+                  <Route path="/redacao" element={<Redacao />} />
+                  <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
                   
                   {/* Admin routes - require authentication AND admin role */}
                   <Route element={<RouteGuard requiresAuth={true} requiresAdmin={true} />}>

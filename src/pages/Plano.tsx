@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -205,13 +204,6 @@ const Plano = () => {
                 >
                   <Brain className="h-5 w-5" />
                   Fazer Diagnóstico
-                </button>
-                <button
-                  onClick={() => navigate('/simulado')}
-                  className="px-8 py-4 border border-[#5E60CE] text-[#5E60CE] bg-white rounded-xl hover:bg-[#5E60CE]/5 font-medium text-base transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <BookOpen className="h-5 w-5" />
-                  Fazer Simulado
                 </button>
               </div>
             </div>

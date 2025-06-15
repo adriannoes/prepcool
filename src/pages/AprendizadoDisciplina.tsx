@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -196,8 +195,9 @@ const AprendizadoDisciplina = () => {
 
   // Extract YouTube video ID from URL
   const getYouTubeId = (url: string) => {
-    // For testing, always return the test video
-    return "iMjfKNu-2x0";
+    // Extrai o ID do vídeo do YouTube a partir da URL
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+    return match ? match[1] : '';
   };
 
   if (loading) {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -210,12 +209,6 @@ const PlanoHistorico = () => {
                 className="px-8 py-4 bg-[#5E60CE] text-white rounded-xl hover:bg-[#5E60CE]/90 font-medium text-base transition-all duration-200"
               >
                 Fazer Diagnóstico
-              </button>
-              <button
-                onClick={() => navigate('/simulado')}
-                className="px-8 py-4 border border-[#5E60CE] text-[#5E60CE] bg-white rounded-xl hover:bg-[#5E60CE]/5 font-medium text-base transition-all duration-200"
-              >
-                Fazer Simulado
               </button>
             </div>
           </div>

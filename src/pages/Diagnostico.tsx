@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -111,14 +110,30 @@ const Diagnostico = () => {
 
       if (error) throw error;
 
-      toast({
-        title: existingDiagnostico ? 'Diagnóstico atualizado' : 'Diagnóstico concluído',
-        description: existingDiagnostico 
-          ? 'Seu diagnóstico foi atualizado com sucesso.' 
-          : 'Seu diagnóstico foi registrado com sucesso!',
+      // Chamar a Edge Function para gerar o plano de estudos
+      const token = user.access_token || user.session?.access_token;
+      const response = await fetch('/functions/v1/gerarPlanoEstudo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ respostas: values }),
       });
-
-      navigate('/dashboard');
+      const result = await response.json();
+      if (result.success) {
+        toast({
+          title: existingDiagnostico ? 'Diagnóstico atualizado' : 'Diagnóstico concluído',
+          description: 'Seu plano de estudos personalizado está pronto! Vá até a página de Plano de Estudos para conferir.',
+        });
+        navigate('/plano');
+      } else {
+        toast({
+          title: 'Erro ao gerar plano',
+          description: result.message || 'Tente novamente.',
+          variant: 'destructive',
+        });
+      }
     } catch (error: any) {
       toast({
         title: 'Erro',

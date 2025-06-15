@@ -1,0 +1,84 @@
+---
+description: Context about the videos from YouTube related with Fisica
+globs: 
+alwaysApply: false
+---
+  {
+    "topico_id": "7271d252-9961-45db-9a01-323535ec3cc0",
+    "titulo": "Eletromagnetismo – Mestres do ENEM (Aula Completa)",
+    "url": "https://www.youtube.com/watch?v=n_w-wWwPcjY"
+  },
+  {
+    "topico_id": "7271d252-9961-45db-9a01-323535ec3cc0",
+    "titulo": "Eletromagnetismo: conceitos iniciais – Curso Enem Gratuito",
+    "url": "https://www.youtube.com/watch?v=NclHrazPUJg"
+  },
+  {
+    "topico_id": "7271d252-9961-45db-9a01-323535ec3cc0",
+    "titulo": "Revisão ENEM 2024 – Aula 10: Eletromagnetismo | Prof. Boaro",
+    "url": "https://www.youtube.com/watch?v=1LxOCbab9GY"
+  },
+
+  {
+    "topico_id": "2f5586fa-8c01-495f-98bc-349533099923",
+    "titulo": "Física Moderna | Física no ENEM 2024",
+    "url": "https://www.youtube.com/watch?v=vI2Haqh5okM"
+  },
+  {
+    "topico_id": "2f5586fa-8c01-495f-98bc-349533099923",
+    "titulo": "Pré-ENEM Intensivão – Física Moderna 01",
+    "url": "https://www.youtube.com/watch?v=G0va4mEoKNI"
+  },
+  {
+    "topico_id": "2f5586fa-8c01-495f-98bc-349533099923",
+    "titulo": "#RevisãoENEM | Física Moderna em 30 minutos",
+    "url": "https://www.youtube.com/watch?v=5gnfopxcKjk"
+  },
+
+  {
+    "topico_id": "ac2da4d2-1100-4c64-bf33-1aabc5b2bea7",
+    "titulo": "Tudo de Cinemática para o ENEM 2025 – Mestres do ENEM",
+    "url": "https://www.youtube.com/watch?v=NCxNuTLIu9Y"
+  },
+  {
+    "topico_id": "ac2da4d2-1100-4c64-bf33-1aabc5b2bea7",
+    "titulo": "Mecânica Cinemática – Curso Gratuito Completo | Kultivi",
+    "url": "https://www.youtube.com/watch?v=Ndx1ZHG9PlA"
+  },
+  {
+    "topico_id": "ac2da4d2-1100-4c64-bf33-1aabc5b2bea7",
+    "titulo": "Super revisão de Cinemática para o ENEM – Física Total",
+    "url": "https://www.youtube.com/watch?v=u0d8m9WUyK4"
+  },
+
+  {
+    "topico_id": "9206b88f-f7f0-4080-a5c5-4bb5e0a7b964",
+    "titulo": "Óptica, Acústica e Ondulatória ENEM 2024",
+    "url": "https://www.youtube.com/watch?v=QL-QjbzUJPw"
+  },
+  {
+    "topico_id": "9206b88f-f7f0-4080-a5c5-4bb5e0a7b964",
+    "titulo": "Mecânica, Ondas e Óptica – Aula de Ciências da Natureza (ENEM)",
+    "url": "https://www.youtube.com/watch?v=A6FBmlbx1Vk"
+  },
+  {
+    "topico_id": "9206b88f-f7f0-4080-a5c5-4bb5e0a7b964",
+    "titulo": "Playlist – Ondulatória & Óptica para o ENEM | Física ENEM",
+    "url": "https://www.youtube.com/playlist?list=PLf1lowbdbFIDnZbZ6gciMR1FfcWqJa6Zx"
+  },
+
+  {
+    "topico_id": "b165a0fe-e35f-4dd4-a2c8-7bb1974fd213",
+    "titulo": "Termodinâmica no ENEM: tudo o que você precisa saber",
+    "url": "https://www.youtube.com/watch?v=AKAauOJEuSE"
+  },
+  {
+    "topico_id": "b165a0fe-e35f-4dd4-a2c8-7bb1974fd213",
+    "titulo": "Calor, Dilatação, Entropia e Termodinâmica – Mestres do ENEM",
+    "url": "https://www.youtube.com/watch?v=ED2D6cckcnU"
+  },
+  {
+    "topico_id": "b165a0fe-e35f-4dd4-a2c8-7bb1974fd213",
+    "titulo": "Revisão de Termodinâmica para o ENEM | Prof. Vilaça",
+    "url": "https://www.youtube.com/watch?v=OIH3Wz2CWvI"
+  }

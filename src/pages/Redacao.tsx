@@ -27,7 +27,7 @@ interface WebhookResponse {
   comentario_final: string;
 }
 
-const WEBHOOK_URL = 'https://nocode-n8n.yepnl6.easypanel.host/webhook-test/correcao-de-redacoes-215j3hb5hj34b4';
+const WEBHOOK_URL = 'https://no-code-n8n.vf5y6u.easypanel.host/webhook/correcao-de-redacoes-215j3hb5hj34b4';
 
 const Redacao = () => {
   const { user } = useAuth();
@@ -183,16 +183,32 @@ const Redacao = () => {
         setTimeout(() => reject(new Error('Timeout')), 30000)
       );
       
-      const webhookResponse = await Promise.race([
+      const webhookRawResponse = await Promise.race([
         submitToWebhook(payload),
         timeoutPromise
-      ]) as WebhookResponse;
+      ]);
 
-      console.log('Webhook response:', webhookResponse);
+      // Novo processamento: se for array com output, parsear corretamente
+      let webhookResponse = webhookRawResponse;
+      if (Array.isArray(webhookRawResponse) && webhookRawResponse.length > 0 && webhookRawResponse[0].output) {
+        try {
+          webhookResponse = JSON.parse(webhookRawResponse[0].output);
+        } catch (e) {
+          throw new Error('Erro ao interpretar resposta do avaliador.');
+        }
+      }
 
       // Store response for feedback page
+      let feedbackToStore = webhookResponse;
+      if (typeof webhookResponse === 'string') {
+        try {
+          feedbackToStore = JSON.parse(webhookResponse);
+        } catch (e) {
+          feedbackToStore = { comentario_final: 'Erro ao interpretar resposta do avaliador.' };
+        }
+      }
       localStorage.setItem('essay_feedback', JSON.stringify({
-        ...webhookResponse,
+        ...(typeof feedbackToStore === 'object' ? feedbackToStore : {}),
         redacao: studentEssay,
         created_at: new Date().toISOString()
       }));
@@ -336,7 +352,7 @@ const Redacao = () => {
       </div>
 
       {/* Processing Dialog */}
-      <Dialog open={isProcessingDialogOpen} onOpenChange={() => {}}>
+      <Dialog open={isProcessingDialogOpen} onOpenChange={setIsProcessingDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center p-6 text-center">
             <Loader2 className="h-12 w-12 animate-spin text-coral mb-4" />

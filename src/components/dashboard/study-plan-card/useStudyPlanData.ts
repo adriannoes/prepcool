@@ -66,8 +66,8 @@ export const useStudyPlanData = (): UseStudyPlanDataReturn => {
   
   // Actions
   const handleGeneratePlan = () => {
-    // Redirect to simulado to generate study plan based on performance
-    navigate('/simulado')
+    // Redireciona para o diagnóstico para gerar o plano de estudos
+    navigate('/diagnostico')
   }
   
   const handleViewPlan = () => {

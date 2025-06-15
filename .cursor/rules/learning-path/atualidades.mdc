@@ -1,0 +1,84 @@
+---
+description: Context about the videos from YouTube related with: Atualidades 
+globs: 
+alwaysApply: false
+---
+  {
+    "topico_id": "cd4cca77-6535-4cd8-b8c5-ca478ceec93b",
+    "titulo": "A disputa do 5G entre EUA e China | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=e8jacBy8X2Y"
+  },
+  {
+    "topico_id": "cd4cca77-6535-4cd8-b8c5-ca478ceec93b",
+    "titulo": "Chat GPT: o que é, como funciona e como usar | Manual do Mundo",
+    "url": "https://www.youtube.com/watch?v=5Qh5ENgvr0M"
+  },
+  {
+    "topico_id": "cd4cca77-6535-4cd8-b8c5-ca478ceec93b",
+    "titulo": "Inteligência Artificial dentro do Excel – ChatGPT no Excel | Hashtag Programação",
+    "url": "https://www.youtube.com/watch?v=GfghBpm3HRQ"
+  },
+
+  {
+    "topico_id": "913bb523-d012-4e63-9beb-1601ae392f3b",
+    "titulo": "A História da Faixa de Gaza | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=XMq8z6QtlMg"
+  },
+  {
+    "topico_id": "913bb523-d012-4e63-9beb-1601ae392f3b",
+    "titulo": "Do Leet ao Red Pill: o vocabulário controverso da internet | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=_kBwkhzVFm4"
+  },
+  {
+    "topico_id": "913bb523-d012-4e63-9beb-1601ae392f3b",
+    "titulo": "O que são ações afirmativas? | Brasil Escola",
+    "url": "https://www.youtube.com/watch?v=Mn7BRlL_YO4"
+  },
+
+  {
+    "topico_id": "d6f6ddd2-556e-4a21-8b37-e74df2f65fa1",
+    "titulo": "Aquecimento global está mais rápido do que o previsto | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=Y5ebC6dXdO8"
+  },
+  {
+    "topico_id": "d6f6ddd2-556e-4a21-8b37-e74df2f65fa1",
+    "titulo": "Falta de água | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=RsUD8CTDdAw"
+  },
+  {
+    "topico_id": "d6f6ddd2-556e-4a21-8b37-e74df2f65fa1",
+    "titulo": "Queimadas na Amazônia e o Brasil coberto de fumaça | CNN Brasil",
+    "url": "https://www.youtube.com/watch?v=1qN0shcQEgM"
+  },
+
+  {
+    "topico_id": "30ae1e73-18b6-4f8b-9f58-43f35e60cb29",
+    "titulo": "The 1929 Crisis and the Stock Market Crash | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=PuXyboguY5c"
+  },
+  {
+    "topico_id": "30ae1e73-18b6-4f8b-9f58-43f35e60cb29",
+    "titulo": "O que é Economia? | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=ybD8oI_yPgM"
+  },
+  {
+    "topico_id": "30ae1e73-18b6-4f8b-9f58-43f35e60cb29",
+    "titulo": "Anos 80, a década perdida | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=NwGI0mtNRrY"
+  },
+
+  {
+    "topico_id": "eef09d63-af60-491c-a6a1-65d2d0c5371f",
+    "titulo": "EXISTE PERIGO NA VACINA? | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=MiIZlSNAu0E"
+  },
+  {
+    "topico_id": "eef09d63-af60-491c-a6a1-65d2d0c5371f",
+    "titulo": "Geografia do SUS – Parte 1: O Sistema Público | Canal de Geografia",
+    "url": "https://www.youtube.com/watch?v=D6z3lamGtA8"
+  },
+  {
+    "topico_id": "eef09d63-af60-491c-a6a1-65d2d0c5371f",
+    "titulo": "História das Vacinas | Nerdologia",
+    "url": "https://www.youtube.com/watch?v=uAB627iLydA"
+  }
