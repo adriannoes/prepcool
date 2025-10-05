@@ -185,7 +185,7 @@ const Redacao = () => {
             <SelectContent>
               {isLoading ? (
                 <div className="flex items-center justify-center p-4">
-                  <Loader2 className="h-6 w-6 animate-spin text-[#5E60CE]" />
+                  <Loader2 className="h-6 w-6 animate-spin text-coral" />
                 </div>
               ) : (
                 modelos.map(modelo => (
@@ -232,7 +232,7 @@ const Redacao = () => {
           <Button 
             onClick={handleSubmit}
             disabled={isSubmitting || !selectedInstitution || !studentEssay.trim()}
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90"
+            className="bg-coral hover:bg-coral/90"
           >
             {isSubmitting ? (
               <>
@@ -253,7 +253,7 @@ const Redacao = () => {
       <Dialog open={isProcessingDialogOpen} onOpenChange={setIsProcessingDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center p-6 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE] mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-coral mb-4" />
             <h3 className="text-xl font-semibold mb-2">Processando sua redação</h3>
             <p className="text-gray-600">
               Nosso sistema está avaliando seu texto. Isso pode levar até 15 segundos.

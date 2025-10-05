@@ -270,7 +270,7 @@ const Aprendizado = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9F9F9]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5E60CE]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-coral"></div>
         <p className="mt-4 text-gray-600">Carregando conteúdo...</p>
       </div>
     );
@@ -283,7 +283,7 @@ const Aprendizado = () => {
           <DashboardBreadcrumb currentPage="Aprendizado" />
           
           <div className="flex items-center mb-8">
-            <Youtube className="text-[#5E60CE] mr-3 h-8 w-8" />
+            <Youtube className="text-coral mr-3 h-8 w-8" />
             <h1 className="text-3xl font-bold text-gray-900">Trilha de Aprendizado</h1>
           </div>
           
@@ -327,7 +327,7 @@ const Aprendizado = () => {
                     <div className="space-y-6">
                       {discipline.topicos.map((topic) => (
                         <Card key={topic.id} className="overflow-hidden border-2 border-gray-100 rounded-2xl bg-white">
-                          <CardHeader className="bg-gradient-to-r from-[#5E60CE]/5 to-[#5E60CE]/10 py-4">
+                          <CardHeader className="bg-gradient-to-r from-coral/5 to-coral/10 py-4">
                             <div className="flex items-center justify-between">
                               <CardTitle className="text-lg font-semibold text-gray-900">{topic.nome}</CardTitle>
                               <div className="flex items-center space-x-3">
@@ -393,7 +393,7 @@ const Aprendizado = () => {
                                     className={`w-full h-12 text-base font-medium ${
                                       video.watched 
                                         ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                                        : 'bg-[#5E60CE] hover:bg-[#5E60CE]/90'
+                                        : 'bg-coral hover:bg-coral/90'
                                     }`}
                                     onClick={() => handleVideoComplete(video.id)}
                                     disabled={video.watched}

@@ -21,12 +21,12 @@ const Progress = React.forwardRef<
       {...props}
     >
       <ProgressPrimitive.Indicator
-        className="h-full w-full flex-1 bg-[#5E60CE] transition-all"
+        className="h-full w-full flex-1 bg-coral transition-all"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>
     {showPercentage && (
-      <span className="text-xs font-medium w-10 text-[#5E60CE]">
+      <span className="text-xs font-medium w-10 text-coral">
         {Math.round(value || 0)}%
       </span>
     )}
