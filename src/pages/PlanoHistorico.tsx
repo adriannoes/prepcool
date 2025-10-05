@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -107,35 +108,35 @@ const PlanoHistorico = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F9F9F9]">
         <DashboardHeader 
           userName={user?.user_metadata?.nome || "Estudante"} 
           onSignOut={signOut} 
         />
-        <div className="container mx-auto px-4 py-12 flex justify-center items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-center items-center">
           <LoadingSpinner size="lg" />
-          <span className="ml-2 text-gray-600">Carregando histórico...</span>
+          <span className="ml-3 text-lg text-gray-600">Carregando histórico...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F9F9F9]">
       <DashboardHeader 
         userName={user?.user_metadata?.nome || "Estudante"} 
         onSignOut={signOut} 
       />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Histórico do Plano de Estudos</h1>
-            <p className="text-gray-600 mt-2">Acompanhe a evolução dos seus planos de estudo ao longo do tempo</p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div className="mb-4 sm:mb-0">
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">Histórico do Plano de Estudos</h1>
+            <p className="text-lg text-gray-600">Acompanhe a evolução dos seus planos de estudo ao longo do tempo</p>
           </div>
           <button
             onClick={() => navigate('/plano')}
-            className="bg-[#5E60CE] text-white px-4 py-2 rounded-md hover:bg-[#5E60CE]/90 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-[#5E60CE] text-white rounded-xl hover:bg-[#5E60CE]/90 transition-all duration-200 font-medium"
           >
             Voltar ao Plano Atual
           </button>
@@ -156,14 +157,14 @@ const PlanoHistorico = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
               {statusFilter === 'all' 
                 ? "Nenhum histórico encontrado"
                 : `Nenhum item ${statusFilter === 'pendente' ? 'pendente' : 'concluído'} encontrado`
               }
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
               {statusFilter === 'all' 
                 ? "Realize o diagnóstico ou um simulado para começar a gerar seu histórico de estudos."
                 : "Ajuste o filtro ou realize mais atividades para ver resultados."
@@ -172,13 +173,13 @@ const PlanoHistorico = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => navigate('/diagnostico')}
-                className="bg-[#5E60CE] text-white px-6 py-3 rounded-md hover:bg-[#5E60CE]/90"
+                className="px-8 py-4 bg-[#5E60CE] text-white rounded-xl hover:bg-[#5E60CE]/90 font-medium text-base transition-all duration-200"
               >
                 Fazer Diagnóstico
               </button>
               <button
                 onClick={() => navigate('/simulado')}
-                className="border border-[#5E60CE] text-[#5E60CE] px-6 py-3 rounded-md hover:bg-[#5E60CE]/10"
+                className="px-8 py-4 border border-[#5E60CE] text-[#5E60CE] bg-white rounded-xl hover:bg-[#5E60CE]/5 font-medium text-base transition-all duration-200"
               >
                 Fazer Simulado
               </button>

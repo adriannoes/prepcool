@@ -15,17 +15,17 @@ const PlanoHistoricoFilters = ({ currentFilter, onFilterChange }: PlanoHistorico
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Filtrar por Status</h3>
-      <div className="flex flex-wrap gap-2">
+    <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+      <h3 className="text-xl font-semibold text-gray-900 mb-4">Filtrar por Status</h3>
+      <div className="flex flex-wrap gap-3">
         {filters.map((filter) => (
           <button
             key={filter.key}
             onClick={() => onFilterChange(filter.key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-6 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
               currentFilter === filter.key
-                ? 'bg-[#5E60CE] text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[#5E60CE] text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             {filter.label}

@@ -42,127 +42,131 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-off-white p-6">
-      <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Cadastre-se na PrepCool
-        </h1>
-        <p className="text-gray-600 text-center mb-8">
-          Crie sua conta para começar seus estudos
-        </p>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="nome"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome Completo</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="Seu nome completo"
-                      {...field}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-transparent"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="telefone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Telefone</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="tel"
-                      placeholder="(11) 98765-4321"
-                      {...field}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-transparent"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <p className="text-xs text-gray-500 mt-1">Formato: (11) 98765-4321</p>
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="seu@email.com"
-                      {...field}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-transparent"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <div className="relative">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9] px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-md px-8 py-10">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Cadastre-se na PrepCool
+            </h1>
+            <p className="text-lg text-gray-600">
+              Crie sua conta para começar seus estudos
+            </p>
+          </div>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="nome"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium text-gray-700">Nome Completo</FormLabel>
+                    <FormControl>
                       <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
+                        type="text"
+                        placeholder="Seu nome completo"
                         {...field}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-coral focus:border-transparent"
+                        className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE]"
                       />
-                      <button 
-                        type="button"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full bg-coral hover:bg-coral/90 text-white font-medium py-2 px-4 rounded-md transition-colors"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin mr-2 h-4 w-4 border-t-2 border-b-2 border-white rounded-full" />
-                  Cadastrando...
-                </div>
-              ) : (
-                "Cadastrar"
-              )}
-            </Button>
-          </form>
-        </Form>
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Já tem uma conta?{" "}
-            <Link to="/login" className="text-coral hover:underline">
-              Faça login
-            </Link>
-          </p>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="telefone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium text-gray-700">Telefone</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder="(11) 98765-4321"
+                        {...field}
+                        className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                    <p className="text-sm text-gray-500 mt-1">Formato: (11) 98765-4321</p>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium text-gray-700">Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="seu@email.com"
+                        {...field}
+                        className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE]"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-medium text-gray-700">Senha</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          {...field}
+                          className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE] pr-12"
+                        />
+                        <button 
+                          type="button"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOffIcon size={20} /> : <EyeIcon size={20} />}
+                        </button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white font-medium text-base rounded-xl transition-all duration-200"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin mr-3 h-5 w-5 border-t-2 border-b-2 border-white rounded-full" />
+                    Cadastrando...
+                  </div>
+                ) : (
+                  "Cadastrar"
+                )}
+              </Button>
+            </form>
+          </Form>
+          
+          <div className="mt-8 text-center">
+            <p className="text-base text-gray-600">
+              Já tem uma conta?{" "}
+              <Link to="/login" className="text-[#5E60CE] hover:text-[#5E60CE]/80 font-medium transition-colors">
+                Faça login
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

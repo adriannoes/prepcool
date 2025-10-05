@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DisciplineProgress from '@/components/dashboard/DisciplineProgress';
@@ -54,9 +55,9 @@ const Dashboard = () => {
   // If we're still checking diagnostic status, show loading spinner
   if (checkingDiagnostic) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#F9F9F9]">
         <LoadingSpinner size="lg" />
-        <span className="ml-2 text-gray-600">Checking your profile...</span>
+        <span className="ml-3 text-lg text-gray-600">Verificando seu perfil...</span>
       </div>
     );
   }
@@ -64,7 +65,7 @@ const Dashboard = () => {
   // If diagnostic modal should be shown, don't render dashboard content yet
   if (showDiagnosticModal) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F9F9F9]">
         <DiagnosticoModal 
           isOpen={showDiagnosticModal} 
           onComplete={() => setShowDiagnosticModal(false)} 
@@ -75,33 +76,38 @@ const Dashboard = () => {
 
   // Otherwise render normal dashboard content
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F9F9F9]">
       <DashboardHeader 
         userName={user?.user_metadata?.nome || "Estudante"} 
         onSignOut={signOut} 
       />
       
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">Dashboard</h1>
+          <p className="text-lg text-gray-600">Acompanhe seu progresso e continue seus estudos</p>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* First row */}
-          <DiagnosticoCard />
-          <StudyPlanCard />
-          
-          {/* Second row */}
-          <div className="col-span-1 md:col-span-2">
-            <DisciplineProgress disciplines={disciplineProgress} />
+          <div className="lg:col-span-1">
+            <DiagnosticoCard />
           </div>
-          <div className="col-span-1">
+          <div className="lg:col-span-1">
+            <StudyPlanCard />
+          </div>
+          <div className="lg:col-span-1">
             <SimuladoCard 
               completed={simuladoProgress.completed} 
               total={simuladoProgress.total} 
             />
           </div>
           
-          {/* Third row */}
-          <div className="col-span-1 md:col-span-3">
+          {/* Second row */}
+          <div className="lg:col-span-2">
+            <DisciplineProgress disciplines={disciplineProgress} />
+          </div>
+          <div className="lg:col-span-1">
             <RedacaoCard
               submitted={redacaoProgress.submitted}
               averageScore={redacaoProgress.average_score}

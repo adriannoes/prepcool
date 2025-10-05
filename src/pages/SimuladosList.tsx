@@ -108,82 +108,90 @@ const SimuladosList = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE]" />
-        <p className="mt-4 text-gray-600">Carregando simulados...</p>
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+            <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE]" />
+            <p className="mt-4 text-lg text-gray-600">Carregando simulados...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <DashboardBreadcrumb 
-        currentPage="Simulados"
-        paths={[{ name: 'Dashboard', path: '/dashboard' }]}
-      />
-      
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Simulados Disponíveis</h1>
-        <p className="text-gray-600 mt-2">
-          Escolha um simulado para praticar e avaliar seu conhecimento.
-        </p>
-      </div>
-
-      {Object.keys(simulados).length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <School className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">Nenhum simulado disponível</h3>
-          <p className="mt-2 text-gray-500">
-            No momento não há simulados disponíveis. Confira novamente mais tarde.
+    <div className="min-h-screen bg-[#F9F9F9]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardBreadcrumb 
+          currentPage="Simulados"
+          paths={[{ name: 'Dashboard', path: '/dashboard' }]}
+        />
+        
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">Simulados Disponíveis</h1>
+          <p className="text-lg text-gray-600">
+            Escolha um simulado para praticar e avaliar seu conhecimento.
           </p>
         </div>
-      ) : (
-        Object.keys(simulados).map(instituicao => (
-          <div key={instituicao} className="mb-8">
-            <h2 className="text-xl font-semibold mb-4 pb-2 border-b">{instituicao}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {simulados[instituicao].map(simulado => (
-                <Card key={simulado.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg">{simulado.instituicao} {simulado.ano}</CardTitle>
-                      <Badge className="bg-[#5E60CE]">{simulado.question_count} questões</Badge>
-                    </div>
-                    <CardDescription>
-                      Simulado preparatório para o vestibular {simulado.ano}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600">
-                      Este simulado contém questões baseadas no vestibular
-                      da {simulado.instituicao} do ano de {simulado.ano}.
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      onClick={() => handleStartSimulado(simulado.id)} 
-                      disabled={startingSimuladoId === simulado.id}
-                      className="w-full bg-[#5E60CE] hover:bg-[#5E60CE]/90"
-                    >
-                      {startingSimuladoId === simulado.id ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Iniciando...
-                        </>
-                      ) : (
-                        <>
-                          <BookOpen className="mr-2 h-4 w-4" />
-                          Iniciar Simulado
-                        </>
-                      )}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+
+        {Object.keys(simulados).length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
+            <School className="mx-auto h-16 w-16 text-gray-400 mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Nenhum simulado disponível</h3>
+            <p className="text-lg text-gray-600">
+              No momento não há simulados disponíveis. Confira novamente mais tarde.
+            </p>
           </div>
-        ))
-      )}
+        ) : (
+          Object.keys(simulados).map(instituicao => (
+            <div key={instituicao} className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">{instituicao}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {simulados[instituicao].map(simulado => (
+                  <Card key={simulado.id} className="hover:shadow-lg transition-all duration-200 border-0 shadow-md rounded-2xl">
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-xl font-bold text-gray-900">{simulado.instituicao} {simulado.ano}</CardTitle>
+                        <Badge className="bg-[#5E60CE] hover:bg-[#5E60CE] text-white rounded-xl">
+                          {simulado.question_count} questões
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-base text-gray-600">
+                        Simulado preparatório para o vestibular {simulado.ano}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600">
+                        Este simulado contém questões baseadas no vestibular
+                        da {simulado.instituicao} do ano de {simulado.ano}.
+                      </p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        onClick={() => handleStartSimulado(simulado.id)} 
+                        disabled={startingSimuladoId === simulado.id}
+                        className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl font-medium text-base transition-all duration-200"
+                      >
+                        {startingSimuladoId === simulado.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            Iniciando...
+                          </>
+                        ) : (
+                          <>
+                            <BookOpen className="mr-2 h-5 w-5" />
+                            Iniciar Simulado
+                          </>
+                        )}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
