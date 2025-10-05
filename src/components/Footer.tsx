@@ -2,8 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Facebook, Youtube } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   return (
     <footer className="w-full bg-white py-16 px-6">
       <div className="max-w-6xl mx-auto">
@@ -14,7 +17,7 @@ const Footer = () => {
               Prep<span className="text-coral">Cool</span>
             </Link>
             <p className="text-gray-600 max-w-xs">
-              Plataforma de educação online para o sucesso no vestibular e transformação do seu futuro.
+              {t('footer.description')}
             </p>
             <div className="flex space-x-4">
               <a 
@@ -49,38 +52,37 @@ const Footer = () => {
           
           {/* Institutional Column */}
           <div className="flex flex-col space-y-6">
-            <h3 className="font-semibold text-lg text-gray-800">Institucional</h3>
+            <h3 className="font-semibold text-lg text-gray-800">{t('footer.institutional')}</h3>
             <div className="flex flex-col space-y-4">
               <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
-                Cursos
+                {t('footer.courses')}
               </Link>
               <Link to="/sobre-nos" className="text-gray-600 hover:text-coral transition-colors">
-                Sobre nós
+                {t('footer.about')}
               </Link>
               <Link to="/ajuda" className="text-gray-600 hover:text-coral transition-colors">
-                Quer nos apoiar?
+                {t('footer.support')}
               </Link>
               <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
-                Nossa política de aprendizagem
+                {t('footer.policy')}
               </Link>
             </div>
           </div>
           
           {/* Contact Column */}
           <div className="flex flex-col space-y-6">
-            <h3 className="font-semibold text-lg text-gray-800">Fale Conosco</h3>
+            <h3 className="font-semibold text-lg text-gray-800">{t('footer.contact')}</h3>
             <a href="mailto:contato@prepcool.ai" className="text-gray-600 hover:text-coral transition-colors">
               contato@prepcool.ai
             </a>
-            <p className="text-gray-600">
-              De Curitiba para o mundo!<br />
-              Brasil
+            <p className="text-gray-600 whitespace-pre-line">
+              {t('footer.location')}
             </p>
           </div>
         </div>
         
         <div className="border-t border-gray-200 mt-12 pt-8 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} PrepCool. Todos os direitos reservados.
+          © {new Date().getFullYear()} PrepCool. {t('footer.rights')}
         </div>
       </div>
     </footer>

@@ -41,6 +41,17 @@ const translations = {
     'nav.login': 'Entrar',
     'nav.logout': 'Sair',
     
+    // Footer
+    'footer.description': 'Plataforma de educação online para o sucesso no vestibular e transformação do seu futuro.',
+    'footer.institutional': 'Institucional',
+    'footer.courses': 'Cursos',
+    'footer.about': 'Sobre nós',
+    'footer.support': 'Quer nos apoiar?',
+    'footer.policy': 'Nossa política de aprendizagem',
+    'footer.contact': 'Fale Conosco',
+    'footer.location': 'De Curitiba para o mundo!\nBrasil',
+    'footer.rights': 'Todos os direitos reservados.',
+    
     // Language Switcher
     'language.portuguese': 'Português',
     'language.english': 'English'
@@ -75,6 +86,17 @@ const translations = {
     'nav.learning': 'Learning',
     'nav.login': 'Login',
     'nav.logout': 'Logout',
+    
+    // Footer
+    'footer.description': 'Online education platform for college entrance exam success and transforming your future.',
+    'footer.institutional': 'Institutional',
+    'footer.courses': 'Courses',
+    'footer.about': 'About us',
+    'footer.support': 'Want to support us?',
+    'footer.policy': 'Our learning policy',
+    'footer.contact': 'Contact Us',
+    'footer.location': 'From Curitiba to the world!\nBrazil',
+    'footer.rights': 'All rights reserved.',
     
     // Language Switcher
     'language.portuguese': 'Português',
