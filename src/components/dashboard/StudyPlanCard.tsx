@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, LayoutDashboard } from 'lucide-react';
+import { TrendingUp, LayoutDashboard, Brain } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,11 @@ const StudyPlanCard = () => {
   
   const hasStudyPlan = !isLoading && planItems && planItems.count > 0;
   const recommendedTopics = planItems?.count || 0;
+  
+  const handleGeneratePlan = () => {
+    // Redirect to simulado to generate study plan based on performance
+    navigate('/simulado');
+  };
   
   return (
     <Card className="col-span-1 md:col-span-2 h-full">
@@ -100,15 +105,13 @@ const StudyPlanCard = () => {
         ) : (
           <div className="py-4">
             <EmptyState 
-              message="Estamos analisando seu desempenho para criar um plano personalizado."
-              icon={<TrendingUp className="h-5 w-5" />}
+              message="🧠 Você ainda não tem um plano de estudos! Faça um simulado para gerar recomendações personalizadas."
+              icon={<Brain className="h-6 w-6" />}
               className="bg-[#F6F6F7] mt-2"
+              ctaLabel="Gerar meu plano de estudos"
+              onCtaClick={handleGeneratePlan}
+              ctaIcon={<Brain className="h-4 w-4" />}
             />
-            <div className="text-center mt-4">
-              <Badge className="text-sm px-3 py-1 bg-gray-100 text-gray-600">
-                Em breve
-              </Badge>
-            </div>
           </div>
         )}
       </CardContent>

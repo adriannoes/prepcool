@@ -11,6 +11,7 @@ import DisciplinaPlano from '@/components/plano/DisciplinaPlano';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { Brain, BookOpen } from 'lucide-react';
 
 interface TopicoInfo {
   id: string;
@@ -188,26 +189,31 @@ const Plano = () => {
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-md p-12 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Nenhum plano de estudos encontrado
-            </h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Realize o diagnóstico ou um simulado para receber recomendações personalizadas
-              de estudo baseadas no seu desempenho.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => navigate('/diagnostico')}
-                className="px-8 py-4 bg-[#5E60CE] text-white rounded-xl hover:bg-[#5E60CE]/90 font-medium text-base transition-all duration-200"
-              >
-                Fazer Diagnóstico
-              </button>
-              <button
-                onClick={() => navigate('/simulado')}
-                className="px-8 py-4 border border-[#5E60CE] text-[#5E60CE] bg-white rounded-xl hover:bg-[#5E60CE]/5 font-medium text-base transition-all duration-200"
-              >
-                Fazer Simulado
-              </button>
+            <div className="max-w-2xl mx-auto">
+              <Brain className="mx-auto h-16 w-16 text-[#5E60CE] mb-6" />
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                🧠 Você ainda não tem um plano de estudos!
+              </h2>
+              <p className="text-lg text-gray-600 mb-8">
+                Realize o diagnóstico ou um simulado para receber recomendações personalizadas
+                de estudo baseadas no seu desempenho.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => navigate('/diagnostico')}
+                  className="px-8 py-4 bg-[#5E60CE] text-white rounded-xl hover:bg-[#5E60CE]/90 font-medium text-base transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Brain className="h-5 w-5" />
+                  Fazer Diagnóstico
+                </button>
+                <button
+                  onClick={() => navigate('/simulado')}
+                  className="px-8 py-4 border border-[#5E60CE] text-[#5E60CE] bg-white rounded-xl hover:bg-[#5E60CE]/5 font-medium text-base transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <BookOpen className="h-5 w-5" />
+                  Fazer Simulado
+                </button>
+              </div>
             </div>
           </div>
         )}

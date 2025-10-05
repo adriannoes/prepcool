@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, Edit } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,9 +34,12 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
       <CardContent className="flex-grow px-8 py-4">
         {hasNoRedacoes ? (
           <EmptyState 
-            message="Nenhuma redação enviada. Pratique sua escrita!" 
-            icon={<FileText className="h-6 w-6" />}
-            className="bg-gray-50 border-gray-200 border-dashed rounded-xl p-6"
+            message="✍️ Ainda não temos nenhuma redação sua. Escolha um tema e escreva agora!"
+            icon={<Edit className="h-6 w-6" />}
+            className="bg-gray-50 border-gray-200 border-dashed rounded-xl p-4"
+            ctaLabel="Escolha um tema e escreva agora"
+            ctaHref="/redacao"
+            ctaIcon={<Edit className="h-4 w-4" />}
           />
         ) : (
           <div className="text-center py-6">
@@ -64,7 +67,7 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
         >
           <Link to="/redacao">
             <FileText className="mr-2 h-5 w-5" />
-            Escrever Redação
+            {hasNoRedacoes ? 'Começar a Escrever' : 'Escrever Redação'}
           </Link>
         </Button>
       </CardFooter>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Award } from 'lucide-react';
+import { Award, BookOpen } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -35,9 +35,12 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
       <CardContent className="flex-grow px-8 py-4">
         {hasNoSimulados ? (
           <EmptyState 
-            message="Você ainda não fez nenhum simulado. Que tal começar agora?"
-            icon={<Award className="h-6 w-6" />}
-            className="bg-gray-50 border-gray-200 border-dashed rounded-xl p-6" 
+            message="📘 Você ainda não fez nenhum simulado. Que tal começar agora?"
+            icon={<BookOpen className="h-6 w-6" />}
+            className="bg-gray-50 border-gray-200 border-dashed rounded-xl p-4" 
+            ctaLabel="Comece seu primeiro simulado"
+            ctaHref="/simulado"
+            ctaIcon={<BookOpen className="h-4 w-4" />}
           />
         ) : (
           <div className="text-center py-6">
@@ -64,7 +67,7 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
         >
           <Link to="/simulado">
             <Award className="mr-2 h-5 w-5" />
-            Praticar Simulados
+            {hasNoSimulados ? 'Iniciar Simulados' : 'Praticar Simulados'}
           </Link>
         </Button>
       </CardFooter>
