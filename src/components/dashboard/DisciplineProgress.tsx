@@ -1,10 +1,12 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import DisciplineProgressItem from './DisciplineProgressItem';
+
+import EmptyState from './EmptyState';
+import { GraduationCap } from 'lucide-react';
+
+interface DisciplineProgressProps {
+  disciplines: DisciplineProgressData[];
+}
 
 export interface DisciplineProgressData {
   discipline_name: string;
@@ -13,48 +15,34 @@ export interface DisciplineProgressData {
   completion_percentage: number;
 }
 
-interface DisciplineProgressProps {
-  disciplines: DisciplineProgressData[];
-}
-
 const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
+  const hasDisciplines = disciplines && disciplines.length > 0;
+
   return (
-    <Card className="col-span-1 md:col-span-2 h-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <div>
-          <CardTitle>Trilha de Aprendizado</CardTitle>
-          <CardDescription>Seu progresso por disciplina</CardDescription>
-        </div>
-        <BookOpen className="h-6 w-6 text-[#5E60CE]" />
-      </CardHeader>
-      <CardContent>
-        {disciplines.length > 0 ? (
-          <div className="space-y-5">
-            {disciplines.map((discipline, index) => (
-              <DisciplineProgressItem
-                key={index}
-                name={discipline.discipline_name}
-                topicsCompleted={discipline.topics_completed}
-                totalTopics={discipline.total_topics}
-                completionPercentage={discipline.completion_percentage}
+    <div className="col-span-1 md:col-span-2 lg:col-span-1">
+      <div className="bg-white p-4 rounded-lg border border-gray-100 h-full">
+        <h3 className="font-semibold text-lg mb-4">Progresso por Disciplina</h3>
+        
+        {!hasDisciplines ? (
+          <EmptyState 
+            message="Comece sua trilha de aprendizado hoje!"
+            icon={<GraduationCap className="h-5 w-5" />}
+          />
+        ) : (
+          <div className="space-y-4">
+            {disciplines.map((item) => (
+              <DisciplineProgressItem 
+                key={item.discipline_name}
+                name={item.discipline_name}
+                topicsCompleted={item.topics_completed}
+                totalTopics={item.total_topics}
+                completionPercentage={item.completion_percentage}
               />
             ))}
           </div>
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            Nenhuma disciplina encontrada ou progresso disponível.
-          </div>
         )}
-      </CardContent>
-      <CardFooter>
-        <Link to="/aprendizado" className="w-full">
-          <Button className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
-            <BookOpen className="mr-2 h-4 w-4" />
-            Acessar Trilha de Aprendizado
-          </Button>
-        </Link>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 

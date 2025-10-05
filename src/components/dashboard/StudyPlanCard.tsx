@@ -4,6 +4,7 @@ import { TrendingUp, LayoutDashboard } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import EmptyState from './EmptyState';
 
 const StudyPlanCard = () => {
   // This would come from the API in a real implementation
@@ -39,13 +40,17 @@ const StudyPlanCard = () => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-6">
-            <p className="text-gray-600 mb-4">
-              Estamos analisando seu desempenho para criar um plano personalizado.
-            </p>
-            <Badge className="text-sm px-3 py-1 bg-gray-100 text-gray-600">
-              Em breve
-            </Badge>
+          <div className="py-4">
+            <EmptyState 
+              message="Estamos analisando seu desempenho para criar um plano personalizado."
+              icon={<TrendingUp className="h-5 w-5" />}
+              className="bg-[#F6F6F7] mt-2"
+            />
+            <div className="text-center mt-4">
+              <Badge className="text-sm px-3 py-1 bg-gray-100 text-gray-600">
+                Em breve
+              </Badge>
+            </div>
           </div>
         )}
       </CardContent>

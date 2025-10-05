@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import DisciplineProgress from '@/components/dashboard/DisciplineProgress';
 import SimuladoCard from '@/components/dashboard/SimuladoCard';
 import RedacaoCard from '@/components/dashboard/RedacaoCard';
@@ -24,6 +25,8 @@ const Dashboard = () => {
     <div className="min-h-screen bg-off-white p-4 md:p-6">
       <div className="container mx-auto max-w-5xl">
         <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+          <DashboardBreadcrumb currentPage="Dashboard" />
+          
           <DashboardHeader 
             userName={user?.user_metadata?.nome || 'Estudante'} 
             onSignOut={signOut} 
