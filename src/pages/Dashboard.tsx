@@ -34,14 +34,18 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <DisciplineProgress disciplines={disciplineProgress} />
-              <SimuladoCard 
-                completed={simuladoProgress.completed} 
-                total={simuladoProgress.total} 
-              />
-              <RedacaoCard 
-                submitted={redacaoProgress.submitted} 
-                averageScore={redacaoProgress.average_score} 
-              />
+              
+              <div className="grid grid-cols-1 gap-6 md:col-span-2 lg:grid-cols-2">
+                <SimuladoCard 
+                  completed={simuladoProgress.completed} 
+                  total={simuladoProgress.total} 
+                />
+                <RedacaoCard 
+                  submitted={redacaoProgress.submitted} 
+                  averageScore={redacaoProgress.average_score} 
+                />
+              </div>
+              
               <StudyPlanCard />
             </div>
           )}

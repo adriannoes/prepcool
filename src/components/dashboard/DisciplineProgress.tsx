@@ -19,7 +19,7 @@ interface DisciplineProgressProps {
 
 const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
   return (
-    <Card className="col-span-1 md:col-span-2">
+    <Card className="col-span-1 md:col-span-2 h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle>Trilha de Aprendizado</CardTitle>
@@ -29,7 +29,7 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
       </CardHeader>
       <CardContent>
         {disciplines.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {disciplines.map((discipline, index) => (
               <DisciplineProgressItem
                 key={index}
@@ -48,7 +48,7 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
       </CardContent>
       <CardFooter>
         <Link to="/aprendizado" className="w-full">
-          <Button className="w-full bg-[#5E60CE] hover:bg-[#5E60CE]/90">
+          <Button className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
             <BookOpen className="mr-2 h-4 w-4" />
             Acessar Trilha de Aprendizado
           </Button>

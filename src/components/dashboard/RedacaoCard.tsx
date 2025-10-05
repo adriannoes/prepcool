@@ -12,7 +12,7 @@ interface RedacaoCardProps {
 
 const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div>
           <CardTitle>Redações</CardTitle>
@@ -20,14 +20,17 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
         </div>
         <FileText className="h-6 w-6 text-[#5E60CE]" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow">
         <div className="flex flex-col items-center py-4">
           <div className="text-4xl font-bold text-[#5E60CE]">{submitted}</div>
-          <div className="text-gray-500">redações enviadas</div>
+          <div className="text-gray-500 mb-4">redações enviadas</div>
           
           {averageScore !== null && (
-            <div className="mt-4">
-              <Badge variant="secondary" className="text-md px-3 py-1">
+            <div className="mt-2">
+              <Badge 
+                variant="secondary" 
+                className="text-sm px-3 py-1 bg-[#5E60CE]/10 text-[#5E60CE] border-none"
+              >
                 Nota média: {averageScore !== null ? String(Math.round(averageScore)) : "0"}
               </Badge>
             </div>
@@ -35,7 +38,7 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full bg-[#5E60CE] hover:bg-[#5E60CE]/90" disabled>
+        <Button className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
           <FileText className="mr-2 h-4 w-4" />
           Escrever Redação
         </Button>

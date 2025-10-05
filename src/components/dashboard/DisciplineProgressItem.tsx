@@ -16,13 +16,14 @@ const DisciplineProgressItem = ({
   completionPercentage,
 }: DisciplineProgressItemProps) => {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <div className="flex justify-between text-sm">
         <span className="font-medium">{name}</span>
         <span>{topicsCompleted} de {totalTopics} tópicos</span>
       </div>
       <Progress 
         value={completionPercentage} 
+        showPercentage={true}
         className="h-2"
       />
     </div>
