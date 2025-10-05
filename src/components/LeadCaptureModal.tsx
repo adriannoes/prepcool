@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -16,12 +15,17 @@ import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
-// Brazilian phone validator
-const phoneRegex = /^\(?(?:[14689][1-9]|2[12478]|3[1234578]|5[1345]|7[134579])\)? ?(?:[2-8]|9[0-9])[0-9]{3}-?[0-9]{4}$/;
-
+// Validador de telefone brasileiro mais flexível
+// Aceita formatos: (XX) XXXXX-XXXX, (XX)XXXXX-XXXX, XXXXXXXXXXX, etc.
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter no mínimo 3 caracteres" }),
-  phone: z.string().regex(phoneRegex, { message: "Telefone inválido. Use o formato: (XX) XXXXX-XXXX" }),
+  phone: z.string().min(10, { message: "Telefone deve ter pelo menos 10 dígitos" })
+    .refine((value) => {
+      // Remove todos os caracteres não-numéricos
+      const numbers = value.replace(/\D/g, '');
+      // Verifica se tem entre 10 e 11 dígitos (números fixos e celulares no Brasil)
+      return numbers.length >= 10 && numbers.length <= 11;
+    }, { message: "Telefone inválido. Use o formato: (XX) XXXXX-XXXX" }),
   email: z.string().email({ message: "E-mail inválido" })
 });
 
@@ -52,6 +56,9 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
     setSubmissionStatus('idle');
     
     try {
+      // Formata o telefone para enviar apenas os números
+      const phoneNumbers = data.phone.replace(/\D/g, '');
+      
       // Send data to Pipefy webhook
       const response = await fetch(PIPEFY_WEBHOOK_URL, {
         method: 'POST',
@@ -60,7 +67,7 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
         },
         body: JSON.stringify({
           name: data.name,
-          phone: data.phone,
+          phone: phoneNumbers, // Envia apenas os números do telefone
           email: data.email
         }),
       });
