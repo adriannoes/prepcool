@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -13,12 +14,12 @@ import { Loader } from 'lucide-react';
 import { Json } from '@/integrations/supabase/types';
 
 const skillOptions = [
-  { id: 'mathematics', label: 'Mathematics' },
-  { id: 'essay', label: 'Essay writing' },
-  { id: 'reading', label: 'Reading comprehension' },
-  { id: 'sciences', label: 'Natural sciences' },
-  { id: 'current-events', label: 'Current events' },
-  { id: 'all', label: 'All' }
+  { id: 'mathematics', label: 'Matemática' },
+  { id: 'essay', label: 'Redação' },
+  { id: 'reading', label: 'Interpretação de texto' },
+  { id: 'sciences', label: 'Ciências naturais' },
+  { id: 'current-events', label: 'Atualidades' },
+  { id: 'all', label: 'Todas' }
 ];
 
 interface DiagnosticoFormData {
@@ -53,35 +54,46 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
     
     try {
       // Step 1: Save to Supabase diagnostico table
-      // Convert the DiagnosticoFormData to a Json compatible object
-      const { error } = await supabase
+      const { error: diagnosticoError } = await supabase
         .from('diagnostico')
         .insert({
           usuario_id: user.id,
           respostas: data as unknown as Json
         });
 
-      if (error) throw error;
+      if (diagnosticoError) throw diagnosticoError;
 
-      // Step 2: Send to webhook
-      const webhookResponse = await fetch('/webhook/diagnostico', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          usuario_id: user.id,
-          ...data
-        }),
-      });
+      // Step 2: Update usuario table to mark diagnostico as completed
+      const { error: usuarioError } = await supabase
+        .from('usuario')
+        .update({ diagnostico_preenchido: true })
+        .eq('id', user.id);
 
-      if (!webhookResponse.ok) {
-        throw new Error('Failed to process webhook');
+      if (usuarioError) throw usuarioError;
+
+      // Step 3: Send to webhook
+      try {
+        const webhookResponse = await fetch('/webhook/diagnostico', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            usuario_id: user.id,
+            ...data
+          }),
+        });
+
+        if (!webhookResponse.ok) {
+          console.warn('Webhook failed, but diagnostic was saved successfully');
+        }
+      } catch (webhookError) {
+        console.warn('Webhook error:', webhookError);
       }
 
       toast({
-        title: "Success!",
-        description: "Your personalized study plan is being generated!",
+        title: "Diagnóstico concluído!",
+        description: "Seu plano de estudos personalizado está sendo gerado!",
       });
 
       // Call the onComplete callback if provided
@@ -95,8 +107,8 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
     } catch (error) {
       console.error('Error submitting diagnostic:', error);
       toast({
-        title: "Error",
-        description: "There was a problem submitting your diagnostic. Please try again.",
+        title: "Erro",
+        description: "Houve um problema ao enviar seu diagnóstico. Por favor, tente novamente.",
         variant: "destructive"
       });
     } finally {
@@ -121,55 +133,67 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-md md:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">Welcome to PrepCool!</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-center text-gray-600 mb-6">
-            Please complete this short diagnostic to help us customize your study plan.
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" onInteractOutside={(e) => e.preventDefault()}>
+        <DialogHeader className="space-y-4 pb-6">
+          <DialogTitle className="text-2xl font-bold text-center text-gray-900">
+            Bem-vindo à PrepCool!
+          </DialogTitle>
+          <p className="text-center text-gray-600 text-base leading-relaxed">
+            Complete este diagnóstico rápido para que possamos personalizar seu plano de estudos.
           </p>
-          
+        </DialogHeader>
+        
+        <div className="space-y-8">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* Area of Interest */}
               <FormField
                 control={form.control}
                 name="area_interesse"
-                rules={{ required: "Please select an area of interest" }}
+                rules={{ required: "Por favor, selecione uma área de interesse" }}
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-medium">What area do you intend to focus on?</FormLabel>
+                  <FormItem className="space-y-4">
+                    <FormLabel className="text-lg font-semibold text-gray-900">
+                      Em qual área você pretende focar?
+                    </FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="flex flex-col space-y-1"
+                        className="grid grid-cols-1 gap-3"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Humanas" />
                           </FormControl>
-                          <FormLabel className="font-normal">Humanas</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Humanas
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Exatas" />
                           </FormControl>
-                          <FormLabel className="font-normal">Exatas</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Exatas
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Biológicas" />
                           </FormControl>
-                          <FormLabel className="font-normal">Biológicas</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Biológicas
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
-                            <RadioGroupItem value="Not sure" />
+                            <RadioGroupItem value="Não tenho certeza" />
                           </FormControl>
-                          <FormLabel className="font-normal">Not sure</FormLabel>
-                        </FormItem>
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Não tenho certeza
+                          </FormLabel>
+                        </div>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -181,34 +205,42 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
               <FormField
                 control={form.control}
                 name="tipo_universidade"
-                rules={{ required: "Please select a university type" }}
+                rules={{ required: "Por favor, selecione um tipo de universidade" }}
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-medium">What type of university do you plan to attend?</FormLabel>
+                  <FormItem className="space-y-4">
+                    <FormLabel className="text-lg font-semibold text-gray-900">
+                      Que tipo de universidade você pretende cursar?
+                    </FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="flex flex-col space-y-1"
+                        className="grid grid-cols-1 gap-3"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Pública" />
                           </FormControl>
-                          <FormLabel className="font-normal">Public</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Pública
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Privada" />
                           </FormControl>
-                          <FormLabel className="font-normal">Private</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Privada
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
-                            <RadioGroupItem value="Not sure" />
+                            <RadioGroupItem value="Não tenho certeza" />
                           </FormControl>
-                          <FormLabel className="font-normal">Not sure</FormLabel>
-                        </FormItem>
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Não tenho certeza
+                          </FormLabel>
+                        </div>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -220,61 +252,60 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
               <FormField
                 control={form.control}
                 name="habilidades_para_melhorar"
-                rules={{ required: "Please select at least one skill" }}
+                rules={{ required: "Por favor, selecione pelo menos uma habilidade" }}
                 render={() => (
-                  <FormItem>
-                    <div className="mb-4">
-                      <FormLabel className="text-base font-medium">Which skills do you want to improve?</FormLabel>
-                    </div>
+                  <FormItem className="space-y-4">
+                    <FormLabel className="text-lg font-semibold text-gray-900">
+                      Quais habilidades você gostaria de melhorar?
+                    </FormLabel>
                     
-                    {/* "All" checkbox */}
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Checkbox 
-                        id="all" 
-                        checked={isAllSelected()} 
-                        onCheckedChange={handleSelectAll} 
-                      />
-                      <label
-                        htmlFor="all"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        All
-                      </label>
+                    <div className="space-y-3">
+                      {/* "All" checkbox */}
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <Checkbox 
+                          id="all" 
+                          checked={isAllSelected()} 
+                          onCheckedChange={handleSelectAll} 
+                        />
+                        <label
+                          htmlFor="all"
+                          className="font-medium text-gray-700 cursor-pointer flex-1"
+                        >
+                          Todas
+                        </label>
+                      </div>
+                      
+                      {skillOptions.filter(option => option.id !== 'all').map((item) => (
+                        <FormField
+                          key={item.id}
+                          control={form.control}
+                          name="habilidades_para_melhorar"
+                          render={({ field }) => {
+                            return (
+                              <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                      return checked
+                                        ? field.onChange([...field.value, item.id])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                              (value) => value !== item.id
+                                            )
+                                          );
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                                  {item.label}
+                                </FormLabel>
+                              </div>
+                            );
+                          }}
+                        />
+                      ))}
                     </div>
-                    
-                    {skillOptions.filter(option => option.id !== 'all').map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="habilidades_para_melhorar"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className="flex flex-row items-start space-x-3 space-y-0 mb-1"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...field.value, item.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal text-sm">
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -284,34 +315,42 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
               <FormField
                 control={form.control}
                 name="experiencia_simulados"
-                rules={{ required: "Please select your experience level" }}
+                rules={{ required: "Por favor, selecione seu nível de experiência" }}
                 render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-base font-medium">How do you feel about mock exams?</FormLabel>
+                  <FormItem className="space-y-4">
+                    <FormLabel className="text-lg font-semibold text-gray-900">
+                      Como você se sente em relação aos simulados?
+                    </FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="flex flex-col space-y-1"
+                        className="grid grid-cols-1 gap-3"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Nunca fiz" />
                           </FormControl>
-                          <FormLabel className="font-normal">Never taken one</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Nunca fiz
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Tentei mas tenho dificuldade" />
                           </FormControl>
-                          <FormLabel className="font-normal">Tried but struggle</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Tentei mas tenho dificuldade
+                          </FormLabel>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                           <FormControl>
                             <RadioGroupItem value="Pratico regularmente" />
                           </FormControl>
-                          <FormLabel className="font-normal">Regularly practice</FormLabel>
-                        </FormItem>
+                          <FormLabel className="font-medium text-gray-700 cursor-pointer flex-1">
+                            Pratico regularmente
+                          </FormLabel>
+                        </div>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -319,20 +358,22 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
                 )}
               />
 
-              <Button 
-                type="submit" 
-                className="w-full bg-[#5E60CE] hover:bg-[#5E60CE]/90" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
+              <div className="pt-6">
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white font-semibold text-base rounded-xl transition-all duration-200" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="mr-2 h-5 w-5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    "Finalizar Diagnóstico"
+                  )}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>

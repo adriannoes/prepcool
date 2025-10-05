@@ -30,7 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentSession?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          // Don't redirect here - we handle this in the sign in function
+          // Redirect to dashboard only on sign in, not on sign up
+          navigate('/dashboard');
         } else if (event === 'SIGNED_OUT') {
           navigate('/login');
         }
@@ -65,11 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       toast({
-        title: "Conta criada com sucesso",
-        description: "Bem-vindo à PrepCool! Você já pode acessar sua conta.",
+        title: "Cadastro criado com sucesso!",
+        description: "Faça login para começar.",
       });
       
-      navigate('/dashboard');
+      // Redirect to login instead of dashboard
+      navigate('/login');
     } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
@@ -95,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Bem-vindo de volta à PrepCool!",
       });
       
-      navigate('/dashboard');
+      // Navigation will be handled by onAuthStateChange
     } catch (error: any) {
       toast({
         title: "Erro ao fazer login",

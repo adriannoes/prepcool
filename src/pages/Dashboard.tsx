@@ -29,18 +29,31 @@ const Dashboard = () => {
     if (user) {
       const checkForExistingDiagnostic = async () => {
         try {
-          const { data, error } = await supabase
-            .from('diagnostico')
-            .select('id')
-            .eq('usuario_id', user.id)
-            .maybeSingle();
+          // Check if user has completed diagnostic using the new field
+          const { data: userData, error: userError } = await supabase
+            .from('usuario')
+            .select('diagnostico_preenchido')
+            .eq('id', user.id)
+            .single();
           
-          if (error) {
-            console.error('Error checking diagnostic:', error);
+          if (userError) {
+            console.error('Error checking user diagnostic status:', userError);
+            // Fallback to old method if new field doesn't exist yet
+            const { data: diagnosticoData, error: diagnosticoError } = await supabase
+              .from('diagnostico')
+              .select('id')
+              .eq('usuario_id', user.id)
+              .maybeSingle();
+            
+            if (diagnosticoError) {
+              console.error('Error checking diagnostic:', diagnosticoError);
+            }
+            
+            setShowDiagnosticModal(!diagnosticoData);
+          } else {
+            // Use the new field to determine if diagnostic is needed
+            setShowDiagnosticModal(!userData?.diagnostico_preenchido);
           }
-          
-          // If no diagnostic entry found, show the modal
-          setShowDiagnosticModal(!data);
         } catch (err) {
           console.error('Failed to check diagnostic status:', err);
         } finally {

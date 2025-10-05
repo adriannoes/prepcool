@@ -327,6 +327,7 @@ export type Database = {
       usuario: {
         Row: {
           created_at: string | null
+          diagnostico_preenchido: boolean | null
           email: string
           id: string
           nome: string
@@ -334,6 +335,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          diagnostico_preenchido?: boolean | null
           email: string
           id: string
           nome: string
@@ -341,6 +343,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          diagnostico_preenchido?: boolean | null
           email?: string
           id?: string
           nome?: string
