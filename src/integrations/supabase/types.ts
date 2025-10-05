@@ -27,6 +27,30 @@ export type Database = {
         }
         Relationships: []
       }
+      modelo_redacao: {
+        Row: {
+          created_at: string | null
+          exemplo: string
+          id: string
+          instituicao: string
+          tema: string
+        }
+        Insert: {
+          created_at?: string | null
+          exemplo: string
+          id?: string
+          instituicao: string
+          tema: string
+        }
+        Update: {
+          created_at?: string | null
+          exemplo?: string
+          id?: string
+          instituicao?: string
+          tema?: string
+        }
+        Relationships: []
+      }
       pergunta: {
         Row: {
           alternativa_correta: string

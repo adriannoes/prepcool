@@ -16,6 +16,8 @@ import SobreNos from "./pages/SobreNos";
 import Apoiar from "./pages/Apoiar";
 import Simulado from "./pages/Simulado";
 import SimuladosList from "./pages/SimuladosList";
+import Redacao from "./pages/Redacao";
+import RedacaoFeedback from "./pages/RedacaoFeedback";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
               <Route path="/aprendizado" element={<Aprendizado />} />
               <Route path="/simulado" element={<SimuladosList />} />
               <Route path="/simulado/:id" element={<Simulado />} />
+              <Route path="/redacao" element={<Redacao />} />
+              <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
               {/* Add more protected routes here */}
               {/* <Route path="/plano" element={<Plano />} /> */}
             </Route>

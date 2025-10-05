@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import EmptyState from './EmptyState';
+import { Link } from 'react-router-dom';
 
 interface RedacaoCardProps {
   submitted: number;
@@ -49,9 +50,11 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
-          <FileText className="mr-2 h-4 w-4" />
-          Escrever Redação
+        <Button asChild className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
+          <Link to="/redacao">
+            <FileText className="mr-2 h-4 w-4" />
+            Escrever Redação
+          </Link>
         </Button>
       </CardFooter>
     </Card>
