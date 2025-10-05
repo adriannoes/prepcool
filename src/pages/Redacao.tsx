@@ -251,7 +251,7 @@ const Redacao = () => {
 
       {/* Processing Dialog */}
       <Dialog open={isProcessingDialogOpen} onOpenChange={setIsProcessingDialogOpen}>
-        <DialogContent className="sm:max-w-md" hideClose={true}>
+        <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center p-6 text-center">
             <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE] mb-4" />
             <h3 className="text-xl font-semibold mb-2">Processando sua redação</h3>

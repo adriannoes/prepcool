@@ -18,47 +18,60 @@ import Simulado from "./pages/Simulado";
 import SimuladosList from "./pages/SimuladosList";
 import Redacao from "./pages/Redacao";
 import RedacaoFeedback from "./pages/RedacaoFeedback";
+import React from 'react';
 
-const queryClient = new QueryClient();
+// Initialize the query client outside the component
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+const App = () => {
+  return (
+    <React.StrictMode>
       <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/sobre-nos" element={<SobreNos />} />
-            <Route path="/apoiar" element={<Apoiar />} />
-            
-            {/* Auth routes - accessible only when NOT logged in */}
-            <Route element={<RouteGuard requiresAuth={false} />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-            </Route>
-            
-            {/* Protected routes - require authentication */}
-            <Route element={<RouteGuard requiresAuth={true} />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/aprendizado" element={<Aprendizado />} />
-              <Route path="/simulado" element={<SimuladosList />} />
-              <Route path="/simulado/:id" element={<Simulado />} />
-              <Route path="/redacao" element={<Redacao />} />
-              <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
-              {/* Add more protected routes here */}
-              {/* <Route path="/plano" element={<Plano />} /> */}
-            </Route>
-            
-            {/* Catch-all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <AuthProvider>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/sobre-nos" element={<SobreNos />} />
+                <Route path="/apoiar" element={<Apoiar />} />
+                
+                {/* Auth routes - accessible only when NOT logged in */}
+                <Route element={<RouteGuard requiresAuth={false} />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                </Route>
+                
+                {/* Protected routes - require authentication */}
+                <Route element={<RouteGuard requiresAuth={true} />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/aprendizado" element={<Aprendizado />} />
+                  <Route path="/simulado" element={<SimuladosList />} />
+                  <Route path="/simulado/:id" element={<Simulado />} />
+                  <Route path="/redacao" element={<Redacao />} />
+                  <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
+                  {/* Add more protected routes here */}
+                  {/* <Route path="/plano" element={<Plano />} /> */}
+                </Route>
+                
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </React.StrictMode>
+  );
+};
 
 export default App;
