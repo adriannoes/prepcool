@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { FileText, Video, BookOpen, Target } from 'lucide-react';
+import { FileText, Video, BookOpen, Target, Bell } from 'lucide-react';
 import RedacaoManager from './RedacaoManager';
 import VideoManager from './VideoManager';
 import SimuladoManager from './SimuladoManager';
 import PlanoViewer from './PlanoViewer';
+import NotificationManager from './NotificationManager';
 
-type AdminSection = 'redacoes' | 'videos' | 'simulados' | 'planos';
+type AdminSection = 'redacoes' | 'videos' | 'simulados' | 'planos' | 'notificacoes';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState<AdminSection>('redacoes');
@@ -16,6 +17,7 @@ const AdminDashboard = () => {
     { id: 'videos' as AdminSection, name: 'Vídeos', icon: Video },
     { id: 'simulados' as AdminSection, name: 'Simulados', icon: BookOpen },
     { id: 'planos' as AdminSection, name: 'Planos de Estudo', icon: Target },
+    { id: 'notificacoes' as AdminSection, name: 'Notificações', icon: Bell },
   ];
 
   const renderContent = () => {
@@ -28,6 +30,8 @@ const AdminDashboard = () => {
         return <SimuladoManager />;
       case 'planos':
         return <PlanoViewer />;
+      case 'notificacoes':
+        return <NotificationManager />;
       default:
         return <RedacaoManager />;
     }
