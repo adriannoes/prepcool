@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +29,7 @@ interface PlanoHistoricoItem {
   created_at: string;
 }
 
-interface PlanoHistoricoGroup {
+interface PlanoHistoricoData {
   origem: string;
   itens: PlanoHistoricoItem[];
 }
@@ -42,7 +41,7 @@ const PlanoHistorico = () => {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const { data: historicoData, isLoading } = useQuery<PlanoHistoricoGroup[]>({
+  const { data: historicoData, isLoading } = useQuery<PlanoHistoricoData[]>({
     queryKey: ['plano-historico'],
     queryFn: async () => {
       if (!user) return [];
@@ -71,7 +70,7 @@ const PlanoHistorico = () => {
       if (error) throw error;
       
       // Group by origem
-      const grupos: Record<string, PlanoHistoricoGroup> = {};
+      const grupos: Record<string, PlanoHistoricoData> = {};
       
       planoItems?.forEach(item => {
         if (!item.topico?.disciplina) return;
