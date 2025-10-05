@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import Aprendizado from "./pages/Aprendizado";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
 
@@ -36,8 +37,8 @@ const App = () => (
             {/* Protected routes - require authentication */}
             <Route element={<RouteGuard requiresAuth={true} />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/aprendizado" element={<Aprendizado />} />
               {/* Add more protected routes here */}
-              {/* <Route path="/aprendizado" element={<Aprendizado />} /> */}
               {/* <Route path="/simulado" element={<Simulado />} /> */}
             </Route>
             

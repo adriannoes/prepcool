@@ -9,6 +9,228 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      disciplina: {
+        Row: {
+          created_at: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      pergunta: {
+        Row: {
+          alternativa_correta: string
+          created_at: string | null
+          disciplina: string
+          enunciado: string
+          id: string
+          simulado_id: string
+        }
+        Insert: {
+          alternativa_correta: string
+          created_at?: string | null
+          disciplina: string
+          enunciado: string
+          id?: string
+          simulado_id: string
+        }
+        Update: {
+          alternativa_correta?: string
+          created_at?: string | null
+          disciplina?: string
+          enunciado?: string
+          id?: string
+          simulado_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pergunta_simulado_id_fkey"
+            columns: ["simulado_id"]
+            isOneToOne: false
+            referencedRelation: "simulado"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plano_estudo: {
+        Row: {
+          created_at: string | null
+          id: string
+          origem: string | null
+          topico_id: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          origem?: string | null
+          topico_id: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          origem?: string | null
+          topico_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plano_estudo_topico_id_fkey"
+            columns: ["topico_id"]
+            isOneToOne: false
+            referencedRelation: "topico"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plano_estudo_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      redacao: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          nota: number | null
+          tema: string
+          texto: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          nota?: number | null
+          tema: string
+          texto: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          nota?: number | null
+          tema?: string
+          texto?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redacao_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resposta: {
+        Row: {
+          acerto: boolean
+          alternativa_marcada: string
+          created_at: string | null
+          id: string
+          pergunta_id: string
+          usuario_id: string
+        }
+        Insert: {
+          acerto: boolean
+          alternativa_marcada: string
+          created_at?: string | null
+          id?: string
+          pergunta_id: string
+          usuario_id: string
+        }
+        Update: {
+          acerto?: boolean
+          alternativa_marcada?: string
+          created_at?: string | null
+          id?: string
+          pergunta_id?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resposta_pergunta_id_fkey"
+            columns: ["pergunta_id"]
+            isOneToOne: false
+            referencedRelation: "pergunta"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resposta_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      simulado: {
+        Row: {
+          ano: number
+          created_at: string | null
+          id: string
+          instituicao: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string | null
+          id?: string
+          instituicao: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string | null
+          id?: string
+          instituicao?: string
+        }
+        Relationships: []
+      }
+      topico: {
+        Row: {
+          created_at: string | null
+          disciplina_id: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          created_at?: string | null
+          disciplina_id?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          created_at?: string | null
+          disciplina_id?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topico_disciplina_id_fkey"
+            columns: ["disciplina_id"]
+            isOneToOne: false
+            referencedRelation: "disciplina"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usuario: {
         Row: {
           created_at: string | null
@@ -32,6 +254,80 @@ export type Database = {
           telefone?: string
         }
         Relationships: []
+      }
+      video: {
+        Row: {
+          created_at: string | null
+          descricao: string | null
+          id: string
+          titulo: string
+          topico_id: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          titulo: string
+          topico_id?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          titulo?: string
+          topico_id?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_topico_id_fkey"
+            columns: ["topico_id"]
+            isOneToOne: false
+            referencedRelation: "topico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_assistido: {
+        Row: {
+          created_at: string | null
+          id: string
+          usuario_id: string
+          video_id: string
+          watched_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          usuario_id: string
+          video_id: string
+          watched_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          usuario_id?: string
+          video_id?: string
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_assistido_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_assistido_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "video"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

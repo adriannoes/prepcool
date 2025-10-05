@@ -2,6 +2,8 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { CheckCircle, Play } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -31,9 +33,15 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="font-medium text-lg mb-2">Meus Cursos</h3>
-              <p className="text-gray-600">
-                Você ainda não tem cursos. Explore nossa plataforma para encontrar o curso ideal para você.
+              <p className="text-gray-600 mb-4">
+                Acesse nossa plataforma de aprendizado para estudar os conteúdos disponíveis.
               </p>
+              <Link to="/aprendizado">
+                <Button className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 flex items-center gap-2">
+                  <Play size={16} />
+                  Acessar Trilha de Aprendizado
+                </Button>
+              </Link>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="font-medium text-lg mb-2">Próximos Simulados</h3>
