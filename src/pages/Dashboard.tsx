@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DisciplineProgress from '@/components/dashboard/DisciplineProgress';
 import StudyPlanCard from '@/components/dashboard/StudyPlanCard';
 import SimuladoCard from '@/components/dashboard/SimuladoCard';
 import RedacaoCard from '@/components/dashboard/RedacaoCard';
 import DiagnosticoCard from '@/components/dashboard/DiagnosticoCard';
+import DiagnosticoModal from '@/components/dashboard/DiagnosticoModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -17,6 +19,37 @@ const Dashboard = () => {
     simuladoProgress,
     redacaoProgress
   } = useDashboardData();
+
+  const [showDiagnosticModal, setShowDiagnosticModal] = useState(false);
+  const [checkingDiagnostic, setCheckingDiagnostic] = useState(true);
+
+  useEffect(() => {
+    // Only check if the user is logged in
+    if (user) {
+      const checkForExistingDiagnostic = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('diagnostico')
+            .select('id')
+            .eq('usuario_id', user.id)
+            .maybeSingle();
+          
+          if (error) {
+            console.error('Error checking diagnostic:', error);
+          }
+          
+          // If no diagnostic entry found, show the modal
+          setShowDiagnosticModal(!data);
+        } catch (err) {
+          console.error('Failed to check diagnostic status:', err);
+        } finally {
+          setCheckingDiagnostic(false);
+        }
+      };
+      
+      checkForExistingDiagnostic();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,6 +86,11 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Show DiagnosticoModal conditionally */}
+      {showDiagnosticModal && !checkingDiagnostic && (
+        <DiagnosticoModal isOpen={showDiagnosticModal} />
+      )}
     </div>
   );
 };
