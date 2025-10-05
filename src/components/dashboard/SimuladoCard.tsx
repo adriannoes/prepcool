@@ -16,10 +16,6 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
   const percentCompleted = total > 0 ? (completed / total) * 100 : 0;
   const hasNoSimulados = completed === 0;
   
-  // This is a placeholder ID. In a real application, you would likely
-  // fetch available simulados and use a real ID or have a simulado list page
-  const sampleSimuladoId = "123e4567-e89b-12d3-a456-426614174000";
-  
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -56,7 +52,7 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
           className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2"
           asChild
         >
-          <Link to={`/simulado/${sampleSimuladoId}`}>
+          <Link to="/simulado">
             <Award className="mr-2 h-4 w-4" />
             Praticar Simulados
           </Link>

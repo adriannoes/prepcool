@@ -6,14 +6,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
+import { Badge } from '@/components/ui/badge';
 
 interface Question {
   id: string;
   enunciado: string;
   alternativa_correta: string;
+  disciplina: string;
 }
 
 interface SimuladoQuestionProps {
@@ -30,24 +32,67 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [simuladoInfo, setSimuladoInfo] = useState<{instituicao: string, ano: number} | null>(null);
+  const [userResponses, setUserResponses] = useState<{[key: string]: string}>({});
   
-  // Load questions for this simulado
+  // Load questions and simulado info
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const { data, error } = await supabase
+        // Get simulado info
+        const { data: simuladoData, error: simuladoError } = await supabase
+          .from('simulado')
+          .select('instituicao, ano')
+          .eq('id', simuladoId)
+          .single();
+        
+        if (simuladoError) throw simuladoError;
+        
+        if (simuladoData) {
+          setSimuladoInfo(simuladoData);
+        }
+        
+        // Get questions for this simulado
+        const { data: questionsData, error: questionsError } = await supabase
           .from('pergunta')
           .select('*')
           .eq('simulado_id', simuladoId);
         
-        if (error) throw error;
+        if (questionsError) throw questionsError;
         
-        if (data) {
-          setQuestions(data);
+        if (questionsData) {
+          setQuestions(questionsData);
+        }
+        
+        // Get user's previous responses (if any)
+        if (user) {
+          const { data: responsesData, error: responsesError } = await supabase
+            .from('resposta')
+            .select('pergunta_id, alternativa_marcada')
+            .eq('usuario_id', user.id)
+            .in('pergunta_id', questionsData.map(q => q.id));
+          
+          if (responsesError) throw responsesError;
+          
+          if (responsesData && responsesData.length > 0) {
+            const responseMap: {[key: string]: string} = {};
+            responsesData.forEach(resp => {
+              responseMap[resp.pergunta_id] = resp.alternativa_marcada;
+            });
+            
+            setUserResponses(responseMap);
+            
+            // If user has already responded to the first question, select that option
+            const firstQuestion = questionsData[0];
+            if (firstQuestion && responseMap[firstQuestion.id]) {
+              setSelectedOption(responseMap[firstQuestion.id]);
+            }
+          }
         }
         
       } catch (error) {
-        console.error('Error fetching questions:', error);
+        console.error('Error fetching data:', error);
         toast({
           title: 'Erro ao carregar simulado',
           description: 'Ocorreu um erro ao carregar as perguntas. Por favor, tente novamente.',
@@ -58,14 +103,24 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
       }
     };
     
-    fetchQuestions();
-  }, [simuladoId]);
+    fetchData();
+  }, [simuladoId, user]);
   
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
+  
+  // Update selected option when navigating questions if user has already responded
+  useEffect(() => {
+    if (currentQuestion && userResponses[currentQuestion.id]) {
+      setSelectedOption(userResponses[currentQuestion.id]);
+    } else {
+      setSelectedOption(null);
+    }
+  }, [currentQuestionIndex, currentQuestion, userResponses]);
   
   const handleSubmitAnswer = async () => {
-    if (!selectedOption || !user) return;
+    if (!selectedOption || !user || !currentQuestion) return;
     
     setIsSaving(true);
     
@@ -73,15 +128,21 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
       // Determine if the answer is correct
       const isCorrect = selectedOption === currentQuestion.alternativa_correta;
       
+      // Update responses map
+      setUserResponses(prev => ({
+        ...prev,
+        [currentQuestion.id]: selectedOption
+      }));
+      
       // Save answer to the resposta table
       const { error } = await supabase
         .from('resposta')
-        .insert({
+        .upsert({
           usuario_id: user.id,
           pergunta_id: currentQuestion.id,
           alternativa_marcada: selectedOption,
           acerto: isCorrect
-        });
+        }, { onConflict: 'usuario_id, pergunta_id' });
       
       if (error) throw error;
       
@@ -111,7 +172,6 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
       } else {
         // Move to next question
         setCurrentQuestionIndex(prev => prev + 1);
-        setSelectedOption(null);
       }
       
     } catch (error) {
@@ -126,6 +186,12 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
     }
   };
   
+  const handlePreviousQuestion = () => {
+    if (!isFirstQuestion) {
+      setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+  
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -135,12 +201,13 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
     );
   }
   
-  if (questions.length === 0) {
+  if (questions.length === 0 || !simuladoInfo) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">Simulado não encontrado</h2>
+        <AlertCircle className="h-12 w-12 mx-auto text-orange-500" />
+        <h2 className="text-2xl font-bold mt-4 mb-4">Simulado não encontrado</h2>
         <p className="text-gray-600 mb-6">Este simulado não possui questões ou não foi encontrado.</p>
-        <Button onClick={() => navigate('/dashboard')}>Voltar ao Dashboard</Button>
+        <Button onClick={() => navigate('/simulado')}>Voltar aos Simulados</Button>
       </div>
     );
   }
@@ -149,24 +216,36 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
     <>
       <DashboardBreadcrumb 
         currentPage={`Questão ${currentQuestionIndex + 1}`}
-        paths={[{ name: 'Simulado', path: '/simulado' }]}
+        paths={[
+          { name: 'Dashboard', path: '/dashboard' },
+          { name: 'Simulados', path: '/simulado' }
+        ]}
       />
       
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">Simulado em andamento</h1>
-        <p className="text-gray-600">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">
+            {simuladoInfo?.instituicao} {simuladoInfo?.ano}
+          </h1>
+          <Badge className="text-sm bg-[#5E60CE]">
+            {currentQuestion?.disciplina}
+          </Badge>
+        </div>
+        <p className="text-gray-600 mt-1">
           Questão {currentQuestionIndex + 1} de {questions.length}
         </p>
       </div>
       
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Questão {currentQuestionIndex + 1}</CardTitle>
+          <CardTitle className="text-xl flex justify-between items-center">
+            <span>Questão {currentQuestionIndex + 1}</span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="prose max-w-none">
-          <p>{currentQuestion.enunciado}</p>
+          <p className="whitespace-pre-line">{currentQuestion.enunciado}</p>
           
-          <div className="mt-6">
+          <div className="mt-8">
             <RadioGroup 
               value={selectedOption || ''}
               onValueChange={setSelectedOption}
@@ -186,9 +265,20 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
             </RadioGroup>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-wrap md:flex-nowrap gap-3">
+          {!isFirstQuestion && (
+            <Button 
+              variant="outline"
+              onClick={handlePreviousQuestion}
+              className="w-full md:w-auto"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Questão anterior
+            </Button>
+          )}
+          
           <Button 
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 w-full md:w-auto"
+            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 w-full md:w-auto ml-auto"
             onClick={handleSubmitAnswer}
             disabled={!selectedOption || isSaving}
           >
@@ -204,7 +294,7 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
               </>
             ) : (
               <>
-                Próxima pergunta
+                Próxima questão
                 <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}

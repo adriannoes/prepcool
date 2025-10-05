@@ -14,7 +14,7 @@ const Simulado = () => {
   }
   
   if (!id) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/simulado" />;
   }
 
   return (
