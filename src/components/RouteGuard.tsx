@@ -23,22 +23,27 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
     );
   }
   
-  // If requires auth and no user is logged in, redirect to login
+  // For routes that don't require auth (login/signup pages)
+  if (!requiresAuth) {
+    // If user is already logged in and tries to access login or signup, redirect to dashboard
+    if (user && (location.pathname === '/login' || location.pathname === '/signup')) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // Otherwise allow access to login/signup pages
+    return <Outlet />;
+  }
+  
+  // For routes that require authentication
   if (requiresAuth && !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // If requires admin and user is not admin, redirect to dashboard
+  // For routes that require admin privileges
   if (requiresAdmin && (!user || !isAdmin)) {
     return <Navigate to="/dashboard" replace />;
   }
   
-  // If user is logged in and tries to access login or signup page, redirect to dashboard
-  if (!requiresAuth && user) {
-    return <Navigate to="/dashboard" />;
-  }
-  
-  // Otherwise render the child routes
+  // User is authenticated and has required permissions
   return <Outlet />;
 };
 

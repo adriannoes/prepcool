@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -5,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const Hero = () => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <section className="bg-off-white flex flex-col md:flex-row items-center justify-between px-6 py-16 md:py-24 max-w-7xl mx-auto">
@@ -13,13 +14,12 @@ const Hero = () => {
       <div className="flex flex-col w-full md:w-1/2 mb-12 md:mb-0 text-left">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
           {t('hero.title').split(' ').map((word, index, arr) => {
-            // Highlight "transforma seu futuro" in Portuguese or "transforms your future" in English
+            // Highlight specific words based on language
             const highlightPhrases = {
               pt: ['transforma', 'seu', 'futuro'],
               en: ['transforms', 'your', 'future']
             };
-            const currentLanguage = t('language.portuguese') === 'Português' ? 'pt' : 'en';
-            const isHighlight = highlightPhrases[currentLanguage].includes(word.toLowerCase());
+            const isHighlight = highlightPhrases[language].includes(word.toLowerCase());
             
             return (
               <span key={index} className={isHighlight ? 'text-coral' : ''}>

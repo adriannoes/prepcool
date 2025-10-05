@@ -44,7 +44,7 @@ function App() {
             <Sonner richColors closeButton />
             <AuthProvider>
               <Routes>
-                {/* Public routes - sempre acessíveis */}
+                {/* Public routes - always accessible */}
                 <Route path="/" element={<Index />} />
                 <Route path="/sobre-nos" element={<SobreNos />} />
                 <Route path="/apoiar" element={<Apoiar />} />

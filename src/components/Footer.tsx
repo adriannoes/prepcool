@@ -63,9 +63,14 @@ const Footer = () => {
               <Link to="/ajuda" className="text-gray-600 hover:text-coral transition-colors">
                 {t('footer.support')}
               </Link>
-              <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
+              <a 
+                href="/politica-privacidade" 
+                className="text-gray-600 hover:text-coral transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {t('footer.policy')}
-              </Link>
+              </a>
             </div>
           </div>
           
