@@ -69,6 +69,10 @@ function App() {
                     <Route path="/diagnostico" element={<Diagnostico />} />
                     <Route path="/plano" element={<Plano />} />
                     <Route path="/plano/historico" element={<PlanoHistorico />} />
+                  </Route>
+                  
+                  {/* Admin routes - require authentication AND admin role */}
+                  <Route element={<RouteGuard requiresAuth={true} requiresAdmin={true} />}>
                     <Route path="/admin" element={<Admin />} />
                   </Route>
                   
