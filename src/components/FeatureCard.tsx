@@ -10,11 +10,11 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center transition-transform hover:scale-105">
-      <div className="bg-coral/10 p-4 rounded-full mb-4">
+    <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px]">
+      <div className="bg-coral/10 p-5 rounded-full mb-6">
         <Icon className="h-8 w-8 text-coral" />
       </div>
-      <h3 className="text-xl font-semibold mb-3 text-gray-800">{title}</h3>
+      <h3 className="text-xl font-bold mb-4 text-gray-800">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </div>
   );

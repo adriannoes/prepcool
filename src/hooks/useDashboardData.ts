@@ -1,155 +1,92 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-// Define types for our progress data
-export interface DisciplineProgress {
-  discipline_name: string;
-  topics_completed: number;
-  total_topics: number;
-  completion_percentage: number;
-}
+// Mock data
+const mockDisciplines = [
+  { id: 1, name: 'Matemática', progress: 65, total: 100 },
+  { id: 2, name: 'Física', progress: 45, total: 100 },
+  { id: 3, name: 'Química', progress: 80, total: 100 },
+  { id: 4, name: 'Biologia', progress: 30, total: 100 },
+  { id: 5, name: 'História', progress: 50, total: 100 },
+  { id: 6, name: 'Geografia', progress: 25, total: 100 }
+];
 
-export interface SimuladoProgress {
-  completed: number;
-  total: number;
-}
+const mockSimulados = [
+  { id: 1, title: 'ENEM 2023', date: '10/11/2023', status: 'completed', score: 780 },
+  { id: 2, title: 'FUVEST 2024', date: '15/12/2023', status: 'scheduled' },
+];
 
-export interface RedacaoProgress {
-  submitted: number;
-  average_score: number | null;
-}
+const mockRedacoes = [
+  { id: 1, title: 'O papel da educação na transformação social', date: '05/10/2023', status: 'corrected', score: 900 },
+  { id: 2, title: 'Desafios da sustentabilidade no século XXI', date: '20/10/2023', status: 'pending' },
+];
 
-export const useDashboardData = (user: User | null) => {
-  const [loading, setLoading] = useState(true);
-  const [disciplineProgress, setDisciplineProgress] = useState<DisciplineProgress[]>([]);
-  const [simuladoProgress, setSimuladoProgress] = useState<SimuladoProgress>({ completed: 0, total: 0 });
-  const [redacaoProgress, setRedacaoProgress] = useState<RedacaoProgress>({ submitted: 0, average_score: null });
+const mockStudyPlan = {
+  todayFocus: 'Matemática - Funções Trigonométricas',
+  completionPercentage: 35,
+  nextTopics: ['Física - Leis de Newton', 'Química - Equilíbrio Químico', 'Literatura - Modernismo']
+};
 
-  useEffect(() => {
-    const fetchUserProgress = async () => {
-      if (!user) return;
-      
-      try {
-        setLoading(true);
-        
-        // Fetch discipline progress
-        const { data: disciplineData, error: disciplineError } = await supabase
-          .rpc('get_discipline_progress', { user_id: user.id })
-          .select('*');
-        
-        // If the RPC function doesn't exist, we'll use a workaround with multiple queries
-        if (disciplineError) {
-          console.log('Using fallback method for discipline progress');
-          
-          // Get all disciplines
-          const { data: disciplines } = await supabase
-            .from('disciplina')
-            .select('id, nome');
-          
-          if (disciplines) {
-            const progressData: DisciplineProgress[] = [];
-            
-            // For each discipline, get topics and completed videos
-            for (const discipline of disciplines) {
-              // Get topics for this discipline
-              const { data: topics } = await supabase
-                .from('topico')
-                .select('id')
-                .eq('disciplina_id', discipline.id);
-              
-              const totalTopics = topics?.length || 0;
-              
-              // Get completed topics (where the user has watched at least one video)
-              const { data: completedTopicsData } = await supabase
-                .from('video_assistido')
-                .select('video(topico_id)')
-                .eq('usuario_id', user.id);
-              
-              // Get unique topic IDs from watched videos
-              const completedTopicIds = new Set();
-              completedTopicsData?.forEach(item => {
-                if (item.video?.topico_id) {
-                  completedTopicIds.add(item.video.topico_id);
-                }
-              });
-              
-              const topicsCompleted = completedTopicIds.size;
-              const percentage = totalTopics > 0 ? (topicsCompleted / totalTopics) * 100 : 0;
-              
-              progressData.push({
-                discipline_name: discipline.nome,
-                topics_completed: topicsCompleted,
-                total_topics: totalTopics,
-                completion_percentage: percentage
-              });
-            }
-            
-            setDisciplineProgress(progressData);
-          }
-        } else if (disciplineData) {
-          setDisciplineProgress(disciplineData);
-        }
-        
-        // Fetch simulado progress
-        const { data: simulados } = await supabase
-          .from('simulado')
-          .select('count');
-        
-        const totalSimulados = simulados ? parseInt(simulados[0]?.count || '0') : 0;
-        
-        const { data: completedSimulados } = await supabase
-          .from('resposta')
-          .select('pergunta(simulado_id)')
-          .eq('usuario_id', user.id);
-        
-        // Get unique simulado IDs from completed questions
-        const completedSimuladoIds = new Set();
-        completedSimulados?.forEach(item => {
-          if (item.pergunta?.simulado_id) {
-            completedSimuladoIds.add(item.pergunta.simulado_id);
-          }
-        });
-        
-        setSimuladoProgress({
-          completed: completedSimuladoIds.size,
-          total: totalSimulados
-        });
-        
-        // Fetch redação progress
-        const { data: redacoes, error: redacaoError } = await supabase
-          .from('redacao')
-          .select('id, nota')
-          .eq('usuario_id', user.id);
-        
-        if (!redacaoError && redacoes) {
-          const submitted = redacoes.length;
-          const totalScore = redacoes.reduce((sum, redacao) => {
-            return sum + (redacao.nota || 0);
-          }, 0);
-          
-          const averageScore = submitted > 0 ? totalScore / submitted : null;
-          
-          setRedacaoProgress({
-            submitted,
-            average_score: averageScore
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user progress:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUserProgress();
-  }, [user]);
+// Mock API calls
+const fetchDisciplines = (): Promise<typeof mockDisciplines> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockDisciplines), 800);
+  });
+};
+
+const fetchSimulados = (): Promise<typeof mockSimulados> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockSimulados), 1000);
+  });
+};
+
+const fetchRedacoes = (): Promise<typeof mockRedacoes> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockRedacoes), 900);
+  });
+};
+
+const fetchStudyPlan = (): Promise<typeof mockStudyPlan> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockStudyPlan), 700);
+  });
+};
+
+const useDashboardData = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const { data: disciplines = [], isLoading: isDisciplinesLoading } = useQuery({
+    queryKey: ['disciplines'],
+    queryFn: fetchDisciplines,
+  });
+
+  const { data: simulados = [], isLoading: isSimuladosLoading } = useQuery({
+    queryKey: ['simulados'],
+    queryFn: fetchSimulados,
+  });
+
+  const { data: redacoes = [], isLoading: isRedacoesLoading } = useQuery({
+    queryKey: ['redacoes'],
+    queryFn: fetchRedacoes,
+  });
+
+  const { data: studyPlan, isLoading: isStudyPlanLoading } = useQuery({
+    queryKey: ['studyPlan'],
+    queryFn: fetchStudyPlan,
+  });
+
+  // Transform study plan completion percentage to string for Progress component
+  const studyPlanCompletion = studyPlan ? studyPlan.completionPercentage.toString() : "0";
 
   return {
-    loading,
-    disciplineProgress,
-    simuladoProgress,
-    redacaoProgress
+    isLoading: isDisciplinesLoading || isSimuladosLoading || isRedacoesLoading || isStudyPlanLoading,
+    disciplines,
+    simulados,
+    redacoes,
+    studyPlan,
+    studyPlanCompletion
   };
 };
+
+export default useDashboardData;

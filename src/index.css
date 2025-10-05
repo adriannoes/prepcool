@@ -132,9 +132,40 @@
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-delayed {
+  opacity: 0;
+}
+
+.animate-delayed.animate-fade-in {
+  animation-delay: var(--delay, 0s);
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Additional animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Form focus styles */
+.focus\:ring-coral:focus {
+  --tw-ring-color: rgba(242, 110, 91, 0.5);
+}
+
+.focus\:border-coral:focus {
+  border-color: #F26E5B;
 }
