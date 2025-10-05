@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ModeloRedacao {
   id: string;
@@ -110,21 +111,10 @@ const Redacao = () => {
 
       if (error) throw error;
 
-      // In a real implementation, we would send the essay to the webhook here
-      // For now, we'll simulate this with a timeout
-      
-      // Mock webhook call - in the real implementation, this would be:
-      // const response = await fetch('/webhook/redacao', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     usuario_id: user.id,
-      //     instituicao: selectedInstitution,
-      //     tema: modeloRedacao?.tema,
-      //     texto: studentEssay,
-      //     redacao_id: data.id
-      //   }),
-      // });
+      toast({
+        title: 'Redação enviada!',
+        description: 'Sua redação foi enviada para correção com sucesso.',
+      });
 
       // Simulate processing time (15 seconds)
       setTimeout(async () => {
@@ -148,8 +138,8 @@ const Redacao = () => {
     } catch (error) {
       console.error('Error submitting essay:', error);
       toast({
-        title: 'Erro',
-        description: 'Ocorreu um erro ao enviar sua redação. Tente novamente.',
+        title: 'Falha no envio',
+        description: 'Não foi possível enviar sua redação. Tente novamente.',
         variant: 'destructive',
       });
       setIsProcessingDialogOpen(false);
@@ -162,7 +152,6 @@ const Redacao = () => {
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <DashboardBreadcrumb 
         currentPage="Redação"
-        paths={[{ name: 'Dashboard', path: '/dashboard' }]}
       />
       
       <div className="mb-8">
@@ -199,7 +188,19 @@ const Redacao = () => {
         </div>
 
         {/* Model essay display */}
-        {modeloRedacao && (
+        {isLoading ? (
+          <div className="border rounded-md p-4 bg-gray-50 space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        ) : modeloRedacao ? (
           <div className="border rounded-md p-4 bg-gray-50">
             <div className="mb-4">
               <h3 className="text-lg font-bold">Modelo de Redação - {modeloRedacao.instituicao}</h3>
@@ -211,7 +212,7 @@ const Redacao = () => {
               </p>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Student essay textarea */}
         <div>

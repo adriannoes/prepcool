@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from '@/hooks/use-toast';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Simulado {
   id: string;
@@ -106,25 +107,41 @@ const SimuladosList = () => {
     navigate(`/simulado/${id}`);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE]" />
-            <p className="mt-4 text-lg text-gray-600">Carregando simulados...</p>
+  const LoadingSkeleton = () => (
+    <div className="space-y-8">
+      {[1, 2].map(section => (
+        <div key={section} className="space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(card => (
+              <Card key={card} className="border-0 shadow-md rounded-2xl">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                  <Skeleton className="h-4 w-full" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4 mt-2" />
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-12 w-full" />
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
-      </div>
-    );
-  }
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <DashboardBreadcrumb 
           currentPage="Simulados"
-          paths={[{ name: 'Dashboard', path: '/dashboard' }]}
         />
         
         <div className="mb-8">
@@ -134,7 +151,9 @@ const SimuladosList = () => {
           </p>
         </div>
 
-        {Object.keys(simulados).length === 0 ? (
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : Object.keys(simulados).length === 0 ? (
           <div className="bg-white rounded-2xl shadow-md p-12 text-center">
             <School className="mx-auto h-16 w-16 text-gray-400 mb-6" />
             <h3 className="text-2xl font-bold text-gray-900 mb-4">Nenhum simulado disponível</h3>

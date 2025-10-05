@@ -10,6 +10,9 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 import PlanoHistoricoGroup from '@/components/plano/PlanoHistoricoGroup';
 import PlanoHistoricoFilters from '@/components/plano/PlanoHistoricoFilters';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from '@/hooks/use-toast';
 
 interface TopicoInfo {
   id: string;
@@ -43,58 +46,68 @@ const PlanoHistorico = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const { data: historicoData, isLoading } = useQuery<PlanoHistoricoData[]>({
-    queryKey: ['plano-historico'],
+    queryKey: ['plano-historico', statusFilter],
     queryFn: async () => {
       if (!user) return [];
       
-      const { data: planoItems, error } = await supabase
-        .from('plano_estudo')
-        .select(`
-          id, 
-          prioridade, 
-          status, 
-          tipo, 
-          origem,
-          created_at,
-          topico:topico_id (
+      try {
+        const { data: planoItems, error } = await supabase
+          .from('plano_estudo')
+          .select(`
             id, 
-            nome, 
-            disciplina:disciplina_id (
+            prioridade, 
+            status, 
+            tipo, 
+            origem,
+            created_at,
+            topico:topico_id (
               id, 
-              nome
+              nome, 
+              disciplina:disciplina_id (
+                id, 
+                nome
+              )
             )
-          )
-        `)
-        .eq('usuario_id', user.id)
-        .order('created_at', { ascending: false });
+          `)
+          .eq('usuario_id', user.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
         
-      if (error) throw error;
-      
-      // Group by origem
-      const grupos: Record<string, PlanoHistoricoData> = {};
-      
-      planoItems?.forEach(item => {
-        if (!item.topico?.disciplina) return;
+        // Group by origem
+        const grupos: Record<string, PlanoHistoricoData> = {};
         
-        if (!grupos[item.origem]) {
-          grupos[item.origem] = {
+        planoItems?.forEach(item => {
+          if (!item.topico?.disciplina) return;
+          
+          if (!grupos[item.origem]) {
+            grupos[item.origem] = {
+              origem: item.origem,
+              itens: []
+            };
+          }
+          
+          grupos[item.origem].itens.push({
+            id: item.id,
+            topico: item.topico,
+            prioridade: item.prioridade,
+            status: item.status,
+            tipo: item.tipo,
             origem: item.origem,
-            itens: []
-          };
-        }
-        
-        grupos[item.origem].itens.push({
-          id: item.id,
-          topico: item.topico,
-          prioridade: item.prioridade,
-          status: item.status,
-          tipo: item.tipo,
-          origem: item.origem,
-          created_at: item.created_at
+            created_at: item.created_at
+          });
         });
-      });
-      
-      return Object.values(grupos);
+        
+        return Object.values(grupos);
+      } catch (err) {
+        console.error('Error fetching plano histórico:', err);
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível carregar o histórico do plano de estudos.',
+          variant: 'destructive'
+        });
+        return [];
+      }
     },
     enabled: !!user
   });
@@ -106,20 +119,34 @@ const PlanoHistorico = () => {
       : grupo.itens.filter(item => item.status === statusFilter)
   })).filter(grupo => grupo.itens.length > 0);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#F9F9F9]">
-        <DashboardHeader 
-          userName={user?.user_metadata?.nome || "Estudante"} 
-          onSignOut={signOut} 
-        />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-center items-center">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-lg text-gray-600">Carregando histórico...</span>
+  const HistoricoSkeleton = () => (
+    <div className="space-y-6">
+      {[1, 2, 3].map(group => (
+        <div key={group} className="bg-white rounded-lg shadow p-6 space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-5 w-32" />
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map(item => (
+              <div key={item} className="border border-gray-100 rounded-md p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-8 w-8" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-5 w-40" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    );
-  }
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
@@ -129,6 +156,11 @@ const PlanoHistorico = () => {
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardBreadcrumb 
+          currentPage="Histórico"
+          paths={[{ name: 'Plano de Estudos', path: '/plano' }]}
+        />
+        
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div className="mb-4 sm:mb-0">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Histórico do Plano de Estudos</h1>
@@ -147,7 +179,9 @@ const PlanoHistorico = () => {
           onFilterChange={setStatusFilter}
         />
         
-        {filteredData && filteredData.length > 0 ? (
+        {isLoading ? (
+          <HistoricoSkeleton />
+        ) : filteredData && filteredData.length > 0 ? (
           <div className="space-y-6">
             {filteredData.map((grupo) => (
               <PlanoHistoricoGroup 

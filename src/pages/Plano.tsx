@@ -8,6 +8,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 import DisciplinaPlano from '@/components/plano/DisciplinaPlano';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
+import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from '@/hooks/use-toast';
 
 interface TopicoInfo {
   id: string;
@@ -97,20 +100,35 @@ const Plano = () => {
     enabled: !!user
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#F9F9F9]">
-        <DashboardHeader 
-          userName={user?.user_metadata?.nome || "Estudante"} 
-          onSignOut={signOut} 
-        />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-center">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-lg text-gray-600">Carregando seu plano de estudos...</span>
-        </div>
+  const DisciplinasSkeleton = () => (
+    <div className="bg-white rounded-2xl shadow-md p-6">
+      <div className="space-y-8">
+        {[1, 2, 3].map(discipline => (
+          <div key={discipline} className="space-y-4">
+            <Skeleton className="h-8 w-32" />
+            <div className="space-y-2">
+              {[1, 2, 3].map(item => (
+                <div key={item} className="p-4 border border-gray-100 rounded-md">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div>
+                        <Skeleton className="h-5 w-48" />
+                        <Skeleton className="h-4 w-24 mt-1" />
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Skeleton className="h-8 w-32" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F9F9F9]">
@@ -120,6 +138,10 @@ const Plano = () => {
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardBreadcrumb 
+          currentPage="Plano de Estudos"
+        />
+        
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div className="mb-4 sm:mb-0">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Plano de Estudos</h1>
@@ -133,7 +155,9 @@ const Plano = () => {
           </button>
         </div>
         
-        {estudoPorDisciplina && estudoPorDisciplina.length > 0 ? (
+        {isLoading ? (
+          <DisciplinasSkeleton />
+        ) : estudoPorDisciplina && estudoPorDisciplina.length > 0 ? (
           <div className="bg-white rounded-2xl shadow-md p-6">
             <Tabs defaultValue="todos" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-8 h-12">

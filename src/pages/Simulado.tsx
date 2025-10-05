@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import SimuladoQuestion from '@/components/simulado/SimuladoQuestion';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,16 +44,26 @@ const Simulado = () => {
       
       // Show success message
       toast({
-        title: 'Simulado concluído!',
+        title: 'Simulado enviado com sucesso!',
         description: data.message || 'Seu plano de estudos foi atualizado.',
       });
     } catch (err) {
       console.error('Failed to process simulado completion:', err);
+      toast({
+        title: 'Erro',
+        description: 'Tivemos um problema ao processar seu simulado. Tente novamente.',
+        variant: 'destructive'
+      });
     }
   };
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
+      <DashboardBreadcrumb 
+        currentPage="Simulado em Andamento"
+        paths={[{ name: 'Simulados', path: '/simulado' }]}
+      />
+      
       <SimuladoQuestion 
         simuladoId={id}
         onComplete={onSimuladoComplete} 

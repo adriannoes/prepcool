@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Redacao {
   id: string;
@@ -54,6 +54,11 @@ const RedacaoFeedback = () => {
       } catch (err) {
         console.error('Error fetching essay:', err);
         setError('Erro ao carregar a redação');
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível carregar o feedback da redação.',
+          variant: 'destructive',
+        });
       } finally {
         setIsLoading(false);
       }
@@ -95,11 +100,8 @@ const RedacaoFeedback = () => {
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
       <DashboardBreadcrumb 
-        currentPage="Feedback da Redação"
-        paths={[
-          { name: 'Dashboard', path: '/dashboard' },
-          { name: 'Redação', path: '/redacao' }
-        ]}
+        currentPage="Feedback"
+        paths={[{ name: 'Redação', path: '/redacao' }]}
       />
       
       <div className="mb-8">
@@ -110,9 +112,36 @@ const RedacaoFeedback = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px]">
-          <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE]" />
-          <p className="mt-4 text-gray-600">Carregando feedback...</p>
+        <div className="space-y-6">
+          <Card className="border-2 border-[#5E60CE]/20">
+            <CardHeader className="pb-2">
+              <Skeleton className="h-6 w-1/3" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center my-4">
+                <Skeleton className="h-16 w-24" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <Skeleton className="h-6 w-1/2 mb-3" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
+                </div>
+                <div>
+                  <Skeleton className="h-6 w-1/2 mb-3" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : error ? (
         <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
