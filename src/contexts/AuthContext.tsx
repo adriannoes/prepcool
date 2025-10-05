@@ -22,14 +22,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('🔄 AuthContext: Setting up auth state listener');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log('🔔 AuthContext: Auth state change', { 
+          event, 
+          hasSession: !!currentSession,
+          userEmail: currentSession?.user?.email 
+        });
+        
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
+        // Set loading to false as soon as we have auth state
+        if (loading) {
+          console.log('✅ AuthContext: Auth state loaded, setting loading to false');
+          setLoading(false);
+        }
+        
         if (event === 'SIGNED_IN') {
           // Redirect to dashboard only on sign in, not on sign up
+          console.log('🚀 AuthContext: User signed in, redirecting to dashboard');
           navigate('/dashboard');
         }
       }
@@ -37,13 +52,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log('📱 AuthContext: Initial session check', { 
+        hasSession: !!currentSession,
+        userEmail: currentSession?.user?.email 
+      });
+      
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, loading]);
 
   const signUp = async (email: string, password: string, metadata: { nome: string, telefone: string }) => {
     try {
@@ -119,6 +139,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
+
+  console.log('🎯 AuthContext: Current state', { 
+    hasUser: !!user,
+    userEmail: user?.email,
+    loading 
+  });
 
   return (
     <AuthContext.Provider value={{ session, user, loading, signUp, signIn, signOut }}>

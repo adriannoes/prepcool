@@ -24,24 +24,18 @@ export const useAdminCheck = () => {
         return;
       }
 
+      // Para dev@dev.com, verificação imediata por email (mais rápida e confiável)
+      const isDesignatedAdmin = user.email === 'dev@dev.com';
+      if (isDesignatedAdmin) {
+        console.log('✅ useAdminCheck: Designated admin confirmed by email - immediate access');
+        setIsAdmin(true);
+        setLoading(false);
+        return;
+      }
+
+      // Para outros usuários, verificar role no banco de dados
       try {
-        // Verificação por email como primeira verificação (mais confiável)
-        const isDesignatedAdmin = user.email === 'dev@dev.com';
-        console.log('📧 useAdminCheck: Email check first', { 
-          userEmail: user.email, 
-          isDesignatedAdmin 
-        });
-
-        // Se for o admin designado, definir como admin imediatamente
-        if (isDesignatedAdmin) {
-          console.log('✅ useAdminCheck: Designated admin confirmed by email');
-          setIsAdmin(true);
-          setLoading(false);
-          return;
-        }
-
-        // Para outros usuários, verificar role no banco
-        console.log('🔍 useAdminCheck: Checking user_roles table for non-designated user');
+        console.log('🔍 useAdminCheck: Checking user_roles table for other users');
         const { data: userRoles, error: rolesError } = await supabase
           .from('user_roles')
           .select('role')
@@ -66,10 +60,7 @@ export const useAdminCheck = () => {
         }
       } catch (error) {
         console.error('❌ useAdminCheck: Exception during admin check:', error);
-        // Em caso de erro, usar verificação por email como fallback
-        const isDesignatedAdmin = user.email === 'dev@dev.com';
-        console.log('🔄 useAdminCheck: Using email fallback due to exception:', isDesignatedAdmin);
-        setIsAdmin(isDesignatedAdmin);
+        setIsAdmin(false);
       } finally {
         setLoading(false);
       }
