@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Bell, Send, Users, User, Eye } from 'lucide-react';
+import { Bell, Send, Users, User, Eye, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { sanitizeInput, validateNotificationMessage, validateUrl } from '@/utils/inputValidation';
 
 interface Usuario {
   id: string;
@@ -40,6 +40,7 @@ const NotificationManager = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [lastSentAt, setLastSentAt] = useState<number>(0);
 
   // Form state
   const [selectedUser, setSelectedUser] = useState<string>('');
@@ -47,6 +48,9 @@ const NotificationManager = () => {
   const [message, setMessage] = useState('');
   const [linkDestino, setLinkDestino] = useState('');
   const [sendToAll, setSendToAll] = useState(false);
+
+  // Rate limiting: prevent sending notifications too frequently
+  const RATE_LIMIT_MS = 5000; // 5 seconds between sends
 
   useEffect(() => {
     fetchUsuarios();
@@ -102,10 +106,37 @@ const NotificationManager = () => {
   };
 
   const handleSendNotification = async () => {
-    if (!message.trim()) {
+    // Rate limiting check
+    const now = Date.now();
+    if (now - lastSentAt < RATE_LIMIT_MS) {
       toast({
         title: 'Erro',
-        description: 'A mensagem é obrigatória.',
+        description: `Aguarde ${Math.ceil((RATE_LIMIT_MS - (now - lastSentAt)) / 1000)} segundos antes de enviar outra notificação.`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Sanitize and validate inputs
+    const sanitizedMessage = sanitizeInput(message);
+    const sanitizedLink = linkDestino ? sanitizeInput(linkDestino) : '';
+
+    // Validate message
+    const messageError = validateNotificationMessage(sanitizedMessage);
+    if (messageError) {
+      toast({
+        title: 'Erro',
+        description: messageError,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate URL if provided
+    if (sanitizedLink && !validateUrl(sanitizedLink)) {
+      toast({
+        title: 'Erro',
+        description: 'Link de destino inválido. Use apenas links relativos ou do mesmo domínio.',
         variant: 'destructive'
       });
       return;
@@ -120,37 +151,57 @@ const NotificationManager = () => {
       return;
     }
 
+    // Limit batch notifications to prevent spam
+    if (sendToAll && usuarios.length > 100) {
+      toast({
+        title: 'Erro',
+        description: 'Não é possível enviar para mais de 100 usuários de uma vez por questões de segurança.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsSending(true);
 
     try {
       if (sendToAll) {
-        // Enviar para todos os usuários
-        const notifications = usuarios.map(user => ({
-          usuario_id: user.id,
-          tipo: notificationType,
-          mensagem: message,
-          link_destino: linkDestino || null
-        }));
+        // Send to all users with batch processing for security
+        const batchSize = 50;
+        const batches = [];
+        
+        for (let i = 0; i < usuarios.length; i += batchSize) {
+          const batch = usuarios.slice(i, i + batchSize);
+          batches.push(batch);
+        }
 
-        const { error } = await supabase
-          .from('notificacao')
-          .insert(notifications);
+        for (const batch of batches) {
+          const notifications = batch.map(user => ({
+            usuario_id: user.id,
+            tipo: notificationType,
+            mensagem: sanitizedMessage,
+            link_destino: sanitizedLink || null
+          }));
 
-        if (error) throw error;
+          const { error } = await supabase
+            .from('notificacao')
+            .insert(notifications);
+
+          if (error) throw error;
+        }
 
         toast({
           title: 'Sucesso',
           description: `Notificação enviada para ${usuarios.length} usuários.`
         });
       } else {
-        // Enviar para usuário específico
+        // Send to specific user
         const { error } = await supabase
           .from('notificacao')
           .insert({
             usuario_id: selectedUser,
             tipo: notificationType,
-            mensagem: message,
-            link_destino: linkDestino || null
+            mensagem: sanitizedMessage,
+            link_destino: sanitizedLink || null
           });
 
         if (error) throw error;
@@ -160,6 +211,9 @@ const NotificationManager = () => {
           description: 'Notificação enviada com sucesso.'
         });
       }
+
+      // Update rate limiting
+      setLastSentAt(now);
 
       // Reset form
       setSelectedUser('');
@@ -200,6 +254,20 @@ const NotificationManager = () => {
         <Bell className="h-6 w-6 text-coral" />
         <h2 className="text-2xl font-bold text-gray-900">Gerenciar Notificações</h2>
       </div>
+
+      {/* Security Notice */}
+      <Card className="border-orange-200 bg-orange-50">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+            <div className="text-sm text-orange-800">
+              <p className="font-semibold mb-1">Aviso de Segurança</p>
+              <p>Este painel permite enviar notificações para usuários. Use com responsabilidade e evite spam. 
+              Links externos não são permitidos por questões de segurança.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="send" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -267,11 +335,15 @@ const NotificationManager = () => {
                 <Label htmlFor="message">Mensagem</Label>
                 <Textarea
                   id="message"
-                  placeholder="Digite a mensagem da notificação..."
+                  placeholder="Digite a mensagem da notificação... (máximo 500 caracteres)"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   rows={3}
+                  maxLength={500}
                 />
+                <p className="text-xs text-gray-500">
+                  {message.length}/500 caracteres
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -279,15 +351,18 @@ const NotificationManager = () => {
                 <Input
                   id="link"
                   type="text"
-                  placeholder="/dashboard, /simulados, etc..."
+                  placeholder="/dashboard, /simulados, etc... (apenas links internos)"
                   value={linkDestino}
                   onChange={(e) => setLinkDestino(e.target.value)}
                 />
+                <p className="text-xs text-gray-500">
+                  Use apenas links relativos (/dashboard) por questões de segurança
+                </p>
               </div>
 
               <Button
                 onClick={handleSendNotification}
-                disabled={isSending}
+                disabled={isSending || (!message.trim()) || (!sendToAll && !selectedUser)}
                 className="bg-coral hover:bg-coral/90 w-full md:w-auto"
               >
                 <Send className="mr-2 h-4 w-4" />
