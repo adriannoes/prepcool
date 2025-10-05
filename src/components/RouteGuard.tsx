@@ -1,5 +1,7 @@
+
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 interface RouteGuardProps {
   requiresAuth?: boolean;
@@ -8,11 +10,12 @@ interface RouteGuardProps {
 const RouteGuard = ({ requiresAuth = true }: RouteGuardProps) => {
   const { user, loading } = useAuth();
   
-  // If still loading, show nothing or a loading spinner
+  // If still loading, show a more styled loading spinner
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-coral"></div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-coral" />
+        <p className="mt-4 text-gray-600">Carregando...</p>
       </div>
     );
   }
