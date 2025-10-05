@@ -13,7 +13,7 @@ const Admin = () => {
   }
 
   // Check if user is authenticated and is the admin
-  if (!user || user.email !== 'esadrianno@gmail.com') {
+  if (!user || user.email !== 'dev@dev.com') {
     return <Navigate to="/dashboard" replace />;
   }
 
