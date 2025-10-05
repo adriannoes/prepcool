@@ -2,9 +2,11 @@
 import React, { useEffect, useRef } from 'react';
 import FeatureCard from './FeatureCard';
 import { UserPlus, Layers, Medal } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const HowItWorks = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
   
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -31,10 +33,9 @@ const HowItWorks = () => {
     <div id="how-it-works" className="w-full py-20 px-6 bg-off-white" ref={sectionRef}>
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Como funciona a PrepCool?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t('howItWorks.title')}</h2>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Nossa plataforma foi desenhada para facilitar seu caminho rumo ao sucesso acadêmico,
-            com uma jornada simples e efetiva que coloca você no controle do seu aprendizado.
+            {t('howItWorks.description')}
           </p>
         </div>
         
@@ -42,22 +43,22 @@ const HowItWorks = () => {
           <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.1s' }}>
             <FeatureCard 
               icon={UserPlus} 
-              title="Faça seu cadastro" 
-              description="Crie sua conta em segundos e tenha acesso à nossa plataforma completa de estudo para vestibular."
+              title={t('howItWorks.step1.title')} 
+              description={t('howItWorks.step1.description')}
             />
           </div>
           <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.3s' }}>
             <FeatureCard 
               icon={Layers} 
-              title="Interaja com a trilha de conhecimento" 
-              description="Acesse conteúdos personalizados e organizados de acordo com seu ritmo de aprendizagem e objetivos."
+              title={t('howItWorks.step2.title')} 
+              description={t('howItWorks.step2.description')}
             />
           </div>
           <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.5s' }}>
             <FeatureCard 
               icon={Medal} 
-              title="Faça exercícios e simulados" 
-              description="Pratique com exercícios e simulados, sempre com a ajuda da nossa IA para você não ficar travado e ter sempre um assistente."
+              title={t('howItWorks.step3.title')} 
+              description={t('howItWorks.step3.description')}
             />
           </div>
         </div>

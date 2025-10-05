@@ -7,9 +7,11 @@ import LeadCaptureModal from '@/components/LeadCaptureModal';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 
-const Index = () => {
+const IndexContent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useLanguage();
   
   useEffect(() => {
     // Add animation classes to elements when they enter the viewport
@@ -45,17 +47,26 @@ const Index = () => {
           <div className="p-8 md:p-12 text-center">
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">
-                Entre para nossa <span className="text-coral">lista de espera</span>
+                {t('cta.title').split(' ').map((word, index, arr) => {
+                  // Highlight specific words based on language
+                  const highlightWords = t('language') === 'pt' ? ['lista', 'espera'] : ['waitlist'];
+                  const isHighlight = highlightWords.some(hw => word.toLowerCase().includes(hw.toLowerCase()));
+                  
+                  return (
+                    <span key={index} className={isHighlight ? 'text-coral' : ''}>
+                      {word}{index < arr.length - 1 ? ' ' : ''}
+                    </span>
+                  );
+                })}
               </h2>
               <p className="text-gray-600 max-w-xl mx-auto mb-8">
-                Seja um dos primeiros a experimentar nossa plataforma e transforme sua preparação para o vestibular.
-                Você será notificado assim que abrirmos as portas!
+                {t('cta.description')}
               </p>
               <Button 
                 onClick={() => setIsModalOpen(true)}
                 className="bg-coral hover:bg-coral/90 text-white font-semibold px-10 py-6 rounded-lg shadow-lg transition-all hover:scale-105 text-lg"
               >
-                Entrar na Lista de Espera <ArrowRight className="ml-2" />
+                {t('cta.button')} <ArrowRight className="ml-2" />
               </Button>
             </div>
           </div>
@@ -65,6 +76,14 @@ const Index = () => {
       <LeadCaptureModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <Footer />
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <LanguageProvider>
+      <IndexContent />
+    </LanguageProvider>
   );
 };
 

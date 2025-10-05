@@ -1,22 +1,36 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Hero = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <section className="bg-off-white flex flex-col md:flex-row items-center justify-between px-6 py-16 md:py-24 max-w-7xl mx-auto">
       {/* Left Column - Value Proposition */}
       <div className="flex flex-col w-full md:w-1/2 mb-12 md:mb-0 text-left">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-6 leading-tight">
-          Educação online que <span className="text-coral">transforma seu futuro</span>
+          {t('hero.title').split(' ').map((word, index, arr) => {
+            // Highlight "transforma seu futuro" in Portuguese or "transforms your future" in English
+            const highlightPhrases = {
+              pt: ['transforma', 'seu', 'futuro'],
+              en: ['transforms', 'your', 'future']
+            };
+            const currentLanguage = t('language.portuguese') === 'Português' ? 'pt' : 'en';
+            const isHighlight = highlightPhrases[currentLanguage].includes(word.toLowerCase());
+            
+            return (
+              <span key={index} className={isHighlight ? 'text-coral' : ''}>
+                {word}{index < arr.length - 1 ? ' ' : ''}
+              </span>
+            );
+          })}
         </h1>
         
         <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-lg">
-          Plataforma completa para preparação para o vestibular com resumos, exercícios, 
-          simulados e acompanhamento personalizado. Estude do seu jeito e conquiste sua vaga.
+          {t('hero.description')}
         </p>
         
         {!user ? (
@@ -24,14 +38,14 @@ const Hero = () => {
             to="/signup" 
             className="bg-coral hover:bg-coral/90 text-white font-semibold px-8 py-4 rounded-lg shadow-lg transition-all hover:scale-105 transform duration-300 w-fit text-center"
           >
-            Comece Agora
+            {t('hero.cta.start')}
           </Link>
         ) : (
           <Link 
             to="/dashboard" 
             className="bg-coral hover:bg-coral/90 text-white font-semibold px-8 py-4 rounded-lg shadow-lg transition-all hover:scale-105 transform duration-300 w-fit text-center"
           >
-            Acesse sua Área de Estudos
+            {t('hero.cta.dashboard')}
           </Link>
         )}
       </div>

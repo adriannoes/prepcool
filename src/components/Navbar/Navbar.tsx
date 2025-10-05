@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -5,11 +6,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import NotificationBell from '../NotificationBell';
 import HelpButton from '../HelpButton';
+import LanguageSwitcher from '../LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -75,23 +79,23 @@ const Navbar = () => {
               onClick={() => scrollToSection('how-it-works')} 
               className="text-gray-700 hover:text-coral transition-colors font-medium"
             >
-              Como funciona
+              {t('nav.howItWorks')}
             </button>
           </>
         )}
         <Link to="/sobre-nos" className="text-gray-700 hover:text-coral transition-colors font-medium">
-          Sobre nós
+          {t('nav.about')}
         </Link>
         <Link to="/ajuda" className="text-gray-700 hover:text-coral transition-colors font-medium">
-          Quer nos apoiar?
+          {t('nav.support')}
         </Link>
         {user && (
           <>
             <Link to="/dashboard" className="text-gray-700 hover:text-coral transition-colors font-medium">
-              Dashboard
+              {t('nav.dashboard')}
             </Link>
             <Link to="/aprendizado" className="text-gray-700 hover:text-coral transition-colors font-medium">
-              Aprendizado
+              {t('nav.learning')}
             </Link>
             <div className="flex items-center space-x-2">
               <NotificationBell />
@@ -99,6 +103,7 @@ const Navbar = () => {
             </div>
           </>
         )}
+        <LanguageSwitcher />
       </div>
       <div className="hidden md:flex items-center space-x-4">
         {user ? (
@@ -107,14 +112,14 @@ const Navbar = () => {
             variant="outline"
             className="border-coral text-coral hover:bg-coral/10"
           >
-            Sair
+            {t('nav.logout')}
           </Button>
         ) : (
           <Link 
             to="/login" 
             className="bg-coral/10 hover:bg-coral/20 text-coral rounded-md py-2 px-6 font-medium transition-colors"
           >
-            Entrar
+            {t('nav.login')}
           </Link>
         )}
       </div>
@@ -124,9 +129,9 @@ const Navbar = () => {
             <>
               <button 
                 onClick={() => scrollToSection('how-it-works')}
-                className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
+                className="text-gray-700 py-2 hover:text-coral transition-colors font-medium text-left"
               >
-                Como funciona
+                {t('nav.howItWorks')}
               </button>
             </>
           )}
@@ -135,14 +140,14 @@ const Navbar = () => {
             className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
             onClick={() => setIsMenuOpen(false)}
           >
-            Sobre nós
+            {t('nav.about')}
           </Link>
           <Link 
             to="/ajuda" 
             className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
             onClick={() => setIsMenuOpen(false)}
           >
-            Quer nos apoiar?
+            {t('nav.support')}
           </Link>
           {user && (
             <>
@@ -151,14 +156,14 @@ const Navbar = () => {
                 className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
               <Link
                 to="/aprendizado"
                 className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Aprendizado
+                {t('nav.learning')}
               </Link>
               <div className="flex items-center justify-between py-2">
                 <span className="text-gray-700 font-medium">Notificações</span>
@@ -166,6 +171,10 @@ const Navbar = () => {
               </div>
             </>
           )}
+          <div className="flex items-center justify-between py-2">
+            <span className="text-gray-700 font-medium">Idioma</span>
+            <LanguageSwitcher />
+          </div>
           <button 
             onClick={handleAuthAction}
             className={user ? 
@@ -173,7 +182,7 @@ const Navbar = () => {
               "bg-coral text-white py-3 px-4 rounded-md text-center hover:bg-coral/90 transition-colors font-medium"
             }
           >
-            {user ? "Sair" : "Entrar"}
+            {user ? t('nav.logout') : t('nav.login')}
           </button>
         </div>
       )}
