@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FileText, Video, BookOpen, Target, Bell, Database } from 'lucide-react';
 import RedacaoManager from './RedacaoManager';
