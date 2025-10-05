@@ -34,11 +34,34 @@ export const useAdminCheck = () => {
           error: rpcError 
         });
 
+        // Log adicional para debug da função RPC
+        if (rpcError) {
+          console.error('🚨 useAdminCheck: RPC Error details:', {
+            message: rpcError.message,
+            details: rpcError.details,
+            hint: rpcError.hint,
+            code: rpcError.code
+          });
+        }
+
         // Verificação por email como fallback (dev@dev.com é o admin designado)
         const isDesignatedAdmin = user.email === 'dev@dev.com';
         console.log('📧 useAdminCheck: Email check', { 
           userEmail: user.email, 
           isDesignatedAdmin 
+        });
+
+        // Verificar se usuário existe na tabela user_roles
+        console.log('🔍 useAdminCheck: Checking user_roles table manually');
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id);
+        
+        console.log('📋 useAdminCheck: User roles query result', {
+          userRoles,
+          rolesError,
+          userId: user.id
         });
 
         if (rpcError) {
@@ -51,7 +74,8 @@ export const useAdminCheck = () => {
           console.log('✅ useAdminCheck: Final admin status', {
             hasAdminRole,
             isDesignatedAdmin,
-            finalResult: finalAdminStatus
+            finalResult: finalAdminStatus,
+            userRolesFound: userRoles?.length || 0
           });
           setIsAdmin(finalAdminStatus);
         }

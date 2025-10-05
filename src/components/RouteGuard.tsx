@@ -1,3 +1,4 @@
+
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -59,6 +60,13 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
       console.log('❌ RouteGuard: Admin route accessed without authentication, redirecting to login');
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
+    
+    console.log('🔍 RouteGuard: Checking admin privileges', {
+      userEmail: user.email,
+      isAdmin,
+      adminLoading,
+      specificCheck: user.email === 'dev@dev.com'
+    });
     
     if (!isAdmin) {
       console.log('❌ RouteGuard: Non-admin user attempting to access admin route', {
