@@ -25,7 +25,7 @@ vi.mock('react-router-dom', async () => {
   return {
     ...actual,
     useNavigate: () => vi.fn(),
-    BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => <>{children}</>
   };
 });
 

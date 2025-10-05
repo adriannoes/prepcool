@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface LoadingSpinnerProps {
@@ -13,7 +12,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md' }) => {
   };
 
   return (
-    <div className="flex justify-center py-8">
+    <div className="flex justify-center py-8" data-testid="loading-spinner">
       <div className={`animate-spin rounded-full ${sizeClasses[size]} border-t-2 border-coral border-opacity-50`}></div>
     </div>
   );
