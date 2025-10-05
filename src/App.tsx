@@ -37,54 +37,52 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <>
-      <React.StrictMode>
-        <BrowserRouter>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Sonner richColors closeButton />
-              <AuthProvider>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/sobre-nos" element={<SobreNos />} />
-                  <Route path="/apoiar" element={<Apoiar />} />
-                  <Route path="/ajuda" element={<Ajuda />} />
-                  
-                  {/* Auth routes - accessible only when NOT logged in */}
-                  <Route element={<RouteGuard requiresAuth={false} />}>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                  </Route>
-                  
-                  {/* Protected routes - require authentication */}
-                  <Route element={<RouteGuard requiresAuth={true} />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/aprendizado" element={<Aprendizado />} />
-                    <Route path="/aprendizado/:disciplina" element={<AprendizadoDisciplina />} />
-                    <Route path="/simulado" element={<SimuladosList />} />
-                    <Route path="/simulado/:id" element={<Simulado />} />
-                    <Route path="/redacao" element={<Redacao />} />
-                    <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
-                    <Route path="/diagnostico" element={<Diagnostico />} />
-                    <Route path="/plano" element={<Plano />} />
-                    <Route path="/plano/historico" element={<PlanoHistorico />} />
-                  </Route>
-                  
-                  {/* Admin routes - require authentication AND admin role */}
-                  <Route element={<RouteGuard requiresAuth={true} requiresAdmin={true} />}>
-                    <Route path="/admin" element={<Admin />} />
-                  </Route>
-                  
-                  {/* Catch-all route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AuthProvider>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </BrowserRouter>
-      </React.StrictMode>
-    </>
+    <React.StrictMode>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Sonner richColors closeButton />
+            <AuthProvider>
+              <Routes>
+                {/* Public routes - sempre acessíveis */}
+                <Route path="/" element={<Index />} />
+                <Route path="/sobre-nos" element={<SobreNos />} />
+                <Route path="/apoiar" element={<Apoiar />} />
+                <Route path="/ajuda" element={<Ajuda />} />
+                
+                {/* Auth routes - accessible only when NOT logged in */}
+                <Route element={<RouteGuard requiresAuth={false} />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                </Route>
+                
+                {/* Protected routes - require authentication */}
+                <Route element={<RouteGuard requiresAuth={true} />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/aprendizado" element={<Aprendizado />} />
+                  <Route path="/aprendizado/:disciplina" element={<AprendizadoDisciplina />} />
+                  <Route path="/simulado" element={<SimuladosList />} />
+                  <Route path="/simulado/:id" element={<Simulado />} />
+                  <Route path="/redacao" element={<Redacao />} />
+                  <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
+                  <Route path="/diagnostico" element={<Diagnostico />} />
+                  <Route path="/plano" element={<Plano />} />
+                  <Route path="/plano/historico" element={<PlanoHistorico />} />
+                </Route>
+                
+                {/* Admin routes - require authentication AND admin role */}
+                <Route element={<RouteGuard requiresAuth={true} requiresAdmin={true} />}>
+                  <Route path="/admin" element={<Admin />} />
+                </Route>
+                
+                {/* Catch-all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </React.StrictMode>
   );
 }
 
