@@ -53,7 +53,7 @@ const fetchStudyPlan = (): Promise<typeof mockStudyPlan> => {
   });
 };
 
-const useDashboardData = () => {
+export const useDashboardData = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: disciplines = [], isLoading: isDisciplinesLoading } = useQuery({
@@ -80,13 +80,18 @@ const useDashboardData = () => {
   const studyPlanCompletion = studyPlan ? studyPlan.completionPercentage.toString() : "0";
 
   return {
-    isLoading: isDisciplinesLoading || isSimuladosLoading || isRedacoesLoading || isStudyPlanLoading,
-    disciplines,
-    simulados,
-    redacoes,
-    studyPlan,
-    studyPlanCompletion
+    loading: isDisciplinesLoading || isSimuladosLoading || isRedacoesLoading || isStudyPlanLoading,
+    disciplineProgress: disciplines,
+    simuladoProgress: {
+      completed: simulados.filter(s => s.status === 'completed').length,
+      total: simulados.length
+    },
+    redacaoProgress: {
+      submitted: redacoes.length,
+      average_score: redacoes.filter(r => r.status === 'corrected').length > 0
+        ? Math.round(redacoes.filter(r => r.status === 'corrected' && r.score).reduce((acc, cur) => acc + (cur.score || 0), 0) / 
+          redacoes.filter(r => r.status === 'corrected').length)
+        : 0
+    }
   };
 };
-
-export default useDashboardData;

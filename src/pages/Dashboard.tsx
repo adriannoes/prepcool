@@ -18,7 +18,7 @@ const Dashboard = () => {
     disciplineProgress,
     simuladoProgress,
     redacaoProgress
-  } = useDashboardData(user);
+  } = useDashboardData();
 
   return (
     <div className="min-h-screen bg-off-white p-4 md:p-6">
