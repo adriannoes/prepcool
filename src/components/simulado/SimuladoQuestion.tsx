@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { DashboardBreadcrumb } from '@/components/dashboard/DashboardBreadcrumb';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 
 interface Question {
   id: string;
@@ -148,12 +148,8 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
   return (
     <>
       <DashboardBreadcrumb 
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Simulado', href: '/simulado' },
-          { label: `Questão ${currentQuestionIndex + 1}`, href: '#', active: true }
-        ]} 
+        currentPage={`Questão ${currentQuestionIndex + 1}`}
+        paths={[{ name: 'Simulado', path: '/simulado' }]}
       />
       
       <div className="mb-6">
