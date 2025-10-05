@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +24,7 @@ interface PlanoEstudo {
   usuario?: {
     nome: string;
     email: string;
-  };
+  } | null;
 }
 
 const PlanoViewer = () => {
@@ -50,17 +49,31 @@ const PlanoViewer = () => {
             disciplina:disciplina_id (
               nome
             )
-          ),
-          usuario:usuario_id (
-            nome,
-            email
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPlanos(data || []);
+
+      // Fetch user data separately to avoid join issues
+      const planosWithUsers = await Promise.all(
+        (data || []).map(async (plano) => {
+          const { data: userData } = await supabase
+            .from('usuario')
+            .select('nome, email')
+            .eq('id', plano.usuario_id)
+            .single();
+
+          return {
+            ...plano,
+            usuario: userData || null
+          };
+        })
+      );
+
+      setPlanos(planosWithUsers);
     } catch (error) {
+      console.error('Error fetching planos:', error);
       toast({
         title: "Erro ao carregar planos",
         description: "Não foi possível carregar os planos de estudo.",
@@ -73,10 +86,10 @@ const PlanoViewer = () => {
 
   const filteredPlanos = planos.filter(plano => {
     const matchesSearch = 
-      plano.usuario?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plano.usuario?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plano.topico?.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plano.topico?.disciplina?.nome.toLowerCase().includes(searchTerm.toLowerCase());
+      plano.usuario?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plano.usuario?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plano.topico?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plano.topico?.disciplina?.nome?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || plano.status === statusFilter;
     const matchesTipo = tipoFilter === 'all' || plano.tipo === tipoFilter;
@@ -179,15 +192,19 @@ const PlanoViewer = () => {
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h3 className="font-semibold">{plano.usuario?.nome}</h3>
-                    <span className="text-sm text-gray-500">({plano.usuario?.email})</span>
+                    <h3 className="font-semibold">
+                      {plano.usuario?.nome || 'Usuário não encontrado'}
+                    </h3>
+                    <span className="text-sm text-gray-500">
+                      ({plano.usuario?.email || 'Email não disponível'})
+                    </span>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Tópico:</p>
                       <p className="font-medium">
-                        {plano.topico?.disciplina?.nome} - {plano.topico?.nome}
+                        {plano.topico?.disciplina?.nome || 'Disciplina'} - {plano.topico?.nome || 'Tópico não encontrado'}
                       </p>
                     </div>
                     <div>
