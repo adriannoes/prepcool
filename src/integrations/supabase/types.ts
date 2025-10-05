@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      diagnostico: {
+        Row: {
+          data: string | null
+          id: string
+          respostas: Json
+          usuario_id: string
+        }
+        Insert: {
+          data?: string | null
+          id?: string
+          respostas: Json
+          usuario_id: string
+        }
+        Update: {
+          data?: string | null
+          id?: string
+          respostas?: Json
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnostico_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disciplina: {
         Row: {
           created_at: string | null

@@ -1,59 +1,49 @@
 
-import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import DisciplineProgress from '@/components/dashboard/DisciplineProgress';
+import StudyPlanCard from '@/components/dashboard/StudyPlanCard';
 import SimuladoCard from '@/components/dashboard/SimuladoCard';
 import RedacaoCard from '@/components/dashboard/RedacaoCard';
-import StudyPlanCard from '@/components/dashboard/StudyPlanCard';
-import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import DiagnosticoCard from '@/components/dashboard/DiagnosticoCard';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import useDashboardData from '@/hooks/useDashboardData';
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  const {
-    loading,
-    disciplineProgress,
-    simuladoProgress,
-    redacaoProgress
+  const { user } = useAuth();
+  const { 
+    isLoading, 
+    simulados, 
+    ultimasRedacoes
   } = useDashboardData();
 
   return (
-    <div className="min-h-screen bg-off-white p-4 md:p-6">
-      <div className="container mx-auto max-w-5xl">
-        <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
-          <DashboardBreadcrumb currentPage="Dashboard" />
+    <div className="min-h-screen bg-gray-50">
+      <DashboardHeader />
+      
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* First row */}
+          <DiagnosticoCard />
+          <StudyPlanCard />
           
-          <DashboardHeader 
-            userName={user?.user_metadata?.nome || 'Estudante'} 
-            onSignOut={signOut} 
-          />
+          {/* Second row */}
+          <div className="col-span-1 md:col-span-2">
+            <DisciplineProgress />
+          </div>
+          <div className="col-span-1">
+            <SimuladoCard simulados={simulados} loading={isLoading} />
+          </div>
           
-          {loading ? (
-            <LoadingSpinner />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <DisciplineProgress disciplines={disciplineProgress} />
-              
-              <div className="grid grid-cols-1 gap-6 md:col-span-2 lg:grid-cols-2">
-                <SimuladoCard 
-                  completed={simuladoProgress.completed} 
-                  total={simuladoProgress.total} 
-                />
-                <RedacaoCard 
-                  submitted={redacaoProgress.submitted} 
-                  averageScore={redacaoProgress.average_score} 
-                />
-              </div>
-              
-              <StudyPlanCard />
-            </div>
-          )}
+          {/* Third row */}
+          <div className="col-span-1 md:col-span-3">
+            <RedacaoCard redacoes={ultimasRedacoes} loading={isLoading} />
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
