@@ -39,7 +39,7 @@ const EmptyState = ({
             {ctaHref ? (
               <Button 
                 asChild 
-                className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl px-6 py-3 h-auto font-medium text-sm"
+                className="bg-coral hover:bg-coral/90 text-white rounded-xl px-6 py-3 h-auto font-medium text-sm"
               >
                 <Link to={ctaHref}>
                   {ctaIcon && <span className="mr-2">{ctaIcon}</span>}
@@ -49,7 +49,7 @@ const EmptyState = ({
             ) : (
               <Button 
                 onClick={onCtaClick}
-                className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl px-6 py-3 h-auto font-medium text-sm"
+                className="bg-coral hover:bg-coral/90 text-white rounded-xl px-6 py-3 h-auto font-medium text-sm"
               >
                 {ctaIcon && <span className="mr-2">{ctaIcon}</span>}
                 {ctaLabel}
