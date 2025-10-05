@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -92,7 +91,40 @@ const Redacao = () => {
       throw new Error(`Webhook failed with status: ${response.status}`);
     }
 
-    return await response.json();
+    const rawResponse = await response.json();
+    console.log('Raw webhook response:', rawResponse);
+
+    // Process the nested response structure
+    let parsedResponse: WebhookResponse;
+    
+    try {
+      // Check if response is an array with output property
+      if (Array.isArray(rawResponse) && rawResponse.length > 0 && rawResponse[0].output) {
+        // Extract the JSON string from the output property
+        const outputString = rawResponse[0].output;
+        console.log('Output string:', outputString);
+        
+        // Parse the escaped JSON string
+        parsedResponse = JSON.parse(outputString);
+        console.log('Parsed response:', parsedResponse);
+      } else if (rawResponse.nota && rawResponse.tema) {
+        // Direct response format (fallback)
+        parsedResponse = rawResponse;
+      } else {
+        throw new Error('Unexpected response format');
+      }
+
+      // Validate required fields
+      if (!parsedResponse.nota || !parsedResponse.tema || !parsedResponse.pontos_fortes || !parsedResponse.melhorias) {
+        throw new Error('Missing required fields in response');
+      }
+
+      return parsedResponse;
+    } catch (parseError) {
+      console.error('Error parsing webhook response:', parseError);
+      console.error('Raw response was:', rawResponse);
+      throw new Error('Failed to parse AI response. Please try again.');
+    }
   };
 
   // Handle essay submission
