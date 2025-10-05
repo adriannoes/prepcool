@@ -25,34 +25,23 @@ export const useAdminCheck = () => {
       }
 
       try {
-        // Verificação dupla: role-based (principal) + email fallback
-        console.log('🔍 useAdminCheck: Calling is_admin() RPC function');
-        const { data: hasAdminRole, error: rpcError } = await supabase.rpc('is_admin');
-        
-        console.log('📊 useAdminCheck: RPC response', { 
-          data: hasAdminRole, 
-          error: rpcError 
-        });
-
-        // Log adicional para debug da função RPC
-        if (rpcError) {
-          console.error('🚨 useAdminCheck: RPC Error details:', {
-            message: rpcError.message,
-            details: rpcError.details,
-            hint: rpcError.hint,
-            code: rpcError.code
-          });
-        }
-
-        // Verificação por email como fallback (dev@dev.com é o admin designado)
+        // Verificação por email como primeira verificação (mais confiável)
         const isDesignatedAdmin = user.email === 'dev@dev.com';
-        console.log('📧 useAdminCheck: Email check', { 
+        console.log('📧 useAdminCheck: Email check first', { 
           userEmail: user.email, 
           isDesignatedAdmin 
         });
 
-        // Verificar se usuário existe na tabela user_roles
-        console.log('🔍 useAdminCheck: Checking user_roles table manually');
+        // Se for o admin designado, definir como admin imediatamente
+        if (isDesignatedAdmin) {
+          console.log('✅ useAdminCheck: Designated admin confirmed by email');
+          setIsAdmin(true);
+          setLoading(false);
+          return;
+        }
+
+        // Para outros usuários, verificar role no banco
+        console.log('🔍 useAdminCheck: Checking user_roles table for non-designated user');
         const { data: userRoles, error: rolesError } = await supabase
           .from('user_roles')
           .select('role')
@@ -64,24 +53,20 @@ export const useAdminCheck = () => {
           userId: user.id
         });
 
-        if (rpcError) {
-          console.error('❌ useAdminCheck: RPC error, falling back to email check:', rpcError);
-          // Se RPC falhar, usar apenas verificação por email
-          setIsAdmin(isDesignatedAdmin);
+        if (rolesError) {
+          console.error('❌ useAdminCheck: Error querying user roles:', rolesError);
+          setIsAdmin(false);
         } else {
-          // Combinar verificações: deve ter role admin OU ser o email designado
-          const finalAdminStatus = hasAdminRole || isDesignatedAdmin;
-          console.log('✅ useAdminCheck: Final admin status', {
+          const hasAdminRole = userRoles?.some(roleRow => roleRow.role === 'admin') || false;
+          console.log('✅ useAdminCheck: Role-based admin check', {
             hasAdminRole,
-            isDesignatedAdmin,
-            finalResult: finalAdminStatus,
             userRolesFound: userRoles?.length || 0
           });
-          setIsAdmin(finalAdminStatus);
+          setIsAdmin(hasAdminRole);
         }
       } catch (error) {
         console.error('❌ useAdminCheck: Exception during admin check:', error);
-        // Em caso de erro, fazer fallback para verificação por email
+        // Em caso de erro, usar verificação por email como fallback
         const isDesignatedAdmin = user.email === 'dev@dev.com';
         console.log('🔄 useAdminCheck: Using email fallback due to exception:', isDesignatedAdmin);
         setIsAdmin(isDesignatedAdmin);

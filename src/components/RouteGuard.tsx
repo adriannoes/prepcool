@@ -1,4 +1,3 @@
-
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -64,8 +63,7 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
     console.log('🔍 RouteGuard: Checking admin privileges', {
       userEmail: user.email,
       isAdmin,
-      adminLoading,
-      specificCheck: user.email === 'dev@dev.com'
+      adminLoading
     });
     
     if (!isAdmin) {
