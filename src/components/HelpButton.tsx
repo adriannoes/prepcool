@@ -54,10 +54,11 @@ const HelpButton = () => {
   });
 
   const subjectOptions = [
-    { value: 'problemas-tecnicos', label: 'Problemas técnicos' },
-    { value: 'duvida-plano-estudos', label: 'Dúvida sobre o plano de estudos' },
-    { value: 'ajuda-redacao', label: 'Ajuda com redação' },
-    { value: 'outros', label: 'Outros' },
+    { value: 'Problemas técnicos', label: 'Problemas técnicos' },
+    { value: 'Dúvida sobre o plano de estudos', label: 'Dúvida sobre o plano de estudos' },
+    { value: 'Ajuda com redação', label: 'Ajuda com redação' },
+    { value: 'Feedback sobre o produto', label: 'Feedback sobre o produto' },
+    { value: 'Outros', label: 'Outros' },
   ];
 
   const submitHelpRequest = async (data: FormData) => {
@@ -119,9 +120,9 @@ const HelpButton = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-10 w-10 rounded-full hover:bg-gray-100 transition-colors"
+                className="relative h-10 w-10 rounded-full hover:bg-gray-100 transition-colors animate-pulse hover:animate-none bg-blue-50 border border-blue-200 hover:bg-blue-100"
               >
-                <HelpCircle className="h-5 w-5 text-gray-600" />
+                <HelpCircle className="h-5 w-5 text-blue-600" />
               </Button>
             </DialogTrigger>
           </TooltipTrigger>
