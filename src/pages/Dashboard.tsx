@@ -7,6 +7,7 @@ import SimuladoCard from '@/components/dashboard/SimuladoCard';
 import RedacaoCard from '@/components/dashboard/RedacaoCard';
 import DiagnosticoCard from '@/components/dashboard/DiagnosticoCard';
 import DiagnosticoModal from '@/components/dashboard/DiagnosticoModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { supabase } from '@/integrations/supabase/client';
@@ -89,46 +90,58 @@ const Dashboard = () => {
 
   // Otherwise render normal dashboard content
   return (
-    <div className="min-h-screen bg-[#F9F9F9]">
-      <DashboardHeader 
-        userName={user?.user_metadata?.nome || "Estudante"} 
-        onSignOut={signOut} 
-      />
-      
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Dashboard</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Acompanhe seu progresso e continue seus estudos para alcançar seus objetivos
-          </p>
-        </div>
-        
-        <div className="space-y-8">
-          {/* Top section - Diagnostic and Study Plan */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <DiagnosticoCard />
-            <StudyPlanCard />
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#F9F9F9]">
+        <DashboardHeader
+          userName={user?.user_metadata?.nome || "Estudante"}
+          onSignOut={signOut}
+        />
+
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Dashboard</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Acompanhe seu progresso e continue seus estudos para alcançar seus objetivos
+            </p>
           </div>
-          
-          {/* Middle section - Practice Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <SimuladoCard 
-              completed={simuladoProgress.completed} 
-              total={simuladoProgress.total} 
-            />
-            <RedacaoCard
-              submitted={redacaoProgress.submitted}
-              averageScore={redacaoProgress.average_score}
-            />
+
+          <div className="space-y-8">
+            {/* Top section - Diagnostic and Study Plan */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ErrorBoundary fallback={<div className="p-4 bg-red-50 border border-red-200 rounded">Erro ao carregar diagnóstico</div>}>
+                <DiagnosticoCard />
+              </ErrorBoundary>
+              <ErrorBoundary fallback={<div className="p-4 bg-red-50 border border-red-200 rounded">Erro ao carregar plano de estudos</div>}>
+                <StudyPlanCard />
+              </ErrorBoundary>
+            </div>
+
+            {/* Middle section - Practice Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ErrorBoundary fallback={<div className="p-4 bg-red-50 border border-red-200 rounded">Erro ao carregar simulados</div>}>
+                <SimuladoCard
+                  completed={simuladoProgress.completed}
+                  total={simuladoProgress.total}
+                />
+              </ErrorBoundary>
+              <ErrorBoundary fallback={<div className="p-4 bg-red-50 border border-red-200 rounded">Erro ao carregar redações</div>}>
+                <RedacaoCard
+                  submitted={redacaoProgress.submitted}
+                  averageScore={redacaoProgress.average_score}
+                />
+              </ErrorBoundary>
+            </div>
+
+            {/* Bottom section - Discipline Progress */}
+            <div className="w-full">
+              <ErrorBoundary fallback={<div className="p-4 bg-red-50 border border-red-200 rounded">Erro ao carregar progresso das disciplinas</div>}>
+                <DisciplineProgress disciplines={disciplineProgress} />
+              </ErrorBoundary>
+            </div>
           </div>
-          
-          {/* Bottom section - Discipline Progress */}
-          <div className="w-full">
-            <DisciplineProgress disciplines={disciplineProgress} />
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 };
 
