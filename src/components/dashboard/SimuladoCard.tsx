@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Award } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,10 @@ interface SimuladoCardProps {
 const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
   const percentCompleted = total > 0 ? (completed / total) * 100 : 0;
   const hasNoSimulados = completed === 0;
+  
+  // This is a placeholder ID. In a real application, you would likely
+  // fetch available simulados and use a real ID or have a simulado list page
+  const sampleSimuladoId = "123e4567-e89b-12d3-a456-426614174000";
   
   return (
     <Card className="h-full flex flex-col">
@@ -47,9 +52,14 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
         )}
       </CardContent>
       <CardFooter>
-        <Button className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2">
-          <Award className="mr-2 h-4 w-4" />
-          Praticar Simulados
+        <Button 
+          className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2"
+          asChild
+        >
+          <Link to={`/simulado/${sampleSimuladoId}`}>
+            <Award className="mr-2 h-4 w-4" />
+            Praticar Simulados
+          </Link>
         </Button>
       </CardFooter>
     </Card>

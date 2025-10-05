@@ -14,6 +14,7 @@ import Aprendizado from "./pages/Aprendizado";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
 import Apoiar from "./pages/Apoiar";
+import Simulado from "./pages/Simulado";
 
 const queryClient = new QueryClient();
 
@@ -40,8 +41,10 @@ const App = () => (
             <Route element={<RouteGuard requiresAuth={true} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/aprendizado" element={<Aprendizado />} />
+              <Route path="/simulado/:id" element={<Simulado />} />
               {/* Add more protected routes here */}
               {/* <Route path="/simulado" element={<Simulado />} /> */}
+              {/* <Route path="/plano" element={<Plano />} /> */}
             </Route>
             
             {/* Catch-all route */}
