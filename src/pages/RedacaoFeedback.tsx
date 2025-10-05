@@ -1,101 +1,108 @@
+
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Award, ThumbsUp, Lightbulb, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Award, ThumbsUp, Lightbulb, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
-import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
-interface Redacao {
-  id: string;
+interface FeedbackData {
+  nota: number;
   tema: string;
-  texto: string;
-  feedback: string | null;
-  nota: number | null;
+  pontos_fortes: string[];
+  melhorias: string[];
+  comentario_final: string;
+  redacao: string;
   created_at: string;
 }
 
 const RedacaoFeedback = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const redacaoId = searchParams.get('id');
-  
-  const [redacao, setRedacao] = useState<Redacao | null>(null);
+  const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRedacao = async () => {
-      if (!redacaoId || !user) {
-        setError('Redação não encontrada ou usuário não autenticado');
-        setIsLoading(false);
-        return;
-      }
-
+    const loadFeedback = () => {
       try {
-        const { data, error } = await supabase
-          .from('redacao')
-          .select('*')
-          .eq('id', redacaoId)
-          .eq('usuario_id', user.id)
-          .single();
-
-        if (error) throw error;
-        if (!data) {
-          setError('Redação não encontrada');
-        } else {
-          setRedacao(data);
+        const storedFeedback = localStorage.getItem('essay_feedback');
+        if (!storedFeedback) {
+          setError('Nenhum feedback encontrado. Por favor, envie uma redação primeiro.');
+          setIsLoading(false);
+          return;
         }
+
+        const feedbackData = JSON.parse(storedFeedback);
+        
+        // Validate required fields
+        if (!feedbackData.nota || !feedbackData.tema) {
+          setError('Dados de feedback incompletos.');
+          setIsLoading(false);
+          return;
+        }
+
+        setFeedbackData(feedbackData);
       } catch (err) {
-        console.error('Error fetching essay:', err);
-        setError('Erro ao carregar a redação');
-        toast({
-          title: 'Erro',
-          description: 'Não foi possível carregar o feedback da redação.',
-          variant: 'destructive',
-        });
+        console.error('Error loading feedback:', err);
+        setError('Erro ao carregar o feedback.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchRedacao();
-  }, [redacaoId, user]);
+    loadFeedback();
+  }, []);
 
-  // Format feedback with sections
-  const formatFeedback = (feedback: string | null): { pontos: string[]; sugestoes: string[] } => {
-    if (!feedback) return { pontos: [], sugestoes: [] };
-    
-    // In a real implementation, this would parse structured feedback
-    // For now, we'll just create some mock sections
-    return {
-      pontos: [
-        'Argumentação bem desenvolvida',
-        'Bom uso de exemplos',
-        'Introdução clara e objetiva'
-      ],
-      sugestoes: [
-        'Melhorar a conexão entre parágrafos',
-        'Desenvolver melhor a conclusão',
-        'Revisar erros gramaticais'
-      ]
-    };
-  };
-
-  const getScoreColor = (score: number | null): string => {
-    if (score === null) return 'text-gray-500';
+  const getScoreColor = (score: number): string => {
     if (score >= 9) return 'text-green-600';
     if (score >= 7) return 'text-blue-600';
     if (score >= 5) return 'text-yellow-600';
     return 'text-red-600';
   };
 
-  const formattedFeedback = redacao ? formatFeedback(redacao.feedback) : { pontos: [], sugestoes: [] };
+  const getScoreDescription = (score: number): string => {
+    if (score >= 9) return 'Excelente';
+    if (score >= 7) return 'Bom';
+    if (score >= 5) return 'Regular';
+    return 'Precisa melhorar';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coral mx-auto mb-4"></div>
+            <p>Carregando feedback...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !feedbackData) {
+    return (
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        <DashboardBreadcrumb 
+          currentPage="Feedback"
+          paths={[{ name: 'Redação', path: '/redacao' }]}
+        />
+        
+        <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button 
+            onClick={() => navigate('/redacao')}
+            className="bg-coral hover:bg-coral/90"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar para Redação
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -107,128 +114,131 @@ const RedacaoFeedback = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Resultado da sua Redação</h1>
         <p className="text-gray-600 mt-2">
-          Veja o feedback e pontuação da sua redação.
+          Veja o feedback detalhado da correção automática.
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-6">
-          <Card className="border-2 border-[#5E60CE]/20">
-            <CardHeader className="pb-2">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center my-4">
-                <Skeleton className="h-16 w-24" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div>
-                  <Skeleton className="h-6 w-1/2 mb-3" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-5/6" />
-                  </div>
+      <div className="space-y-6">
+        {/* Score Card */}
+        <Card className="border-2 border-coral/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xl flex items-center">
+              <Award className="h-6 w-6 mr-2 text-coral" />
+              Avaliação Final
+            </CardTitle>
+            <CardDescription>Tema: {feedbackData.tema}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center my-6">
+              <div className="text-center">
+                <div className={`text-6xl font-bold ${getScoreColor(feedbackData.nota)}`}>
+                  {feedbackData.nota}/10
                 </div>
-                <div>
-                  <Skeleton className="h-6 w-1/2 mb-3" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-4/5" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
+                <div className={`text-lg font-medium mt-2 ${getScoreColor(feedbackData.nota)}`}>
+                  {getScoreDescription(feedbackData.nota)}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
-          <p className="text-red-600">{error}</p>
-          <Button 
-            onClick={() => navigate('/redacao')}
-            className="mt-4 bg-[#5E60CE] hover:bg-[#5E60CE]/90"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar para Redação
-          </Button>
-        </div>
-      ) : redacao ? (
-        <div className="space-y-6">
-          {/* Score Card */}
-          <Card className="border-2 border-[#5E60CE]/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Avaliação</CardTitle>
-              <CardDescription>Tema: {redacao.tema}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center my-4">
-                <div className={`text-5xl font-bold ${getScoreColor(redacao.nota)}`}>
-                  {redacao.nota !== null ? redacao.nota : '-'}/10
-                </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              {/* Strengths */}
+              <div>
+                <h3 className="flex items-center text-lg font-semibold mb-3">
+                  <ThumbsUp className="h-5 w-5 mr-2 text-green-600" />
+                  Pontos Fortes
+                </h3>
+                <ul className="space-y-3">
+                  {feedbackData.pontos_fortes?.map((ponto, index) => (
+                    <li key={index} className="flex items-start">
+                      <Badge className="mr-3 mt-0.5 bg-green-100 text-green-800 hover:bg-green-100">
+                        ✓
+                      </Badge>
+                      <span className="leading-relaxed">{ponto}</span>
+                    </li>
+                  )) || (
+                    <li className="text-gray-500 italic">Nenhum ponto forte específico mencionado.</li>
+                  )}
+                </ul>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                {/* Strengths */}
-                <div>
-                  <h3 className="flex items-center text-lg font-semibold mb-3">
-                    <ThumbsUp className="h-5 w-5 mr-2 text-green-600" />
-                    Pontos Fortes
-                  </h3>
-                  <ul className="space-y-2">
-                    {formattedFeedback.pontos.map((ponto, index) => (
-                      <li key={index} className="flex items-start">
-                        <Badge className="mr-2 bg-green-100 text-green-800 hover:bg-green-100">✓</Badge>
-                        <span>{ponto}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                {/* Improvement Suggestions */}
-                <div>
-                  <h3 className="flex items-center text-lg font-semibold mb-3">
-                    <Lightbulb className="h-5 w-5 mr-2 text-amber-600" />
-                    Sugestões de Melhoria
-                  </h3>
-                  <ul className="space-y-2">
-                    {formattedFeedback.sugestoes.map((sugestao, index) => (
-                      <li key={index} className="flex items-start">
-                        <Badge className="mr-2 bg-amber-100 text-amber-800 hover:bg-amber-100">→</Badge>
-                        <span>{sugestao}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              
+              {/* Improvement Suggestions */}
+              <div>
+                <h3 className="flex items-center text-lg font-semibold mb-3">
+                  <Lightbulb className="h-5 w-5 mr-2 text-amber-600" />
+                  Sugestões de Melhoria
+                </h3>
+                <ul className="space-y-3">
+                  {feedbackData.melhorias?.map((sugestao, index) => (
+                    <li key={index} className="flex items-start">
+                      <Badge className="mr-3 mt-0.5 bg-amber-100 text-amber-800 hover:bg-amber-100">
+                        →
+                      </Badge>
+                      <span className="leading-relaxed">{sugestao}</span>
+                    </li>
+                  )) || (
+                    <li className="text-gray-500 italic">Nenhuma sugestão específica mencionada.</li>
+                  )}
+                </ul>
               </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                onClick={() => navigate('/dashboard')}
-                className="w-full bg-[#5E60CE] hover:bg-[#5E60CE]/90"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Voltar para Dashboard
-              </Button>
-            </CardFooter>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Essay Text */}
+        {/* Final Comment */}
+        {feedbackData.comentario_final && (
           <Card>
             <CardHeader>
-              <CardTitle>Sua Redação</CardTitle>
-              <CardDescription>
-                Enviada em {new Date(redacao.created_at).toLocaleDateString('pt-BR')}
-              </CardDescription>
+              <CardTitle className="flex items-center">
+                <MessageSquare className="h-5 w-5 mr-2 text-coral" />
+                Comentário Final do Avaliador
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-4 bg-gray-50 rounded-md">
-                <p className="whitespace-pre-wrap">{redacao.texto}</p>
-              </div>
+              <Textarea
+                value={feedbackData.comentario_final}
+                readOnly
+                className="bg-gray-50 border-gray-200 min-h-[120px] text-base leading-relaxed resize-none"
+              />
             </CardContent>
           </Card>
-        </div>
-      ) : null}
+        )}
+
+        {/* Essay Text */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sua Redação</CardTitle>
+            <CardDescription>
+              Enviada em {new Date(feedbackData.created_at).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="p-4 bg-gray-50 rounded-md border">
+              <p className="whitespace-pre-wrap leading-relaxed">{feedbackData.redacao}</p>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/redacao')}
+              className="border-coral text-coral hover:bg-coral/10"
+            >
+              Escrever Nova Redação
+            </Button>
+            <Button 
+              onClick={() => navigate('/dashboard')}
+              className="bg-coral hover:bg-coral/90"
+            >
+              Voltar ao Dashboard
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };

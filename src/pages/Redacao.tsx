@@ -3,14 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Send, BookOpen } from 'lucide-react';
+import { Loader2, Send, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { EssayTextarea } from '@/components/ui/essay-textarea';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ModeloRedacao {
   id: string;
@@ -18,6 +19,16 @@ interface ModeloRedacao {
   tema: string;
   exemplo: string;
 }
+
+interface WebhookResponse {
+  nota: number;
+  tema: string;
+  pontos_fortes: string[];
+  melhorias: string[];
+  comentario_final: string;
+}
+
+const WEBHOOK_URL = 'https://nocode-n8n.yepnl6.easypanel.host/webhook-test/correcao-de-redacoes-215j3hb5hj34b4';
 
 const Redacao = () => {
   const { user } = useAuth();
@@ -29,6 +40,7 @@ const Redacao = () => {
   const [studentEssay, setStudentEssay] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProcessingDialogOpen, setIsProcessingDialogOpen] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Fetch available model essays
   useEffect(() => {
@@ -59,10 +71,28 @@ const Redacao = () => {
   // Handle institution selection
   const handleInstitutionChange = (value: string) => {
     setSelectedInstitution(value);
+    setSubmitError(null);
     
     // Find the selected model essay
     const selectedModelo = modelos.find(modelo => modelo.instituicao === value);
     setModeloRedacao(selectedModelo || null);
+  };
+
+  // Submit essay to webhook
+  const submitToWebhook = async (payload: any): Promise<WebhookResponse> => {
+    const response = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook failed with status: ${response.status}`);
+    }
+
+    return await response.json();
   };
 
   // Handle essay submission
@@ -94,55 +124,70 @@ const Redacao = () => {
       return;
     }
 
+    if (studentEssay.length < 100) {
+      toast({
+        title: 'Redação muito curta',
+        description: 'Sua redação deve ter pelo menos 100 caracteres.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setIsProcessingDialogOpen(true);
+    setSubmitError(null);
     
     try {
-      // Insert the essay into the database
-      const { data, error } = await supabase
-        .from('redacao')
-        .insert({
-          usuario_id: user.id,
-          tema: modeloRedacao?.tema || selectedInstitution,
-          texto: studentEssay,
-        })
-        .select('id')
-        .single();
+      const payload = {
+        usuario_id: user.id,
+        tema: modeloRedacao?.tema || selectedInstitution,
+        redacao: studentEssay,
+      };
 
-      if (error) throw error;
+      console.log('Submitting to webhook:', payload);
+      
+      // Submit to webhook with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 30000)
+      );
+      
+      const webhookResponse = await Promise.race([
+        submitToWebhook(payload),
+        timeoutPromise
+      ]) as WebhookResponse;
+
+      console.log('Webhook response:', webhookResponse);
+
+      // Store response for feedback page
+      localStorage.setItem('essay_feedback', JSON.stringify({
+        ...webhookResponse,
+        redacao: studentEssay,
+        created_at: new Date().toISOString()
+      }));
 
       toast({
-        title: 'Redação enviada!',
-        description: 'Sua redação foi enviada para correção com sucesso.',
+        title: 'Redação avaliada!',
+        description: 'Sua redação foi corrigida com sucesso.',
       });
 
-      // Simulate processing time (15 seconds)
-      setTimeout(async () => {
-        // Simulate a mock feedback response
-        const mockFeedback = "Sua redação apresenta bons argumentos, mas poderia melhorar na estrutura dos parágrafos e na conclusão.";
-        const mockNota = Math.floor(Math.random() * 3) + 7; // Random score between 7 and 9
-        
-        // Update the essay with the feedback
-        await supabase
-          .from('redacao')
-          .update({
-            feedback: mockFeedback,
-            nota: mockNota
-          })
-          .eq('id', data.id);
-
-        setIsProcessingDialogOpen(false);
-        navigate(`/redacao/feedback?id=${data.id}`);
-      }, 15000);
+      setIsProcessingDialogOpen(false);
+      navigate('/redacao/feedback');
       
     } catch (error) {
       console.error('Error submitting essay:', error);
+      setIsProcessingDialogOpen(false);
+      
+      const errorMessage = error instanceof Error && error.message === 'Timeout' 
+        ? 'A correção está demorando mais que o esperado. Tente novamente.'
+        : 'Tivemos um erro. Tente novamente.';
+      
+      setSubmitError(errorMessage);
+      
       toast({
-        title: 'Falha no envio',
-        description: 'Não foi possível enviar sua redação. Tente novamente.',
+        title: 'Falha na correção',
+        description: errorMessage,
         variant: 'destructive',
       });
-      setIsProcessingDialogOpen(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -157,7 +202,7 @@ const Redacao = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Escrever Redação</h1>
         <p className="text-gray-600 mt-2">
-          Escolha uma instituição ou tópico, veja o modelo e escreva sua redação.
+          Escolha uma instituição ou tópico, veja o modelo e escreva sua redação seguindo os padrões ENEM.
         </p>
       </div>
 
@@ -214,17 +259,25 @@ const Redacao = () => {
           </div>
         ) : null}
 
-        {/* Student essay textarea */}
+        {/* Error alert */}
+        {submitError && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-700">
+              {submitError}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Student essay textarea with ENEM limitations */}
         <div>
           <label htmlFor="essay" className="block text-sm font-medium text-gray-700 mb-2">
-            Escreva sua redação
+            Escreva sua redação (Padrão ENEM)
           </label>
-          <Textarea
-            id="essay"
+          <EssayTextarea
             value={studentEssay}
-            onChange={(e) => setStudentEssay(e.target.value)}
-            placeholder="Comece a escrever sua redação aqui..."
-            className="min-h-[300px] text-base"
+            onChange={setStudentEssay}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -232,7 +285,7 @@ const Redacao = () => {
         <div className="flex justify-end">
           <Button 
             onClick={handleSubmit}
-            disabled={isSubmitting || !selectedInstitution || !studentEssay.trim()}
+            disabled={isSubmitting || !selectedInstitution || !studentEssay.trim() || studentEssay.length < 100}
             className="bg-coral hover:bg-coral/90"
           >
             {isSubmitting ? (
@@ -243,7 +296,7 @@ const Redacao = () => {
             ) : (
               <>
                 <Send className="mr-2 h-4 w-4" />
-                Enviar Redação
+                Enviar para Correção
               </>
             )}
           </Button>
@@ -251,13 +304,13 @@ const Redacao = () => {
       </div>
 
       {/* Processing Dialog */}
-      <Dialog open={isProcessingDialogOpen} onOpenChange={setIsProcessingDialogOpen}>
+      <Dialog open={isProcessingDialogOpen} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md">
           <div className="flex flex-col items-center justify-center p-6 text-center">
             <Loader2 className="h-12 w-12 animate-spin text-coral mb-4" />
             <h3 className="text-xl font-semibold mb-2">Processando sua redação</h3>
             <p className="text-gray-600">
-              Nosso sistema está avaliando seu texto. Isso pode levar até 15 segundos.
+              Nossa IA está avaliando seu texto. Isso pode levar até 30 segundos.
             </p>
           </div>
         </DialogContent>
