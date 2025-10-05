@@ -42,20 +42,31 @@ const SimuladosList = () => {
           // Get question counts for each simulado
           const simuladoIds = simuladosData.map(s => s.id);
 
-          const { data: questionCounts, error: countError } = await supabase
+          // Changed approach: aggregate counts client-side instead of using group()
+          const { data: questionCountData, error: countError } = await supabase
             .from('pergunta')
-            .select('simulado_id, count(*)')
-            .in('simulado_id', simuladoIds)
-            .group('simulado_id');
+            .select('simulado_id')
+            .in('simulado_id', simuladoIds);
           
           if (countError) throw countError;
 
+          // Create a map of simulado_id -> count
+          const countMap: Record<string, number> = {};
+          if (questionCountData) {
+            questionCountData.forEach(item => {
+              if (countMap[item.simulado_id]) {
+                countMap[item.simulado_id]++;
+              } else {
+                countMap[item.simulado_id] = 1;
+              }
+            });
+          }
+          
           // Add question count to each simulado
           const simuladosWithCount = simuladosData.map(simulado => {
-            const countObj = questionCounts?.find(qc => qc.simulado_id === simulado.id);
             return {
               ...simulado,
-              question_count: countObj ? Number(countObj.count) : 0
+              question_count: countMap[simulado.id] || 0
             };
           });
 
