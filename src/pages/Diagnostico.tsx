@@ -2,139 +2,127 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle } from 'lucide-react';
-import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
-interface DiagnosticoFormValues {
-  area_interesse: string;
-  tipo_universidade: string;
-  habilidades_para_melhorar: string[];
-  experiencia_simulados: string;
-  tempo_estudo_diario: string;
-}
+// Define the form schema using Zod
+const formSchema = z.object({
+  area_interesse: z.string(),
+  tipo_universidade: z.string(),
+  habilidades_para_melhorar: z.array(z.string()).min(1, { message: "Selecione pelo menos uma habilidade" }),
+  experiencia_simulados: z.string(),
+  tempo_estudo_diario: z.string(),
+});
 
-const areasInteresse = [
-  { id: 'exatas', label: 'Exatas' },
-  { id: 'humanas', label: 'Humanas' },
-  { id: 'biologicas', label: 'Biológicas' },
-  { id: 'linguagens', label: 'Linguagens' },
-];
-
-const habilidades = [
-  { id: 'matematica', label: 'Matemática' },
-  { id: 'redacao', label: 'Redação' },
-  { id: 'fisica', label: 'Física' },
-  { id: 'quimica', label: 'Química' },
-  { id: 'historia', label: 'História' },
-  { id: 'geografia', label: 'Geografia' },
-  { id: 'biologia', label: 'Biologia' },
-  { id: 'literatura', label: 'Literatura' },
-  { id: 'ingles', label: 'Inglês' },
-];
+// Define the type based on the schema
+type DiagnosticoFormValues = z.infer<typeof formSchema>;
 
 const Diagnostico = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasCompletedBefore, setHasCompletedBefore] = useState(false);
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [existingDiagnostico, setExistingDiagnostico] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize the form
   const form = useForm<DiagnosticoFormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       area_interesse: '',
       tipo_universidade: '',
       habilidades_para_melhorar: [],
       experiencia_simulados: '',
-      tempo_estudo_diario: ''
+      tempo_estudo_diario: '',
     },
   });
 
+  // Check if user already has a diagnostico
   useEffect(() => {
-    const checkExistingDiagnostico = async () => {
+    const checkDiagnostico = async () => {
       if (!user) return;
-
+      
+      setIsLoading(true);
       try {
         const { data, error } = await supabase
           .from('diagnostico')
           .select('*')
           .eq('usuario_id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
-
+        if (error) throw error;
+        
         if (data) {
-          setHasCompletedBefore(true);
-          // Pre-fill the form with existing data
+          setExistingDiagnostico(data);
+          
+          // Populate form with existing data if available
+          const respostas = data.respostas as any;
           form.reset({
-            area_interesse: data.respostas.area_interesse || '',
-            tipo_universidade: data.respostas.tipo_universidade || '',
-            habilidades_para_melhorar: data.respostas.habilidades_para_melhorar || [],
-            experiencia_simulados: data.respostas.experiencia_simulados || '',
-            tempo_estudo_diario: data.respostas.tempo_estudo_diario || '',
+            area_interesse: respostas.area_interesse || '',
+            tipo_universidade: respostas.tipo_universidade || '',
+            habilidades_para_melhorar: respostas.habilidades_para_melhorar || [],
+            experiencia_simulados: respostas.experiencia_simulados || '',
+            tempo_estudo_diario: respostas.tempo_estudo_diario || '',
           });
         }
-      } catch (error) {
-        console.error('Error fetching diagnostico:', error);
+      } catch (error: any) {
         toast({
           title: 'Erro',
-          description: 'Não foi possível carregar seu diagnóstico anterior.',
+          description: 'Erro ao carregar diagnóstico: ' + error.message,
           variant: 'destructive',
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    checkExistingDiagnostico();
-  }, [user, form, toast]);
+    checkDiagnostico();
+  }, [user]);
 
   const onSubmit = async (values: DiagnosticoFormValues) => {
     if (!user) {
       toast({
         title: 'Erro',
-        description: 'Você precisa estar logado para enviar o diagnóstico.',
+        description: 'Você precisa estar logado para realizar o diagnóstico.',
         variant: 'destructive',
       });
       return;
     }
 
     setIsSubmitting(true);
-
     try {
+      // Insert or update diagnostico
       const { error } = await supabase
         .from('diagnostico')
         .upsert({
           usuario_id: user.id,
-          respostas: values,
-        });
+          respostas: values as any,
+        })
+        .select();
 
       if (error) throw error;
 
-      setIsSuccessDialogOpen(true);
-      
-      // In a real implementation, we would send the diagnostico to a webhook here
-      // For now, we'll just wait a moment and then redirect to dashboard
-      setTimeout(() => {
-        setIsSuccessDialogOpen(false);
-        navigate('/dashboard');
-      }, 3000);
+      toast({
+        title: existingDiagnostico ? 'Diagnóstico atualizado' : 'Diagnóstico concluído',
+        description: existingDiagnostico 
+          ? 'Seu diagnóstico foi atualizado com sucesso.' 
+          : 'Seu diagnóstico foi registrado com sucesso!',
+      });
 
-    } catch (error) {
-      console.error('Error submitting diagnostico:', error);
+      navigate('/dashboard');
+    } catch (error: any) {
       toast({
         title: 'Erro',
-        description: 'Ocorreu um erro ao enviar seu diagnóstico. Tente novamente.',
+        description: 'Erro ao salvar diagnóstico: ' + error.message,
         variant: 'destructive',
       });
     } finally {
@@ -143,23 +131,15 @@ const Diagnostico = () => {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <DashboardBreadcrumb 
-        currentPage="Diagnóstico Inicial"
-        paths={[{ name: 'Dashboard', path: '/dashboard' }]}
-      />
-      
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Diagnóstico Inicial</h1>
-        <p className="text-gray-600 mt-2">
-          Responda às perguntas para que possamos personalizar seu plano de estudos.
-          {hasCompletedBefore && " Você já completou este diagnóstico, mas pode atualizá-lo."}
-        </p>
-      </div>
-
-      <Card>
+    <div className="container mx-auto py-10 px-4">
+      <Card className="max-w-4xl mx-auto">
         <CardHeader>
-          <CardTitle>Seu Perfil de Estudos</CardTitle>
+          <CardTitle className="text-2xl">Diagnóstico de Aprendizado</CardTitle>
+          <CardDescription>
+            {existingDiagnostico 
+              ? 'Atualize suas informações de diagnóstico para personalizar melhor seu plano de estudos.' 
+              : 'Responda às perguntas abaixo para criarmos um plano de estudos personalizado para você.'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -169,21 +149,25 @@ const Diagnostico = () => {
                 name="area_interesse"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Qual área mais lhe interessa?</FormLabel>
+                    <FormLabel>Qual área mais te interessa?</FormLabel>
                     <FormControl>
                       <RadioGroup 
                         onValueChange={field.onChange} 
-                        value={field.value}
-                        className="grid grid-cols-2 gap-4"
+                        defaultValue={field.value} 
+                        className="flex flex-col space-y-3"
                       >
-                        {areasInteresse.map((area) => (
-                          <FormItem key={area.id} className="flex items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <RadioGroupItem value={area.id} />
-                            </FormControl>
-                            <FormLabel className="font-normal">{area.label}</FormLabel>
-                          </FormItem>
-                        ))}
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Exatas" id="exatas" />
+                          <Label htmlFor="exatas">Exatas</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Humanas" id="humanas" />
+                          <Label htmlFor="humanas">Humanas</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Biológicas" id="biologicas" />
+                          <Label htmlFor="biologicas">Biológicas</Label>
+                        </div>
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -196,22 +180,27 @@ const Diagnostico = () => {
                 name="tipo_universidade"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Qual tipo de universidade você pretende ingressar?</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione uma opção" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="publica">Universidade Pública</SelectItem>
-                        <SelectItem value="privada">Universidade Privada</SelectItem>
-                        <SelectItem value="ambas">Ambas</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Que tipo de universidade você pretende ingressar?</FormLabel>
+                    <FormControl>
+                      <RadioGroup 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value} 
+                        className="flex flex-col space-y-3"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Pública" id="publica" />
+                          <Label htmlFor="publica">Pública</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Particular" id="particular" />
+                          <Label htmlFor="particular">Particular</Label>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <RadioGroupItem value="Ambas" id="ambas" />
+                          <Label htmlFor="ambas">Ambas</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -223,46 +212,41 @@ const Diagnostico = () => {
                 render={() => (
                   <FormItem>
                     <div className="mb-4">
-                      <FormLabel className="text-base">Quais habilidades você gostaria de melhorar?</FormLabel>
-                      <FormDescription>
-                        Selecione todas as áreas em que você sente que precisa melhorar.
-                      </FormDescription>
+                      <FormLabel>Quais habilidades você gostaria de melhorar?</FormLabel>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {habilidades.map((habilidade) => (
-                        <FormField
-                          key={habilidade.id}
-                          control={form.control}
-                          name="habilidades_para_melhorar"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={habilidade.id}
-                                className="flex flex-row items-start space-x-3 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(habilidade.id)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...field.value, habilidade.id])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== habilidade.id
-                                            )
+                    {["Matemática", "Física", "Química", "Biologia", "História", "Geografia", "Literatura", "Redação", "Língua Estrangeira"].map((habilidade) => (
+                      <FormField
+                        key={habilidade}
+                        control={form.control}
+                        name="habilidades_para_melhorar"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={habilidade}
+                              className="flex flex-row items-start space-x-3 space-y-0 mb-2"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(habilidade)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...field.value, habilidade])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== habilidade
                                           )
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {habilidade.label}
-                                </FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
+                                        )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {habilidade}
+                              </FormLabel>
+                            </FormItem>
+                          )
+                        }}
+                      />
+                    ))}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -274,19 +258,16 @@ const Diagnostico = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Qual sua experiência com simulados?</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma opção" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="nunca_fiz">Nunca fiz um simulado</SelectItem>
-                        <SelectItem value="alguns">Já fiz alguns simulados</SelectItem>
-                        <SelectItem value="varios">Faço simulados regularmente</SelectItem>
+                        <SelectItem value="Nunca fiz">Nunca fiz</SelectItem>
+                        <SelectItem value="Fiz alguns">Fiz alguns</SelectItem>
+                        <SelectItem value="Faço regularmente">Faço regularmente</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -300,20 +281,17 @@ const Diagnostico = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quanto tempo você dedica aos estudos diariamente?</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma opção" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="menos_1h">Menos de 1 hora</SelectItem>
-                        <SelectItem value="1_3h">Entre 1 e 3 horas</SelectItem>
-                        <SelectItem value="3_5h">Entre 3 e 5 horas</SelectItem>
-                        <SelectItem value="mais_5h">Mais de 5 horas</SelectItem>
+                        <SelectItem value="Menos de 1 hora">Menos de 1 hora</SelectItem>
+                        <SelectItem value="1-2 horas">1-2 horas</SelectItem>
+                        <SelectItem value="3-4 horas">3-4 horas</SelectItem>
+                        <SelectItem value="Mais de 4 horas">Mais de 4 horas</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -324,35 +302,20 @@ const Diagnostico = () => {
           </Form>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
+          <Button 
+            onClick={form.handleSubmit(onSubmit)} 
             disabled={isSubmitting}
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90"
+            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 w-full sm:w-auto"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Enviando...
-              </>
-            ) : (
-              'Enviar Diagnóstico'
-            )}
+            {isSubmitting 
+              ? 'Salvando...' 
+              : existingDiagnostico 
+                ? 'Atualizar Diagnóstico' 
+                : 'Finalizar Diagnóstico'
+            }
           </Button>
         </CardFooter>
       </Card>
-
-      {/* Success Dialog */}
-      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <div className="flex flex-col items-center justify-center p-6 text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Diagnóstico Concluído!</h3>
-            <p className="text-gray-600">
-              Seu diagnóstico foi recebido com sucesso. Estamos gerando seu plano de estudos personalizado.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

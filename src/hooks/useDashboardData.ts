@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { DisciplineProgressData } from '@/components/dashboard/DisciplineProgress';
@@ -54,8 +55,6 @@ const fetchStudyPlan = (): Promise<typeof mockStudyPlan> => {
 };
 
 export const useDashboardData = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
   const { data: disciplinesRaw = [], isLoading: isDisciplinesLoading } = useQuery({
     queryKey: ['disciplines'],
     queryFn: fetchDisciplines,
