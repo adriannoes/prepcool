@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, HelpCircle } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import NotificationBell from './NotificationBell';
@@ -87,10 +87,8 @@ const Navbar = () => {
         <Link to="/sobre-nos" className="text-gray-700 hover:text-coral transition-colors font-medium">
           Sobre nós
         </Link>
-        <Link to="/apoiar" className="text-gray-700 hover:text-coral transition-colors font-medium">
-          <span className="flex items-center gap-2">
-            Quer nos apoiar?
-          </span>
+        <Link to="/ajuda" className="text-gray-700 hover:text-coral transition-colors font-medium">
+          Quer nos apoiar?
         </Link>
         {user && (
           <>
@@ -146,11 +144,10 @@ const Navbar = () => {
             Sobre nós
           </Link>
           <Link 
-            to="/apoiar" 
-            className="text-gray-700 py-2 hover:text-coral transition-colors font-medium flex items-center gap-2"
+            to="/ajuda" 
+            className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
             onClick={() => setIsMenuOpen(false)}
           >
-            <HelpCircle size={18} />
             Quer nos apoiar?
           </Link>
           {user && (
