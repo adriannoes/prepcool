@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -121,7 +120,7 @@ export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModa
   };
 
   return (
-    <Dialog open={isOpen} onInteractOutside={(e) => e.preventDefault()}>
+    <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-md md:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">Welcome to PrepCool!</DialogTitle>

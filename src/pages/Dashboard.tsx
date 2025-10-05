@@ -9,7 +9,7 @@ import DiagnosticoModal from '@/components/dashboard/DiagnosticoModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { supabase } from '@/integrations/supabase/client';
-import { LoadingSpinner } from '@/components/dashboard/LoadingSpinner';
+import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
