@@ -3,6 +3,7 @@ import React from 'react';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NotificationBell from '../NotificationBell';
+import HelpButton from '../HelpButton';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -23,6 +24,7 @@ const DashboardHeader = ({ userName, onSignOut }: DashboardHeaderProps) => {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <HelpButton />
             <NotificationBell />
             <Button 
               onClick={onSignOut}
