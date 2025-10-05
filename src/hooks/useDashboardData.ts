@@ -1,6 +1,6 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { DisciplineProgressData } from '@/components/dashboard/DisciplineProgress';
 
 // Mock data
 const mockDisciplines = [
@@ -56,10 +56,18 @@ const fetchStudyPlan = (): Promise<typeof mockStudyPlan> => {
 export const useDashboardData = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: disciplines = [], isLoading: isDisciplinesLoading } = useQuery({
+  const { data: disciplinesRaw = [], isLoading: isDisciplinesLoading } = useQuery({
     queryKey: ['disciplines'],
     queryFn: fetchDisciplines,
   });
+
+  // Transform disciplines to match the expected format
+  const disciplines: DisciplineProgressData[] = disciplinesRaw.map(discipline => ({
+    discipline_name: discipline.name,
+    topics_completed: discipline.progress,
+    total_topics: discipline.total,
+    completion_percentage: (discipline.progress / discipline.total) * 100
+  }));
 
   const { data: simulados = [], isLoading: isSimuladosLoading } = useQuery({
     queryKey: ['simulados'],
