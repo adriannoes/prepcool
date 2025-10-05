@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Aprendizado from "./pages/Aprendizado";
+import AprendizadoDisciplina from "./pages/AprendizadoDisciplina";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
 import Apoiar from "./pages/Apoiar";
