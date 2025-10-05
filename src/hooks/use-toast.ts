@@ -21,6 +21,7 @@ export const toast = ({ title, description, variant }: {
 export const useToast = () => {
   return {
     toast,
-    dismiss: () => sonnerToast.dismiss(),
+    dismiss: sonnerToast.dismiss,
+    toasts: [], // For backward compatibility
   };
 };
