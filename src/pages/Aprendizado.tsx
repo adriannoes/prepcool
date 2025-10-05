@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,6 +41,7 @@ const Aprendizado = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const accordionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const videoRefs = useRef<Record<string, HTMLVideoElement | HTMLIFrameElement | null>>({});
   
   // Extract discipline from query parameters
   const queryParams = new URLSearchParams(location.search);
@@ -185,13 +187,35 @@ const Aprendizado = () => {
         setDisciplines(prevDisciplines => {
           return prevDisciplines.map(discipline => ({
             ...discipline,
-            topicos: discipline.topicos.map(topic => ({
-              ...topic,
-              videos: topic.videos.map(video => 
+            topicos: discipline.topicos.map(topic => {
+              const updatedVideos = topic.videos.map(video => 
                 video.id === videoId ? { ...video, watched: true } : video
-              )
-            }))
-          }));
+              );
+              
+              // Recalculate topic progress
+              const totalVideos = updatedVideos.length;
+              const watchedVideos = updatedVideos.filter(v => v.watched).length;
+              const progress = totalVideos > 0 ? Math.round((watchedVideos / totalVideos) * 100) : 0;
+              
+              return {
+                ...topic,
+                videos: updatedVideos,
+                progress: progress
+              };
+            })
+          })).map(discipline => {
+            // Recalculate discipline progress
+            const allVideos = discipline.topicos.flatMap(t => t.videos);
+            const totalDisciplineVideos = allVideos.length;
+            const watchedDisciplineVideos = allVideos.filter(v => v.watched).length;
+            const disciplineProgress = totalDisciplineVideos > 0 ? 
+              Math.round((watchedDisciplineVideos / totalDisciplineVideos) * 100) : 0;
+            
+            return {
+              ...discipline,
+              progress: disciplineProgress
+            };
+          });
         });
         
         toast({
@@ -209,6 +233,29 @@ const Aprendizado = () => {
     }
   };
 
+  // Handle video progress tracking for YouTube videos
+  const handleVideoProgress = (videoId: string, iframe: HTMLIFrameElement) => {
+    // Listen for YouTube player events using postMessage API
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://www.youtube.com') return;
+      
+      try {
+        const data = JSON.parse(event.data);
+        if (data.event === 'video-progress' && data.info?.currentTime && data.info?.duration) {
+          const progress = data.info.currentTime / data.info.duration;
+          if (progress >= 0.9) { // 90% completion
+            handleVideoComplete(videoId);
+          }
+        }
+      } catch (error) {
+        // Silently handle parsing errors
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  };
+
   // Extract YouTube video ID from URL
   const getYouTubeId = (url: string) => {
     // For testing, always return the test video
@@ -222,7 +269,7 @@ const Aprendizado = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9F9F9]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5E60CE]"></div>
         <p className="mt-4 text-gray-600">Carregando conteúdo...</p>
       </div>
@@ -230,109 +277,135 @@ const Aprendizado = () => {
   }
 
   return (
-    <div className="min-h-screen bg-off-white p-4 md:p-6">
+    <div className="min-h-screen bg-[#F9F9F9] p-4 md:p-6">
       <div className="container mx-auto max-w-5xl">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl shadow-md p-6">
           <DashboardBreadcrumb currentPage="Aprendizado" />
           
-          <div className="flex items-center mb-6">
-            <Youtube className="text-[#5E60CE] mr-3" />
-            <h1 className="text-2xl font-bold text-gray-800">Trilha de Aprendizado</h1>
+          <div className="flex items-center mb-8">
+            <Youtube className="text-[#5E60CE] mr-3 h-8 w-8" />
+            <h1 className="text-3xl font-bold text-gray-900">Trilha de Aprendizado</h1>
           </div>
           
           {disciplines.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Ainda não há disciplinas disponíveis.</p>
+            <div className="text-center py-16">
+              <div className="text-gray-400 mb-4">
+                <Youtube className="h-16 w-16 mx-auto" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">Nenhuma disciplina disponível</h3>
+              <p className="text-gray-500">As disciplinas aparecerão aqui assim que forem criadas.</p>
             </div>
           ) : (
-            <Accordion type="multiple" className="space-y-4">
+            <Accordion type="multiple" className="space-y-6">
               {disciplines.map((discipline) => (
                 <AccordionItem
                   key={discipline.id}
                   value={discipline.id}
-                  className="border rounded-lg overflow-hidden"
+                  className="border-2 border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow"
                   ref={(el) => {
                     // Store references to all disciplines for scrolling
                     accordionRefs.current[discipline.nome] = el;
                   }}
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-gray-50" data-accordion-trigger>
+                  <AccordionTrigger className="px-6 py-4 hover:bg-gray-50 transition-colors" data-accordion-trigger>
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center">
-                        <span className="text-lg font-medium">{discipline.nome}</span>
+                        <span className="text-xl font-semibold text-gray-900">{discipline.nome}</span>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="hidden md:block w-40">
-                          <Progress value={discipline.progress} className="h-2" />
+                      <div className="flex items-center space-x-4">
+                        <div className="hidden md:block w-48">
+                          <Progress value={discipline.progress} className="h-3" />
                         </div>
-                        <span className="text-sm text-gray-500">{discipline.progress}%</span>
+                        <Badge variant={discipline.progress === 100 ? "default" : "secondary"} className="px-3 py-1 text-sm">
+                          {discipline.progress}% concluído
+                        </Badge>
                       </div>
                     </div>
                   </AccordionTrigger>
                   
-                  <AccordionContent className="px-4 py-2">
+                  <AccordionContent className="px-6 py-4 bg-gray-50">
                     <div className="space-y-6">
                       {discipline.topicos.map((topic) => (
-                        <Card key={topic.id} className="overflow-hidden">
-                          <CardHeader className="bg-gray-50 py-3">
+                        <Card key={topic.id} className="overflow-hidden border-2 border-gray-100 rounded-2xl bg-white">
+                          <CardHeader className="bg-gradient-to-r from-[#5E60CE]/5 to-[#5E60CE]/10 py-4">
                             <div className="flex items-center justify-between">
-                              <CardTitle className="text-md font-medium">{topic.nome}</CardTitle>
-                              <div className="flex items-center space-x-2">
-                                <Progress value={topic.progress} className="w-24 h-2" />
-                                <Badge variant={topic.progress === 100 ? "default" : "secondary"}>
+                              <CardTitle className="text-lg font-semibold text-gray-900">{topic.nome}</CardTitle>
+                              <div className="flex items-center space-x-3">
+                                <Progress value={topic.progress} className="w-32 h-3" />
+                                <Badge variant={topic.progress === 100 ? "default" : "secondary"} className="px-3 py-1">
                                   {topic.progress === 100 ? (
-                                    <><CheckCircle className="h-3 w-3 mr-1" /> Concluído</>
+                                    <><CheckCircle className="h-4 w-4 mr-1" /> Concluído</>
                                   ) : (
-                                    <><Clock className="h-3 w-3 mr-1" /> Em progresso</>
+                                    <><Clock className="h-4 w-4 mr-1" /> Em progresso</>
                                   )}
                                 </Badge>
                               </div>
                             </div>
                           </CardHeader>
                           
-                          <CardContent className="pt-4">
-                            <div className="space-y-4">
+                          <CardContent className="pt-6">
+                            <div className="space-y-6">
                               {topic.videos.map((video) => (
-                                <div key={video.id} className="space-y-2">
+                                <div key={video.id} className={`space-y-4 p-4 rounded-xl border-2 transition-all ${
+                                  video.watched 
+                                    ? 'border-green-200 bg-green-50' 
+                                    : 'border-gray-100 bg-white'
+                                }`}>
                                   <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-medium">{video.titulo}</h4>
+                                    <h4 className="text-lg font-medium text-gray-900">{video.titulo}</h4>
                                     {video.watched ? (
-                                      <Badge variant="default" className="flex items-center">
-                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                      <Badge className="flex items-center bg-green-100 text-green-800 hover:bg-green-100">
+                                        <CheckCircle className="h-4 w-4 mr-1" />
                                         Assistido
                                       </Badge>
                                     ) : (
                                       <Badge variant="secondary" className="flex items-center">
-                                        <Clock className="h-3 w-3 mr-1" />
+                                        <Clock className="h-4 w-4 mr-1" />
                                         Pendente
                                       </Badge>
                                     )}
                                   </div>
                                   
                                   {video.descricao && (
-                                    <p className="text-sm text-gray-500">{video.descricao}</p>
+                                    <p className="text-gray-600 leading-relaxed">{video.descricao}</p>
                                   )}
                                   
-                                  <div className="relative pt-[56.25%] rounded-md overflow-hidden">
+                                  <div className="relative pt-[56.25%] rounded-xl overflow-hidden bg-gray-100">
                                     <iframe
+                                      ref={(el) => {
+                                        videoRefs.current[video.id] = el;
+                                        if (el) {
+                                          handleVideoProgress(video.id, el);
+                                        }
+                                      }}
                                       className="absolute inset-0 w-full h-full"
-                                      src={`https://www.youtube.com/embed/${getYouTubeId(video.url)}`}
+                                      src={`https://www.youtube.com/embed/${getYouTubeId(video.url)}?enablejsapi=1`}
                                       title={video.titulo}
                                       frameBorder="0"
                                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                       allowFullScreen
-                                      onEnded={() => handleVideoComplete(video.id)}
                                     ></iframe>
                                   </div>
                                   
                                   <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-2"
+                                    variant={video.watched ? "secondary" : "default"}
+                                    size="lg"
+                                    className={`w-full h-12 text-base font-medium ${
+                                      video.watched 
+                                        ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                        : 'bg-[#5E60CE] hover:bg-[#5E60CE]/90'
+                                    }`}
                                     onClick={() => handleVideoComplete(video.id)}
                                     disabled={video.watched}
                                   >
-                                    {video.watched ? 'Já Assistido' : 'Marcar como Assistido'}
+                                    {video.watched ? (
+                                      <>
+                                        <CheckCircle className="h-5 w-5 mr-2" />
+                                        Já Assistido
+                                      </>
+                                    ) : (
+                                      'Marcar como Assistido'
+                                    )}
                                   </Button>
                                 </div>
                               ))}
