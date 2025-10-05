@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DisciplineProgress from '@/components/dashboard/DisciplineProgress';
@@ -10,6 +9,7 @@ import DiagnosticoModal from '@/components/dashboard/DiagnosticoModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { supabase } from '@/integrations/supabase/client';
+import { LoadingSpinner } from '@/components/dashboard/LoadingSpinner';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -51,6 +51,29 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  // If we're still checking diagnostic status, show loading spinner
+  if (checkingDiagnostic) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size="lg" />
+        <span className="ml-2 text-gray-600">Checking your profile...</span>
+      </div>
+    );
+  }
+
+  // If diagnostic modal should be shown, don't render dashboard content yet
+  if (showDiagnosticModal) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <DiagnosticoModal 
+          isOpen={showDiagnosticModal} 
+          onComplete={() => setShowDiagnosticModal(false)} 
+        />
+      </div>
+    );
+  }
+
+  // Otherwise render normal dashboard content
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader 
@@ -86,11 +109,6 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-
-      {/* Show DiagnosticoModal conditionally */}
-      {showDiagnosticModal && !checkingDiagnostic && (
-        <DiagnosticoModal isOpen={showDiagnosticModal} />
-      )}
     </div>
   );
 };

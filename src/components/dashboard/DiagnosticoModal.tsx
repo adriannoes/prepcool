@@ -31,9 +31,10 @@ interface DiagnosticoFormData {
 
 interface DiagnosticoModalProps {
   isOpen: boolean;
+  onComplete?: () => void;
 }
 
-export default function DiagnosticoModal({ isOpen }: DiagnosticoModalProps) {
+export default function DiagnosticoModal({ isOpen, onComplete }: DiagnosticoModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -84,8 +85,13 @@ export default function DiagnosticoModal({ isOpen }: DiagnosticoModalProps) {
         description: "Your personalized study plan is being generated!",
       });
 
-      // Redirect to dashboard
-      navigate('/dashboard');
+      // Call the onComplete callback if provided
+      if (onComplete) {
+        onComplete();
+      } else {
+        // Redirect to dashboard if no callback provided (fallback behavior)
+        navigate('/dashboard');
+      }
       
     } catch (error) {
       console.error('Error submitting diagnostic:', error);
@@ -115,7 +121,7 @@ export default function DiagnosticoModal({ isOpen }: DiagnosticoModalProps) {
   };
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} onInteractOutside={(e) => e.preventDefault()}>
       <DialogContent className="sm:max-w-md md:max-w-lg" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-center">Welcome to PrepCool!</DialogTitle>
