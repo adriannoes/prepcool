@@ -8,35 +8,19 @@ export const useAdminCheck = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    console.log('🔍 useAdminCheck: Starting admin check for user:', user?.email);
+    console.log('🔍 useAdminCheck: Checking admin status for:', user?.email);
     
-    // Immediate check for designated admin
-    if (user?.email === 'dev@dev.com') {
-      console.log('✅ useAdminCheck: ADMIN ACCESS GRANTED - Designated admin detected');
-      setIsAdmin(true);
-      setLoading(false);
-      return;
-    }
-    
-    // For non-admin or no user
-    if (!user) {
-      console.log('❌ useAdminCheck: No user, setting admin false');
-      setIsAdmin(false);
-      setLoading(false);
-      return;
-    }
-    
-    // For other users, default to false (we can add DB check later if needed)
-    console.log('❌ useAdminCheck: Not designated admin, access denied');
-    setIsAdmin(false);
+    // Verificação simples e direta
+    const adminStatus = user?.email === 'dev@dev.com';
+    setIsAdmin(adminStatus);
     setLoading(false);
-  }, [user]);
+    
+    console.log('✅ useAdminCheck: Admin check complete', { 
+      userEmail: user?.email,
+      isAdmin: adminStatus,
+      loading: false
+    });
+  }, [user?.email]); // Dependência mais específica
 
-  console.log('🎯 useAdminCheck: Final state', { 
-    isAdmin, 
-    loading, 
-    userEmail: user?.email 
-  });
-  
   return { isAdmin, loading };
 };

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -22,29 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🔄 AuthContext: Initializing auth system');
+    console.log('🔄 AuthContext: Initializing');
     
-    // Get initial session immediately
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log('📱 AuthContext: Initial session', { 
-          hasSession: !!initialSession,
-          userEmail: initialSession?.user?.email 
-        });
-        
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-        setLoading(false); // Set loading false after initial check
-      } catch (error) {
-        console.error('❌ AuthContext: Error getting initial session:', error);
-        setLoading(false);
-      }
-    };
-    
-    initializeAuth();
-
-    // Set up auth state listener
+    // Configurar listener primeiro
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('🔔 AuthContext: Auth state change', { 
@@ -56,12 +37,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
+        // Definir loading como false apenas quando temos uma mudança de estado
+        if (loading) {
+          setLoading(false);
+        }
+        
         if (event === 'SIGNED_IN') {
           console.log('🚀 AuthContext: User signed in, redirecting to dashboard');
           navigate('/dashboard');
         }
       }
     );
+
+    // Verificar sessão existente
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('📱 AuthContext: Initial session check', { 
+          hasSession: !!initialSession,
+          userEmail: initialSession?.user?.email 
+        });
+        
+        if (initialSession) {
+          setSession(initialSession);
+          setUser(initialSession.user);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('❌ AuthContext: Error getting initial session:', error);
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
 
     return () => subscription.unsubscribe();
   }, [navigate]);
