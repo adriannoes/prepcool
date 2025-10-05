@@ -1,98 +1,77 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, BookOpen, School } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, BookOpen, Play } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import EmptyState from '@/components/dashboard/EmptyState';
+import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 
 interface Simulado {
   id: string;
   instituicao: string;
   ano: number;
-  question_count?: number;
-}
-
-interface GroupedSimulados {
-  [instituicao: string]: Simulado[];
+  created_at: string;
+  pergunta_count?: number;
+  completed?: boolean;
 }
 
 const SimuladosList = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [simulados, setSimulados] = useState<GroupedSimulados>({});
+  const [simulados, setSimulados] = useState<Simulado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [startingSimuladoId, setStartingSimuladoId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSimulados = async () => {
+      if (!user) return;
+      
       try {
-        // Fetch simulados
-        const { data: simuladosData, error } = await supabase
+        // Get all simulados with question count
+        const { data: simuladosData, error: simuladosError } = await supabase
           .from('simulado')
-          .select('id, instituicao, ano');
+          .select(`
+            *,
+            pergunta (count)
+          `)
+          .order('ano', { ascending: false });
 
-        if (error) throw error;
+        if (simuladosError) throw simuladosError;
 
-        if (simuladosData && simuladosData.length > 0) {
-          // Get question counts for each simulado
-          const simuladoIds = simuladosData.map(s => s.id);
+        // Get user's completed simulados
+        const { data: completedData, error: completedError } = await supabase
+          .from('resposta')
+          .select('pergunta_id, pergunta!inner(simulado_id)')
+          .eq('usuario_id', user.id);
 
-          // Changed approach: aggregate counts client-side instead of using group()
-          const { data: questionCountData, error: countError } = await supabase
-            .from('pergunta')
-            .select('simulado_id')
-            .in('simulado_id', simuladoIds);
+        if (completedError) throw completedError;
+
+        // Process data to add completion status and question count
+        const processedSimulados = simuladosData?.map(simulado => {
+          const questionCount = simulado.pergunta?.[0]?.count || 0;
+          const userResponses = completedData?.filter(
+            resp => resp.pergunta?.simulado_id === simulado.id
+          ).length || 0;
           
-          if (countError) throw countError;
+          return {
+            ...simulado,
+            pergunta_count: questionCount,
+            completed: questionCount > 0 && userResponses >= questionCount
+          };
+        }) || [];
 
-          // Create a map of simulado_id -> count
-          const countMap: Record<string, number> = {};
-          if (questionCountData) {
-            questionCountData.forEach(item => {
-              if (countMap[item.simulado_id]) {
-                countMap[item.simulado_id]++;
-              } else {
-                countMap[item.simulado_id] = 1;
-              }
-            });
-          }
-          
-          // Add question count to each simulado
-          const simuladosWithCount = simuladosData.map(simulado => {
-            return {
-              ...simulado,
-              question_count: countMap[simulado.id] || 0
-            };
-          });
-
-          // Group simulados by instituicao
-          const grouped: GroupedSimulados = {};
-          simuladosWithCount.forEach(simulado => {
-            if (!grouped[simulado.instituicao]) {
-              grouped[simulado.instituicao] = [];
-            }
-            grouped[simulado.instituicao].push(simulado);
-          });
-
-          // Sort each group by year (descending)
-          Object.keys(grouped).forEach(instituicao => {
-            grouped[instituicao].sort((a, b) => b.ano - a.ano);
-          });
-
-          setSimulados(grouped);
-        }
+        setSimulados(processedSimulados);
       } catch (error) {
         console.error('Error fetching simulados:', error);
         toast({
-          title: 'Erro',
-          description: 'Não foi possível carregar os simulados.',
-          variant: 'destructive',
+          title: 'Erro ao carregar simulados',
+          description: 'Não foi possível carregar a lista de simulados.',
+          variant: 'destructive'
         });
       } finally {
         setIsLoading(false);
@@ -100,115 +79,81 @@ const SimuladosList = () => {
     };
 
     fetchSimulados();
-  }, []);
+  }, [user]);
 
-  const handleStartSimulado = (id: string) => {
-    setStartingSimuladoId(id);
-    navigate(`/simulado/${id}`);
+  const handleStartSimulado = (simuladoId: string) => {
+    navigate(`/simulado/${simuladoId}`);
   };
 
-  const LoadingSkeleton = () => (
-    <div className="space-y-8">
-      {[1, 2].map(section => (
-        <div key={section} className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(card => (
-              <Card key={card} className="border-0 shadow-md rounded-2xl">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <Skeleton className="h-6 w-32" />
-                    <Skeleton className="h-6 w-16" />
-                  </div>
-                  <Skeleton className="h-4 w-full" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4 mt-2" />
-                </CardContent>
-                <CardFooter>
-                  <Skeleton className="h-12 w-full" />
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9]">
+    <div className="min-h-screen bg-off-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardBreadcrumb 
-          currentPage="Simulados"
-        />
+        <DashboardBreadcrumb currentPage="Simulados" />
         
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Simulados Disponíveis</h1>
-          <p className="text-lg text-gray-600">
-            Escolha um simulado para praticar e avaliar seu conhecimento.
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Simulados</h1>
+          <p className="text-gray-600 text-lg">
+            Teste seus conhecimentos com simulados de vestibulares anteriores
           </p>
         </div>
 
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : Object.keys(simulados).length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
-            <School className="mx-auto h-16 w-16 text-gray-400 mb-6" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Nenhum simulado disponível</h3>
-            <p className="text-lg text-gray-600">
-              No momento não há simulados disponíveis. Confira novamente mais tarde.
-            </p>
-          </div>
+        {simulados.length === 0 ? (
+          <EmptyState 
+            message="Nenhum simulado disponível no momento. Novos simulados serão adicionados em breve!"
+            icon={<BookOpen className="h-12 w-12" />}
+          />
         ) : (
-          Object.keys(simulados).map(instituicao => (
-            <div key={instituicao} className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">{instituicao}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {simulados[instituicao].map(simulado => (
-                  <Card key={simulado.id} className="hover:shadow-lg transition-all duration-200 border-0 shadow-md rounded-2xl">
-                    <CardHeader className="pb-3">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl font-bold text-gray-900">{simulado.instituicao} {simulado.ano}</CardTitle>
-                        <Badge className="bg-[#5E60CE] hover:bg-[#5E60CE] text-white rounded-xl">
-                          {simulado.question_count} questões
-                        </Badge>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {simulados.map((simulado) => (
+              <Card key={simulado.id} className="bg-white rounded-2xl shadow-md border-0 hover:shadow-lg transition-shadow">
+                <CardHeader className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <CardTitle className="text-xl font-semibold text-gray-900">
+                      {simulado.instituicao}
+                    </CardTitle>
+                    {simulado.completed && (
+                      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                        Concluído
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3 text-gray-600">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>{simulado.ano}</span>
+                    </div>
+                    
+                    {simulado.pergunta_count && (
+                      <div className="flex items-center">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        <span>{simulado.pergunta_count} questões</span>
                       </div>
-                      <CardDescription className="text-base text-gray-600">
-                        Simulado preparatório para o vestibular {simulado.ano}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600">
-                        Este simulado contém questões baseadas no vestibular
-                        da {simulado.instituicao} do ano de {simulado.ano}.
-                      </p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button 
-                        onClick={() => handleStartSimulado(simulado.id)} 
-                        disabled={startingSimuladoId === simulado.id}
-                        className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl font-medium text-base transition-all duration-200"
-                      >
-                        {startingSimuladoId === simulado.id ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Iniciando...
-                          </>
-                        ) : (
-                          <>
-                            <BookOpen className="mr-2 h-5 w-5" />
-                            Iniciar Simulado
-                          </>
-                        )}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ))
+                    )}
+                    
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2" />
+                      <span>~{Math.ceil((simulado.pergunta_count || 0) * 2)} min</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="p-6 pt-0">
+                  <Button 
+                    onClick={() => handleStartSimulado(simulado.id)}
+                    className="w-full bg-coral hover:bg-coral/90 text-white rounded-xl px-6 py-3 h-auto font-semibold"
+                  >
+                    <Play className="mr-2 h-4 w-4" />
+                    {simulado.completed ? 'Refazer Simulado' : 'Iniciar Simulado'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </div>
     </div>
