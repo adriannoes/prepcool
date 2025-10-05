@@ -62,7 +62,7 @@ const Login = () => {
                         type="email"
                         placeholder="seu@email.com"
                         {...field}
-                        className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE]"
+                        className="h-12 text-base border-gray-300 rounded-xl focus:border-coral focus:ring-coral"
                       />
                     </FormControl>
                     <FormMessage />
@@ -82,7 +82,7 @@ const Login = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
                           {...field}
-                          className="h-12 text-base border-gray-300 rounded-xl focus:border-[#5E60CE] focus:ring-[#5E60CE] pr-12"
+                          className="h-12 text-base border-gray-300 rounded-xl focus:border-coral focus:ring-coral pr-12"
                         />
                         <button 
                           type="button"
@@ -101,7 +101,7 @@ const Login = () => {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white font-medium text-base rounded-xl transition-all duration-200"
+                className="w-full h-12 bg-coral hover:bg-coral/90 text-white font-medium text-base rounded-xl transition-all duration-200"
               >
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
@@ -118,7 +118,7 @@ const Login = () => {
           <div className="mt-8 text-center">
             <p className="text-base text-gray-600">
               Ainda não tem uma conta?{" "}
-              <Link to="/signup" className="text-[#5E60CE] hover:text-[#5E60CE]/80 font-medium transition-colors">
+              <Link to="/signup" className="text-coral hover:text-coral/80 font-medium transition-colors">
                 Cadastre-se
               </Link>
             </p>
