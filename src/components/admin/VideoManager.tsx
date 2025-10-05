@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +50,51 @@ const VideoManager = () => {
 
   useEffect(() => {
     fetchData();
+    updateBotanicaVideo();
   }, []);
+
+  const updateBotanicaVideo = async () => {
+    try {
+      // Procurar pelo vídeo de "Introdução à Botânica"
+      const { data: videos, error } = await supabase
+        .from('video')
+        .select('*')
+        .ilike('titulo', '%introdução%botânica%')
+        .or('titulo.ilike.%intro%botânica%,titulo.ilike.%botânica%introdução%');
+
+      if (error) {
+        console.error('Erro ao buscar vídeo de botânica:', error);
+        return;
+      }
+
+      if (videos && videos.length > 0) {
+        const botanicaVideo = videos[0];
+        const newUrl = 'https://www.youtube.com/watch?v=1ra4GNjN2jQ';
+        
+        // Verificar se o URL já está atualizado
+        if (botanicaVideo.url !== newUrl) {
+          const { error: updateError } = await supabase
+            .from('video')
+            .update({ url: newUrl })
+            .eq('id', botanicaVideo.id);
+
+          if (updateError) {
+            console.error('Erro ao atualizar vídeo:', updateError);
+          } else {
+            console.log('✅ Vídeo de Introdução à Botânica atualizado com sucesso!');
+            toast({
+              title: "Vídeo atualizado!",
+              description: "O link do vídeo de Introdução à Botânica foi atualizado automaticamente.",
+            });
+            // Recarregar os dados para mostrar a mudança
+            fetchData();
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Erro na atualização automática:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -154,6 +197,11 @@ const VideoManager = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const getYouTubeId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
   };
 
   if (loading) {
@@ -263,14 +311,31 @@ const VideoManager = () => {
                   {video.descricao && (
                     <p className="text-gray-600 text-sm mb-2">{video.descricao}</p>
                   )}
-                  <a 
-                    href={video.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 text-sm hover:underline"
-                  >
-                    {video.url}
-                  </a>
+                  <div className="flex items-center gap-2 mb-2">
+                    <a 
+                      href={video.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 text-sm hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink size={14} />
+                      {video.url}
+                    </a>
+                  </div>
+                  {getYouTubeId(video.url) && (
+                    <div className="mt-3">
+                      <div className="relative w-full max-w-sm aspect-video">
+                        <iframe
+                          className="w-full h-full rounded-lg"
+                          src={`https://www.youtube.com/embed/${getYouTubeId(video.url)}`}
+                          title={video.titulo}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2 ml-4">
                   <Button
