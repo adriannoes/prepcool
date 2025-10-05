@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Youtube } from 'lucide-react';
+import { Instagram, Facebook, Youtube, Support } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -57,15 +57,13 @@ const Footer = () => {
               <Link to="/sobre-nos" className="text-gray-600 hover:text-coral transition-colors">
                 Sobre nós
               </Link>
+              <Link to="/apoiar" className="text-gray-600 hover:text-coral transition-colors flex items-center gap-2">
+                <Support size={16} />
+                Quer nos apoiar?
+              </Link>
               <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
                 Nossa política de aprendizagem
               </Link>
-              <button 
-                onClick={() => document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-gray-600 hover:text-coral transition-colors text-left w-fit"
-              >
-                Lista de espera
-              </button>
             </div>
           </div>
           

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Help } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
@@ -81,16 +81,16 @@ const Navbar = () => {
             >
               Como funciona
             </button>
-            <button 
-              onClick={() => scrollToSection('lead-form')} 
-              className="text-gray-700 hover:text-coral transition-colors font-medium"
-            >
-              Lista de espera
-            </button>
           </>
         )}
         <Link to="/sobre-nos" className="text-gray-700 hover:text-coral transition-colors font-medium">
           Sobre nós
+        </Link>
+        <Link to="/apoiar" className="text-gray-700 hover:text-coral transition-colors font-medium">
+          <span className="flex items-center gap-2">
+            <Help size={18} />
+            Quer nos apoiar?
+          </span>
         </Link>
         {user && (
           <Link to="/dashboard" className="text-gray-700 hover:text-coral transition-colors font-medium">
@@ -130,12 +130,6 @@ const Navbar = () => {
               >
                 Como funciona
               </button>
-              <button 
-                onClick={() => scrollToSection('lead-form')}
-                className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
-              >
-                Lista de espera
-              </button>
             </>
           )}
           <Link 
@@ -144,6 +138,14 @@ const Navbar = () => {
             onClick={() => setIsMenuOpen(false)}
           >
             Sobre nós
+          </Link>
+          <Link 
+            to="/apoiar" 
+            className="text-gray-700 py-2 hover:text-coral transition-colors font-medium flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <Help size={18} />
+            Quer nos apoiar?
           </Link>
           {user && (
             <button

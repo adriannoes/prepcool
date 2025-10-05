@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Aprendizado from "./pages/Aprendizado";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
+import Apoiar from "./pages/Apoiar";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/sobre-nos" element={<SobreNos />} />
+            <Route path="/apoiar" element={<Apoiar />} />
             
             {/* Auth routes - accessible only when NOT logged in */}
             <Route element={<RouteGuard requiresAuth={false} />}>
