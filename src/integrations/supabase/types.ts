@@ -117,23 +117,32 @@ export type Database = {
       }
       plano_estudo: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          origem: string | null
+          origem: string
+          prioridade: number
+          status: string
+          tipo: string
           topico_id: string
           usuario_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          origem?: string | null
+          origem: string
+          prioridade?: number
+          status?: string
+          tipo: string
           topico_id: string
           usuario_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          origem?: string | null
+          origem?: string
+          prioridade?: number
+          status?: string
+          tipo?: string
           topico_id?: string
           usuario_id?: string
         }
@@ -143,13 +152,6 @@ export type Database = {
             columns: ["topico_id"]
             isOneToOne: false
             referencedRelation: "topico"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "plano_estudo_usuario_id_fkey"
-            columns: ["usuario_id"]
-            isOneToOne: false
-            referencedRelation: "usuario"
             referencedColumns: ["id"]
           },
         ]

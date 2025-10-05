@@ -19,6 +19,7 @@ import SimuladosList from "./pages/SimuladosList";
 import Redacao from "./pages/Redacao";
 import RedacaoFeedback from "./pages/RedacaoFeedback";
 import Diagnostico from "./pages/Diagnostico";
+import Plano from "./pages/Plano";
 import React from 'react';
 
 // Initialize the query client outside the component
@@ -61,8 +62,7 @@ const App = () => {
                   <Route path="/redacao" element={<Redacao />} />
                   <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
                   <Route path="/diagnostico" element={<Diagnostico />} />
-                  {/* Add more protected routes here */}
-                  {/* <Route path="/plano" element={<Plano />} /> */}
+                  <Route path="/plano" element={<Plano />} />
                 </Route>
                 
                 {/* Catch-all route */}
