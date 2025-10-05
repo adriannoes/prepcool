@@ -49,7 +49,7 @@ const Navbar = () => {
     navigate('/dashboard');
     setIsMenuOpen(false);
   };
-
+  
   return (
     <nav 
       className={`w-full py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 transition-all duration-300 ${
@@ -92,9 +92,14 @@ const Navbar = () => {
           </span>
         </Link>
         {user && (
-          <Link to="/dashboard" className="text-gray-700 hover:text-coral transition-colors font-medium">
-            Dashboard
-          </Link>
+          <>
+            <Link to="/dashboard" className="text-gray-700 hover:text-coral transition-colors font-medium">
+              Dashboard
+            </Link>
+            <Link to="/aprendizado" className="text-gray-700 hover:text-coral transition-colors font-medium">
+              Aprendizado
+            </Link>
+          </>
         )}
       </div>
 
@@ -147,12 +152,22 @@ const Navbar = () => {
             Quer nos apoiar?
           </Link>
           {user && (
-            <button
-              onClick={handleDashboardClick}
-              className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
-            >
-              Dashboard
-            </button>
+            <>
+              <Link
+                to="/dashboard"
+                className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/aprendizado"
+                className="text-gray-700 py-2 hover:text-coral transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Aprendizado
+              </Link>
+            </>
           )}
           <button 
             onClick={handleAuthAction}
