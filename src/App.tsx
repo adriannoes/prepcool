@@ -24,6 +24,7 @@ import Diagnostico from "./pages/Diagnostico";
 import Plano from "./pages/Plano";
 import PlanoHistorico from "./pages/PlanoHistorico";
 import Admin from "./pages/Admin";
+import Unauthorized from "./pages/Unauthorized";
 import React from 'react';
 
 // Initialize the query client outside the component
@@ -76,6 +77,9 @@ function App() {
                   <Route element={<RouteGuard requiresAuth={true} requiresAdmin={true} />}>
                     <Route path="/admin" element={<Admin />} />
                   </Route>
+                  
+                  {/* Unauthorized access page */}
+                  <Route path="/unauthorized" element={<Unauthorized />} />
                   
                   {/* Catch-all route */}
                   <Route path="*" element={<NotFound />} />

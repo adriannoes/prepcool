@@ -10,31 +10,57 @@ export const useAdminCheck = () => {
 
   useEffect(() => {
     const checkAdminStatus = async () => {
-      console.log('🔍 useAdminCheck: Starting admin check for user:', user?.id, user?.email);
+      console.log('🔍 useAdminCheck: Starting admin check');
+      console.log('👤 Current user:', { 
+        id: user?.id, 
+        email: user?.email,
+        authenticated: !!user 
+      });
       
       if (!user) {
-        console.log('❌ useAdminCheck: No user found');
+        console.log('❌ useAdminCheck: No authenticated user found');
         setIsAdmin(false);
         setLoading(false);
         return;
       }
 
       try {
+        // Verificação dupla: role-based (principal) + email fallback
         console.log('🔍 useAdminCheck: Calling is_admin() RPC function');
-        const { data, error } = await supabase.rpc('is_admin');
+        const { data: hasAdminRole, error: rpcError } = await supabase.rpc('is_admin');
         
-        console.log('📊 useAdminCheck: RPC response - data:', data, 'error:', error);
-        
-        if (error) {
-          console.error('❌ useAdminCheck: Error checking admin status:', error);
-          setIsAdmin(false);
+        console.log('📊 useAdminCheck: RPC response', { 
+          data: hasAdminRole, 
+          error: rpcError 
+        });
+
+        // Verificação por email como fallback (dev@dev.com é o admin designado)
+        const isDesignatedAdmin = user.email === 'dev@dev.com';
+        console.log('📧 useAdminCheck: Email check', { 
+          userEmail: user.email, 
+          isDesignatedAdmin 
+        });
+
+        if (rpcError) {
+          console.error('❌ useAdminCheck: RPC error, falling back to email check:', rpcError);
+          // Se RPC falhar, usar apenas verificação por email
+          setIsAdmin(isDesignatedAdmin);
         } else {
-          console.log('✅ useAdminCheck: Admin status result:', data);
-          setIsAdmin(data || false);
+          // Combinar verificações: deve ter role admin OU ser o email designado
+          const finalAdminStatus = hasAdminRole || isDesignatedAdmin;
+          console.log('✅ useAdminCheck: Final admin status', {
+            hasAdminRole,
+            isDesignatedAdmin,
+            finalResult: finalAdminStatus
+          });
+          setIsAdmin(finalAdminStatus);
         }
       } catch (error) {
         console.error('❌ useAdminCheck: Exception during admin check:', error);
-        setIsAdmin(false);
+        // Em caso de erro, fazer fallback para verificação por email
+        const isDesignatedAdmin = user.email === 'dev@dev.com';
+        console.log('🔄 useAdminCheck: Using email fallback due to exception:', isDesignatedAdmin);
+        setIsAdmin(isDesignatedAdmin);
       } finally {
         setLoading(false);
       }
@@ -43,7 +69,11 @@ export const useAdminCheck = () => {
     checkAdminStatus();
   }, [user]);
 
-  console.log('🎯 useAdminCheck: Current state - isAdmin:', isAdmin, 'loading:', loading);
+  console.log('🎯 useAdminCheck: Final state', { 
+    isAdmin, 
+    loading, 
+    userEmail: user?.email 
+  });
   
   return { isAdmin, loading };
 };
