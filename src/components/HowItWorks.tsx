@@ -38,22 +38,22 @@ const HowItWorks = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="feature-card opacity-0" style={{ transitionDelay: '0.1s' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
+          <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.1s' }}>
             <FeatureCard 
               icon={UserPlus} 
               title="Faça seu cadastro" 
               description="Crie sua conta em segundos e tenha acesso à nossa plataforma completa de estudo para vestibular."
             />
           </div>
-          <div className="feature-card opacity-0" style={{ transitionDelay: '0.3s' }}>
+          <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.3s' }}>
             <FeatureCard 
               icon={Layers} 
               title="Interaja com a trilha de conhecimento" 
               description="Acesse conteúdos personalizados e organizados de acordo com seu ritmo de aprendizagem e objetivos."
             />
           </div>
-          <div className="feature-card opacity-0" style={{ transitionDelay: '0.5s' }}>
+          <div className="feature-card opacity-0 h-full" style={{ transitionDelay: '0.5s' }}>
             <FeatureCard 
               icon={Medal} 
               title="Faça exercícios e simulados" 
