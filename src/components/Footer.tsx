@@ -1,28 +1,79 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Instagram, Facebook, Youtube } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="w-full py-8 px-6 bg-white">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
-        <div className="mb-6 md:mb-0">
-          <Link to="/" className="font-bold text-xl text-gray-800">
-            Prep<span className="text-coral">Cool</span>
-          </Link>
-          <p className="text-gray-500 text-sm mt-2">© {new Date().getFullYear()} PrepCool. Todos os direitos reservados.</p>
+    <footer className="w-full bg-white py-12 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Brand Column */}
+          <div className="flex flex-col space-y-4">
+            <Link to="/" className="font-bold text-2xl text-gray-800">
+              Prep<span className="text-coral">Cool</span>
+            </Link>
+            <p className="text-gray-600 max-w-xs">
+              Plataforma de educação online para o sucesso no vestibular.
+            </p>
+          </div>
+          
+          {/* Institutional Column */}
+          <div className="flex flex-col space-y-4">
+            <h3 className="font-semibold text-lg text-gray-800">Institucional</h3>
+            <div className="flex flex-col space-y-2">
+              <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
+                Cursos
+              </Link>
+              <Link to="/sobre-nos" className="text-gray-600 hover:text-coral transition-colors">
+                Sobre nós
+              </Link>
+              <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
+                Nossa política de aprendizagem
+              </Link>
+            </div>
+          </div>
+          
+          {/* Contact Column */}
+          <div className="flex flex-col space-y-4">
+            <h3 className="font-semibold text-lg text-gray-800">Fale Conosco</h3>
+            <a href="mailto:contato@prepcool.com.br" className="text-gray-600 hover:text-coral transition-colors">
+              contato@prepcool.com.br
+            </a>
+            <div className="flex space-x-4">
+              <a 
+                href="https://instagram.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-coral transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram size={24} />
+              </a>
+              <a 
+                href="https://facebook.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-coral transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={24} />
+              </a>
+              <a 
+                href="https://youtube.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-coral transition-colors"
+                aria-label="Youtube"
+              >
+                <Youtube size={24} />
+              </a>
+            </div>
+          </div>
         </div>
         
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8">
-          <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
-            Termos de Uso
-          </Link>
-          <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
-            Política de Privacidade
-          </Link>
-          <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
-            Contato
-          </Link>
+        <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} PrepCool. Todos os direitos reservados.
         </div>
       </div>
     </footer>

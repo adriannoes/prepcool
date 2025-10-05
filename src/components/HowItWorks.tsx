@@ -5,7 +5,7 @@ import { UserPlus, Layers, Medal } from 'lucide-react';
 
 const HowItWorks = () => {
   return (
-    <div className="w-full py-16 px-6 bg-off-white">
+    <div id="how-it-works" className="w-full py-16 px-6 bg-off-white">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-4">Como funciona a PrepCool?</h2>
         <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12">
