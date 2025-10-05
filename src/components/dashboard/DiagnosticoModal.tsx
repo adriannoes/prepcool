@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 const skillOptions = [
   { id: 'mathematics', label: 'Mathematics' },
@@ -52,11 +53,12 @@ export default function DiagnosticoModal({ isOpen }: DiagnosticoModalProps) {
     
     try {
       // Step 1: Save to Supabase diagnostico table
+      // Convert the DiagnosticoFormData to a Json compatible object
       const { error } = await supabase
         .from('diagnostico')
         .insert({
           usuario_id: user.id,
-          respostas: data
+          respostas: data as unknown as Json
         });
 
       if (error) throw error;
