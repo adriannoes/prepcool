@@ -305,7 +305,7 @@ const Diagnostico = () => {
           <Button 
             onClick={form.handleSubmit(onSubmit)} 
             disabled={isSubmitting}
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 w-full sm:w-auto"
+            className="bg-coral hover:bg-coral/90 w-full sm:w-auto"
           >
             {isSubmitting 
               ? 'Salvando...' 
