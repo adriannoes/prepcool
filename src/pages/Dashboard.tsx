@@ -198,7 +198,7 @@ const Dashboard = () => {
                             <span className="font-medium">{discipline.discipline_name}</span>
                             <span>{discipline.topics_completed} de {discipline.total_topics} tópicos</span>
                           </div>
-                          {/* Ensure the progress value is a number */}
+                          {/* Convert to number to ensure correct type */}
                           <Progress 
                             value={Number(discipline.completion_percentage)} 
                             className="h-2"
@@ -269,7 +269,7 @@ const Dashboard = () => {
                     {redacaoProgress.average_score !== null && (
                       <div className="mt-4">
                         <Badge variant="secondary" className="text-md px-3 py-1">
-                          Nota média: {redacaoProgress.average_score !== null ? Math.round(redacaoProgress.average_score).toString() : "0"}
+                          Nota média: {redacaoProgress.average_score !== null ? String(Math.round(redacaoProgress.average_score)) : "0"}
                         </Badge>
                       </div>
                     )}
