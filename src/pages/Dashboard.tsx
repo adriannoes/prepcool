@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -198,7 +197,6 @@ const Dashboard = () => {
                             <span className="font-medium">{discipline.discipline_name}</span>
                             <span>{discipline.topics_completed} de {discipline.total_topics} tópicos</span>
                           </div>
-                          {/* Convert to number to ensure correct type */}
                           <Progress 
                             value={Number(discipline.completion_percentage)} 
                             className="h-2"
