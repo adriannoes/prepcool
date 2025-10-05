@@ -15,6 +15,7 @@ import Aprendizado from "./pages/Aprendizado";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
 import Apoiar from "./pages/Apoiar";
+import Ajuda from "./pages/Ajuda";
 import Simulado from "./pages/Simulado";
 import SimuladosList from "./pages/SimuladosList";
 import Redacao from "./pages/Redacao";
@@ -51,6 +52,7 @@ function App() {
                   <Route path="/" element={<Index />} />
                   <Route path="/sobre-nos" element={<SobreNos />} />
                   <Route path="/apoiar" element={<Apoiar />} />
+                  <Route path="/ajuda" element={<Ajuda />} />
                   
                   {/* Auth routes - accessible only when NOT logged in */}
                   <Route element={<RouteGuard requiresAuth={false} />}>

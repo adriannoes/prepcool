@@ -57,8 +57,11 @@ const Footer = () => {
               <Link to="/sobre-nos" className="text-gray-600 hover:text-coral transition-colors">
                 Sobre nós
               </Link>
-              <Link to="/apoiar" className="text-gray-600 hover:text-coral transition-colors flex items-center gap-2">
+              <Link to="/ajuda" className="text-gray-600 hover:text-coral transition-colors flex items-center gap-2">
                 <HelpCircle size={16} />
+                Ajuda e Apoio
+              </Link>
+              <Link to="/apoiar" className="text-gray-600 hover:text-coral transition-colors">
                 Quer nos apoiar?
               </Link>
               <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
@@ -70,8 +73,8 @@ const Footer = () => {
           {/* Contact Column */}
           <div className="flex flex-col space-y-6">
             <h3 className="font-semibold text-lg text-gray-800">Fale Conosco</h3>
-            <a href="mailto:contato@prepcool.com.br" className="text-gray-600 hover:text-coral transition-colors">
-              contato@prepcool.com.br
+            <a href="mailto:contato@prepcool.ai" className="text-gray-600 hover:text-coral transition-colors">
+              contato@prepcool.ai
             </a>
             <p className="text-gray-600">
               São Paulo, SP<br />
