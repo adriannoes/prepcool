@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
-import DisciplinaPlano from '@/components/plano/DisciplinaPlano';
+import PlanoHistoricoGroup from '@/components/plano/PlanoHistoricoGroup';
+import PlanoHistoricoFilters from '@/components/plano/PlanoHistoricoFilters';
 
 interface TopicoInfo {
   id: string;
@@ -18,31 +20,33 @@ interface TopicoInfo {
   };
 }
 
-interface PlanoItem {
+interface PlanoHistoricoItem {
   id: string;
   topico: TopicoInfo;
   prioridade: number;
   status: string;
   tipo: string;
   origem: string;
+  created_at: string;
 }
 
-interface DisciplinaPlanoData {
-  id: string;
-  nome: string;
-  itens: PlanoItem[];
+interface PlanoHistoricoGroup {
+  origem: string;
+  itens: PlanoHistoricoItem[];
 }
 
-const Plano = () => {
+type StatusFilter = 'all' | 'pendente' | 'concluido';
+
+const PlanoHistorico = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const { data: estudoPorDisciplina, isLoading } = useQuery<DisciplinaPlanoData[]>({
-    queryKey: ['plano-estudo'],
+  const { data: historicoData, isLoading } = useQuery<PlanoHistoricoGroup[]>({
+    queryKey: ['plano-historico'],
     queryFn: async () => {
       if (!user) return [];
       
-      // First, fetch all plan items with their topics and related discipline info
       const { data: planoItems, error } = await supabase
         .from('plano_estudo')
         .select(`
@@ -51,6 +55,7 @@ const Plano = () => {
           status, 
           tipo, 
           origem,
+          created_at,
           topico:topico_id (
             id, 
             nome, 
@@ -61,41 +66,45 @@ const Plano = () => {
           )
         `)
         .eq('usuario_id', user.id)
-        .order('prioridade', { ascending: true });
+        .order('created_at', { ascending: false });
         
       if (error) throw error;
       
-      // Group by discipline
-      const disciplinas: Record<string, DisciplinaPlanoData> = {};
+      // Group by origem
+      const grupos: Record<string, PlanoHistoricoGroup> = {};
       
       planoItems?.forEach(item => {
         if (!item.topico?.disciplina) return;
         
-        const disciplinaId = item.topico.disciplina.id;
-        const disciplinaNome = item.topico.disciplina.nome;
-        
-        if (!disciplinas[disciplinaId]) {
-          disciplinas[disciplinaId] = {
-            id: disciplinaId,
-            nome: disciplinaNome,
+        if (!grupos[item.origem]) {
+          grupos[item.origem] = {
+            origem: item.origem,
             itens: []
           };
         }
         
-        disciplinas[disciplinaId].itens.push({
+        grupos[item.origem].itens.push({
           id: item.id,
           topico: item.topico,
           prioridade: item.prioridade,
           status: item.status,
           tipo: item.tipo,
-          origem: item.origem
+          origem: item.origem,
+          created_at: item.created_at
         });
       });
       
-      return Object.values(disciplinas);
+      return Object.values(grupos);
     },
     enabled: !!user
   });
+
+  const filteredData = historicoData?.map(grupo => ({
+    ...grupo,
+    itens: statusFilter === 'all' 
+      ? grupo.itens 
+      : grupo.itens.filter(item => item.status === statusFilter)
+  })).filter(grupo => grupo.itens.length > 0);
 
   if (isLoading) {
     return (
@@ -104,9 +113,9 @@ const Plano = () => {
           userName={user?.user_metadata?.nome || "Estudante"} 
           onSignOut={signOut} 
         />
-        <div className="container mx-auto px-4 py-12 flex justify-center">
+        <div className="container mx-auto px-4 py-12 flex justify-center items-center">
           <LoadingSpinner size="lg" />
-          <span className="ml-2 text-gray-600">Carregando seu plano de estudos...</span>
+          <span className="ml-2 text-gray-600">Carregando histórico...</span>
         </div>
       </div>
     );
@@ -121,50 +130,45 @@ const Plano = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Plano de Estudos</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Histórico do Plano de Estudos</h1>
+            <p className="text-gray-600 mt-2">Acompanhe a evolução dos seus planos de estudo ao longo do tempo</p>
+          </div>
           <button
-            onClick={() => navigate('/plano/historico')}
-            className="border border-[#5E60CE] text-[#5E60CE] px-4 py-2 rounded-md hover:bg-[#5E60CE]/10 transition-colors"
+            onClick={() => navigate('/plano')}
+            className="bg-[#5E60CE] text-white px-4 py-2 rounded-md hover:bg-[#5E60CE]/90 transition-colors"
           >
-            Ver Histórico
+            Voltar ao Plano Atual
           </button>
         </div>
+
+        <PlanoHistoricoFilters
+          currentFilter={statusFilter}
+          onFilterChange={setStatusFilter}
+        />
         
-        {estudoPorDisciplina && estudoPorDisciplina.length > 0 ? (
-          <Tabs defaultValue="todos" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-6">
-              <TabsTrigger value="todos">Todos os Tópicos</TabsTrigger>
-              <TabsTrigger value="pendentes">Pendentes</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="todos" className="space-y-8">
-              {estudoPorDisciplina.map((disciplina) => (
-                <DisciplinaPlano 
-                  key={disciplina.id} 
-                  disciplina={disciplina}
-                  filtroStatus={null} // null means show all
-                />
-              ))}
-            </TabsContent>
-            
-            <TabsContent value="pendentes" className="space-y-8">
-              {estudoPorDisciplina.map((disciplina) => (
-                <DisciplinaPlano 
-                  key={disciplina.id} 
-                  disciplina={disciplina}
-                  filtroStatus="pendente"
-                />
-              ))}
-            </TabsContent>
-          </Tabs>
+        {filteredData && filteredData.length > 0 ? (
+          <div className="space-y-6">
+            {filteredData.map((grupo) => (
+              <PlanoHistoricoGroup 
+                key={grupo.origem} 
+                grupo={grupo}
+              />
+            ))}
+          </div>
         ) : (
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-              Nenhum plano de estudos encontrado
+              {statusFilter === 'all' 
+                ? "Nenhum histórico encontrado"
+                : `Nenhum item ${statusFilter === 'pendente' ? 'pendente' : 'concluído'} encontrado`
+              }
             </h2>
             <p className="text-gray-600 mb-6">
-              Realize o diagnóstico ou um simulado para receber recomendações personalizadas
-              de estudo baseadas no seu desempenho.
+              {statusFilter === 'all' 
+                ? "Realize o diagnóstico ou um simulado para começar a gerar seu histórico de estudos."
+                : "Ajuste o filtro ou realize mais atividades para ver resultados."
+              }
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
@@ -187,4 +191,4 @@ const Plano = () => {
   );
 };
 
-export default Plano;
+export default PlanoHistorico;

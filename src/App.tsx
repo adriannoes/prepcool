@@ -20,6 +20,7 @@ import Redacao from "./pages/Redacao";
 import RedacaoFeedback from "./pages/RedacaoFeedback";
 import Diagnostico from "./pages/Diagnostico";
 import Plano from "./pages/Plano";
+import PlanoHistorico from "./pages/PlanoHistorico";
 import React from 'react';
 
 // Initialize the query client outside the component
@@ -40,7 +41,7 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <Toaster />
-              <Sonner position="top-right" richColors closeButton />
+              <Sonner richColors closeButton />
               <AuthProvider>
                 <Routes>
                   {/* Public routes */}
@@ -64,6 +65,7 @@ function App() {
                     <Route path="/redacao/feedback" element={<RedacaoFeedback />} />
                     <Route path="/diagnostico" element={<Diagnostico />} />
                     <Route path="/plano" element={<Plano />} />
+                    <Route path="/plano/historico" element={<PlanoHistorico />} />
                   </Route>
                   
                   {/* Catch-all route */}
