@@ -58,9 +58,6 @@ const Footer = () => {
                 Sobre nós
               </Link>
               <Link to="/ajuda" className="text-gray-600 hover:text-coral transition-colors">
-                Ajuda
-              </Link>
-              <Link to="/ajuda" className="text-gray-600 hover:text-coral transition-colors">
                 Quer nos apoiar?
               </Link>
               <Link to="/" className="text-gray-600 hover:text-coral transition-colors">
