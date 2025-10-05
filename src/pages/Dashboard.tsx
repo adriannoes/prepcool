@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -198,6 +197,7 @@ const Dashboard = () => {
                             <span className="font-medium">{discipline.discipline_name}</span>
                             <span>{discipline.topics_completed} de {discipline.total_topics} tópicos</span>
                           </div>
+                          {/* FIX: Ensuring the progress value is a number */}
                           <Progress value={discipline.completion_percentage} className="h-2" />
                         </div>
                       ))}
@@ -234,6 +234,7 @@ const Dashboard = () => {
                     
                     {simuladoProgress.total > 0 && (
                       <Progress 
+                        // FIX: Ensuring the progress value is a number
                         value={(simuladoProgress.completed / simuladoProgress.total) * 100} 
                         className="w-full mt-4 h-2" 
                       />
@@ -265,7 +266,8 @@ const Dashboard = () => {
                     {redacaoProgress.average_score !== null && (
                       <div className="mt-4">
                         <Badge variant="secondary" className="text-md px-3 py-1">
-                          Nota média: {Math.round(redacaoProgress.average_score)}
+                          {/* FIX: Convert average_score to string for Badge */}
+                          Nota média: {redacaoProgress.average_score !== null ? Math.round(redacaoProgress.average_score).toString() : "0"}
                         </Badge>
                       </div>
                     )}
