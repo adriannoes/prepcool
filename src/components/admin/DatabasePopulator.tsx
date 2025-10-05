@@ -6,9 +6,15 @@ import { Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { populateBiologia } from '@/scripts/populateBiologia';
 
+interface PopulateResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
 const DatabasePopulator = () => {
   const [loading, setLoading] = useState(false);
-  const [lastResult, setLastResult] = useState<any>(null);
+  const [lastResult, setLastResult] = useState<PopulateResult | null>(null);
 
   const handlePopulateBiologia = async () => {
     setLoading(true);

@@ -23,10 +23,10 @@ const mockQueryClient = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  (useNavigate as any).mockReturnValue(mockNavigate);
-  (useToast as any).mockReturnValue({ toast: mockToast });
-  (useQueryClient as any).mockReturnValue(mockQueryClient);
-  (useMutation as any).mockReturnValue({
+  vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+  vi.mocked(useToast).mockReturnValue({ toast: mockToast });
+  vi.mocked(useQueryClient).mockReturnValue(mockQueryClient);
+  vi.mocked(useMutation).mockReturnValue({
     mutate: mockMutate,
     isPending: false,
   });

@@ -6,6 +6,16 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+interface Notification {
+  id: string;
+  usuario_id: string;
+  tipo: string;
+  mensagem: string;
+  link_destino: string | null;
+  lida: boolean;
+  created_at: string;
+}
+
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { notifications, unreadCount, markAsRead } = useNotifications();
@@ -38,7 +48,7 @@ const NotificationBell = () => {
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     setIsOpen(false);
     if (notification.link_destino) {

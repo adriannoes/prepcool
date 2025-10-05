@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -48,12 +48,7 @@ const VideoManager = () => {
     topico_id: ''
   });
 
-  useEffect(() => {
-    fetchData();
-    updateBotanicaVideo();
-  }, []);
-
-  const updateBotanicaVideo = async () => {
+  const updateBotanicaVideo = useCallback(async () => {
     try {
       // Procurar pelo vídeo de "Introdução à Botânica"
       const { data: videos, error } = await supabase
@@ -70,7 +65,7 @@ const VideoManager = () => {
       if (videos && videos.length > 0) {
         const botanicaVideo = videos[0];
         const newUrl = 'https://www.youtube.com/watch?v=1ra4GNjN2jQ';
-        
+
         // Verificar se o URL já está atualizado
         if (botanicaVideo.url !== newUrl) {
           const { error: updateError } = await supabase
@@ -94,9 +89,9 @@ const VideoManager = () => {
     } catch (error) {
       console.error('Erro na atualização automática:', error);
     }
-  };
+  }, [toast]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [videosRes, disciplinasRes, topicosRes] = await Promise.all([
         supabase
@@ -131,7 +126,12 @@ const VideoManager = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchData();
+    updateBotanicaVideo();
+  }, [fetchData, updateBotanicaVideo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
