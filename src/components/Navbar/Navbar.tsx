@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import NotificationBell from '../NotificationBell';
+import HelpButton from '../HelpButton';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,7 +93,10 @@ const Navbar = () => {
             <Link to="/aprendizado" className="text-gray-700 hover:text-coral transition-colors font-medium">
               Aprendizado
             </Link>
-            <NotificationBell />
+            <div className="flex items-center space-x-2">
+              <NotificationBell />
+              <HelpButton />
+            </div>
           </>
         )}
       </div>
@@ -177,4 +181,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
