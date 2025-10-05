@@ -7,9 +7,9 @@ import LeadCaptureModal from '@/components/LeadCaptureModal';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const IndexContent = () => {
+const Index = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useLanguage();
   
@@ -76,14 +76,6 @@ const IndexContent = () => {
       <LeadCaptureModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <Footer />
     </div>
-  );
-};
-
-const Index = () => {
-  return (
-    <LanguageProvider>
-      <IndexContent />
-    </LanguageProvider>
   );
 };
 
