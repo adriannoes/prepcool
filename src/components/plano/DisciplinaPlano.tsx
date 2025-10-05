@@ -84,47 +84,47 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-800 mb-4">{disciplina.nome}</h2>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-6">{disciplina.nome}</h2>
+      <div className="bg-white rounded-2xl shadow-md overflow-hidden">
         <ul className="divide-y divide-gray-100">
           {itensExibidos.map((item) => (
             <li 
               key={item.id}
-              className={`p-4 hover:bg-gray-50 transition-colors ${
+              className={`p-6 hover:bg-gray-50 transition-colors ${
                 item.status === 'concluido' 
-                  ? 'bg-coral/10 border-l-4 border-coral' 
+                  ? 'bg-green-50 border-l-4 border-green-500' 
                   : ''
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-full ${
-                    item.tipo === 'video' ? 'bg-blue-100' : 'bg-green-100'
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 rounded-xl ${
+                    item.tipo === 'video' ? 'bg-blue-100' : 'bg-purple-100'
                   }`}>
                     {item.tipo === 'video' ? (
-                      <Video size={16} className="text-blue-600" />
+                      <Video size={20} className="text-blue-600" />
                     ) : (
-                      <FileText size={16} className="text-green-600" />
+                      <FileText size={20} className="text-purple-600" />
                     )}
                   </div>
-                  <div>
-                    <h3 className={`text-sm font-medium ${
-                      item.status === 'concluido' ? 'text-coral' : 'text-gray-900'
+                  <div className="flex-1">
+                    <h3 className={`text-base font-semibold ${
+                      item.status === 'concluido' ? 'text-green-700' : 'text-gray-900'
                     }`}>
                       {item.topico.nome}
                       {item.origem === 'diagnostico' && (
-                        <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">
+                        <span className="ml-3 px-3 py-1 text-xs font-semibold rounded-full bg-[#5E60CE] text-white">
                           Diagnóstico
                         </span>
                       )}
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm text-gray-600 mt-1">
                       {item.tipo === 'video' ? 'Assistir vídeo-aula' : 'Fazer exercícios'}
                     </p>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   {/* Only show completion control for exercise items */}
                   {item.tipo === 'exercicio' && (
                     <>
@@ -132,15 +132,15 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
                         <button 
                           onClick={() => marcarComoConcluido.mutate(item.id)}
                           disabled={marcarComoConcluido.isPending}
-                          className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-coral border border-coral rounded-md hover:bg-coral hover:text-white transition-colors disabled:opacity-50"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm font-semibold text-[#5E60CE] border border-[#5E60CE] rounded-xl hover:bg-[#5E60CE] hover:text-white transition-all duration-200 disabled:opacity-50"
                           title="Marcar como concluído"
                         >
-                          <Check size={14} />
+                          <Check size={16} />
                           <span>Marcar como concluído</span>
                         </button>
                       ) : (
-                        <span className="flex items-center space-x-1 text-xs font-medium text-coral bg-coral/10 border border-coral px-3 py-1.5 rounded-md">
-                          <Check size={14} />
+                        <span className="flex items-center space-x-2 text-sm font-semibold text-green-800 bg-green-100 px-4 py-2 rounded-xl">
+                          <Check size={16} />
                           <span>Concluído</span>
                         </span>
                       )}
@@ -149,17 +149,17 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
                   
                   {/* Show completion status for video items (non-interactive) */}
                   {item.tipo === 'video' && item.status === 'concluido' && (
-                    <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
+                    <span className="text-sm font-semibold text-green-800 bg-green-100 px-3 py-1 rounded-full">
                       Concluído
                     </span>
                   )}
                   
                   <button 
                     onClick={() => navigateToItem(item)}
-                    className="p-1.5 rounded-full text-gray-400 hover:bg-gray-200"
+                    className="p-2 rounded-xl text-gray-400 hover:bg-gray-200 hover:text-[#5E60CE] transition-colors"
                     title="Ir para o conteúdo"
                   >
-                    <ChevronRight size={16} />
+                    <ChevronRight size={20} />
                   </button>
                 </div>
               </div>

@@ -212,7 +212,12 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
         <AlertCircle className="h-12 w-12 mx-auto text-orange-500" />
         <h2 className="text-2xl font-bold mt-4 mb-4">Simulado não encontrado</h2>
         <p className="text-gray-600 mb-6">Este simulado não possui questões ou não foi encontrado.</p>
-        <Button onClick={() => navigate('/simulado')}>Voltar aos Simulados</Button>
+        <Button 
+          onClick={() => navigate('/simulado')}
+          className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl px-6 py-3"
+        >
+          Voltar aos Simulados
+        </Button>
       </div>
     );
   }
@@ -227,28 +232,28 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
         ]}
       />
       
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-3xl font-bold text-gray-900">
             {simuladoInfo?.instituicao} {simuladoInfo?.ano}
           </h1>
-          <Badge className="text-sm bg-[#5E60CE]">
+          <Badge className="text-sm bg-[#5E60CE] text-white px-4 py-2 rounded-xl font-semibold">
             {currentQuestion?.disciplina}
           </Badge>
         </div>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 mt-2 text-lg">
           Questão {currentQuestionIndex + 1} de {questions.length}
         </p>
       </div>
       
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-xl flex justify-between items-center">
-            <span>Questão {currentQuestionIndex + 1}</span>
+      <Card className="mb-8 bg-white rounded-2xl shadow-md border-0">
+        <CardHeader className="p-8">
+          <CardTitle className="text-2xl font-semibold text-gray-900">
+            Questão {currentQuestionIndex + 1}
           </CardTitle>
         </CardHeader>
-        <CardContent className="prose max-w-none">
-          <p className="whitespace-pre-line">{currentQuestion.enunciado}</p>
+        <CardContent className="prose max-w-none p-8 pt-0">
+          <p className="whitespace-pre-line text-gray-800 text-lg leading-relaxed">{currentQuestion.enunciado}</p>
           
           <div className="mt-8">
             <RadioGroup 
@@ -257,11 +262,11 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
               className="space-y-4"
             >
               {alternativas.map(option => (
-                <div key={option} className="flex items-center space-x-2 p-3 rounded-md border hover:bg-gray-50 transition-colors">
-                  <RadioGroupItem value={option} id={`option-${option}`} />
+                <div key={option} className="flex items-center space-x-4 p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
+                  <RadioGroupItem value={option} id={`option-${option}`} className="border-[#5E60CE] text-[#5E60CE]" />
                   <label 
                     htmlFor={`option-${option}`}
-                    className="text-base font-medium flex-grow cursor-pointer"
+                    className="text-lg font-medium flex-grow cursor-pointer text-gray-800"
                   >
                     {option}
                   </label>
@@ -270,12 +275,12 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
             </RadioGroup>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-wrap md:flex-nowrap gap-3">
+        <CardFooter className="flex flex-wrap md:flex-nowrap gap-4 p-8">
           {!isFirstQuestion && (
             <Button 
               variant="outline"
               onClick={handlePreviousQuestion}
-              className="w-full md:w-auto"
+              className="w-full md:w-auto border-[#5E60CE] text-[#5E60CE] hover:bg-[#5E60CE] hover:text-white rounded-xl px-6 py-3 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Questão anterior
@@ -283,7 +288,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
           )}
           
           <Button 
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 w-full md:w-auto ml-auto"
+            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white w-full md:w-auto ml-auto rounded-xl px-6 py-3 font-semibold"
             onClick={handleSubmitAnswer}
             disabled={!selectedOption || isSaving}
           >
@@ -307,13 +312,13 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
         </CardFooter>
       </Card>
       
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
+      <div className="w-full bg-gray-100 rounded-full h-3">
         <div 
-          className="bg-[#5E60CE] h-2.5 rounded-full" 
+          className="bg-[#5E60CE] h-3 rounded-full transition-all duration-300" 
           style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
         />
       </div>
-      <p className="text-xs text-gray-500 text-right mt-1">
+      <p className="text-sm text-gray-600 text-right mt-2 font-medium">
         {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% concluído
       </p>
     </>
