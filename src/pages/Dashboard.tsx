@@ -82,36 +82,36 @@ const Dashboard = () => {
         onSignOut={signOut} 
       />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Dashboard</h1>
-          <p className="text-lg text-gray-600">Acompanhe seu progresso e continue seus estudos</p>
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Dashboard</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Acompanhe seu progresso e continue seus estudos para alcançar seus objetivos
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* First row */}
-          <div className="lg:col-span-1">
+        <div className="space-y-8">
+          {/* Top section - Diagnostic and Study Plan */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <DiagnosticoCard />
-          </div>
-          <div className="lg:col-span-1">
             <StudyPlanCard />
           </div>
-          <div className="lg:col-span-1">
+          
+          {/* Middle section - Practice Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <SimuladoCard 
               completed={simuladoProgress.completed} 
               total={simuladoProgress.total} 
             />
-          </div>
-          
-          {/* Second row */}
-          <div className="lg:col-span-2">
-            <DisciplineProgress disciplines={disciplineProgress} />
-          </div>
-          <div className="lg:col-span-1">
             <RedacaoCard
               submitted={redacaoProgress.submitted}
               averageScore={redacaoProgress.average_score}
             />
+          </div>
+          
+          {/* Bottom section - Discipline Progress */}
+          <div className="w-full">
+            <DisciplineProgress disciplines={disciplineProgress} />
           </div>
         </div>
       </main>

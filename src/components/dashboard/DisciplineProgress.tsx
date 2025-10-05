@@ -21,17 +21,38 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
   const hasDisciplines = disciplines && disciplines.length > 0;
 
   return (
-    <div className="col-span-1 md:col-span-2 lg:col-span-1">
-      <div className="bg-white p-4 rounded-lg border border-gray-100 h-full">
-        <h3 className="font-semibold text-lg mb-4">Progresso por Disciplina</h3>
-        
-        {!hasDisciplines ? (
+    <div className="bg-white rounded-2xl shadow-md border-0 p-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">Progresso por Disciplina</h3>
+          <p className="text-base text-gray-600">Acompanhe seu avanço em cada matéria</p>
+        </div>
+        <div className="bg-[#5E60CE]/10 p-3 rounded-2xl">
+          <GraduationCap className="h-8 w-8 text-[#5E60CE]" />
+        </div>
+      </div>
+      
+      {!hasDisciplines ? (
+        <div className="py-12">
           <EmptyState 
             message="Comece sua trilha de aprendizado hoje!"
-            icon={<GraduationCap className="h-5 w-5" />}
+            icon={<GraduationCap className="h-6 w-6" />}
+            className="bg-gray-50 border-gray-200 border-dashed rounded-xl p-8"
           />
-        ) : (
-          <div className="space-y-4">
+          <div className="flex justify-center mt-8">
+            <Link to="/aprendizado">
+              <Button 
+                className="bg-[#5E60CE] hover:bg-[#4e51b3] text-white rounded-xl px-8 py-3 h-12 font-semibold text-base"
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Começar Aprendizado
+              </Button>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {disciplines.map((item) => (
               <DisciplineProgressItem 
                 key={item.discipline_name}
@@ -42,21 +63,21 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
                 linkToDiscipline={`/aprendizado?disciplina=${encodeURIComponent(item.discipline_name)}`}
               />
             ))}
-            
-            <div className="pt-4 mt-2 border-t border-gray-100">
-              <Link to="/aprendizado">
-                <Button 
-                  variant="outline"
-                  className="w-full text-[#5E60CE] border-[#5E60CE] hover:bg-[#5E60CE]/10"
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Acessar Trilha de Aprendizado
-                </Button>
-              </Link>
-            </div>
           </div>
-        )}
-      </div>
+          
+          <div className="pt-6 mt-8 border-t border-gray-100 flex justify-center">
+            <Link to="/aprendizado">
+              <Button 
+                variant="outline"
+                className="border-[#5E60CE] text-[#5E60CE] hover:bg-[#5E60CE]/10 hover:border-[#4e51b3] rounded-xl px-8 py-3 h-12 font-semibold text-base"
+              >
+                <BookOpen className="h-5 w-5 mr-2" />
+                Acessar Trilha de Aprendizado
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
