@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Help } from 'lucide-react';
+import { Menu, X, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 
@@ -88,7 +88,7 @@ const Navbar = () => {
         </Link>
         <Link to="/apoiar" className="text-gray-700 hover:text-coral transition-colors font-medium">
           <span className="flex items-center gap-2">
-            <Help size={18} />
+            <HelpCircle size={18} />
             Quer nos apoiar?
           </span>
         </Link>
@@ -144,7 +144,7 @@ const Navbar = () => {
             className="text-gray-700 py-2 hover:text-coral transition-colors font-medium flex items-center gap-2"
             onClick={() => setIsMenuOpen(false)}
           >
-            <Help size={18} />
+            <HelpCircle size={18} />
             Quer nos apoiar?
           </Link>
           {user && (
