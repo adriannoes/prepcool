@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,7 +40,7 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <Toaster />
-              <Sonner />
+              <Sonner position="top-right" richColors closeButton />
               <AuthProvider>
                 <Routes>
                   {/* Public routes */}
@@ -73,7 +74,6 @@ function App() {
           </QueryClientProvider>
         </BrowserRouter>
       </React.StrictMode>
-      <Toaster position="top-right" richColors closeButton />
     </>
   );
 }
