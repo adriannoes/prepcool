@@ -1,3 +1,4 @@
+
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
@@ -23,9 +24,6 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
     isAdmin
   });
 
-  // Fallback para admin designado - permite acesso imediato se for dev@dev.com
-  const isDesignatedAdmin = user?.email === 'dev@dev.com';
-  
   // If still loading auth, show loading spinner
   if (authLoading) {
     console.log('⏳ RouteGuard: Auth still loading, showing spinner');
@@ -45,7 +43,6 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
       console.log('🔄 RouteGuard: Authenticated user accessing auth page, redirecting to dashboard');
       return <Navigate to="/dashboard" replace />;
     }
-    // Otherwise allow access to login/signup pages
     console.log('✅ RouteGuard: Allowing access to public route');
     return <Outlet />;
   }
@@ -63,15 +60,15 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
     
-    // Verificação especial para admin designado - acesso imediato
-    if (isDesignatedAdmin) {
-      console.log('✅ RouteGuard: Designated admin detected - granting immediate access');
+    // IMMEDIATE ACCESS for designated admin - no waiting
+    if (user.email === 'dev@dev.com') {
+      console.log('✅ RouteGuard: IMMEDIATE ADMIN ACCESS GRANTED for dev@dev.com');
       return <Outlet />;
     }
     
-    // Para outros usuários, aguardar verificação completa
+    // For other users, check if admin loading is complete
     if (adminLoading) {
-      console.log('⏳ RouteGuard: Admin check still loading for non-designated user, showing spinner');
+      console.log('⏳ RouteGuard: Admin check still loading for non-designated user');
       return (
         <div className="flex flex-col items-center justify-center min-h-screen">
           <Loader2 className="h-12 w-12 animate-spin text-coral" />
@@ -80,25 +77,12 @@ const RouteGuard = ({ requiresAuth = true, requiresAdmin = false }: RouteGuardPr
       );
     }
     
-    console.log('🔍 RouteGuard: Checking admin privileges for non-designated user', {
-      userEmail: user.email,
-      isAdmin,
-      adminLoading
-    });
-    
     if (!isAdmin) {
-      console.log('❌ RouteGuard: Non-admin user attempting to access admin route', {
-        userEmail: user.email,
-        isAdmin,
-        redirectingTo: '/unauthorized'
-      });
+      console.log('❌ RouteGuard: Non-admin user attempting to access admin route, redirecting to unauthorized');
       return <Navigate to="/unauthorized" replace />;
     }
     
-    console.log('✅ RouteGuard: Admin access granted for non-designated user', {
-      userEmail: user.email,
-      isAdmin
-    });
+    console.log('✅ RouteGuard: Admin access granted for verified user');
   }
   
   // User is authenticated and has required permissions

@@ -22,9 +22,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🔄 AuthContext: Setting up auth state listener');
+    console.log('🔄 AuthContext: Initializing auth system');
     
-    // Set up auth state listener FIRST
+    // Get initial session immediately
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log('📱 AuthContext: Initial session', { 
+          hasSession: !!initialSession,
+          userEmail: initialSession?.user?.email 
+        });
+        
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+        setLoading(false); // Set loading false after initial check
+      } catch (error) {
+        console.error('❌ AuthContext: Error getting initial session:', error);
+        setLoading(false);
+      }
+    };
+    
+    initializeAuth();
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log('🔔 AuthContext: Auth state change', { 
@@ -36,34 +56,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Set loading to false as soon as we have auth state
-        if (loading) {
-          console.log('✅ AuthContext: Auth state loaded, setting loading to false');
-          setLoading(false);
-        }
-        
         if (event === 'SIGNED_IN') {
-          // Redirect to dashboard only on sign in, not on sign up
           console.log('🚀 AuthContext: User signed in, redirecting to dashboard');
           navigate('/dashboard');
         }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('📱 AuthContext: Initial session check', { 
-        hasSession: !!currentSession,
-        userEmail: currentSession?.user?.email 
-      });
-      
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      setLoading(false);
-    });
-
     return () => subscription.unsubscribe();
-  }, [navigate, loading]);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string, metadata: { nome: string, telefone: string }) => {
     try {
