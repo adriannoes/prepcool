@@ -1,10 +1,10 @@
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, Clock, Youtube } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,12 +38,35 @@ const Aprendizado = () => {
   const { user } = useAuth();
   const [disciplines, setDisciplines] = useState<Disciplina[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const accordionRefs = useRef<Record<string, HTMLElement | null>>({});
+  
+  // Extract discipline from query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const targetDiscipline = queryParams.get('disciplina');
   
   useEffect(() => {
     if (user) {
       fetchDisciplines();
     }
   }, [user]);
+
+  useEffect(() => {
+    // If targetDiscipline is set and disciplines are loaded, scroll to that discipline
+    if (!loading && targetDiscipline && accordionRefs.current[targetDiscipline]) {
+      const disciplineElement = accordionRefs.current[targetDiscipline];
+      if (disciplineElement) {
+        setTimeout(() => {
+          disciplineElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Find the accordion trigger and click it to open that section
+          const trigger = disciplineElement.querySelector('[data-accordion-trigger]');
+          if (trigger && trigger instanceof HTMLElement) {
+            trigger.click();
+          }
+        }, 100);
+      }
+    }
+  }, [loading, targetDiscipline, disciplines]);
 
   const fetchDisciplines = async () => {
     try {
@@ -210,6 +233,8 @@ const Aprendizado = () => {
     <div className="min-h-screen bg-off-white p-4 md:p-6">
       <div className="container mx-auto max-w-5xl">
         <div className="bg-white rounded-lg shadow-md p-6">
+          <DashboardBreadcrumb currentPage="Aprendizado" />
+          
           <div className="flex items-center mb-6">
             <Youtube className="text-[#5E60CE] mr-3" />
             <h1 className="text-2xl font-bold text-gray-800">Trilha de Aprendizado</h1>
@@ -226,8 +251,12 @@ const Aprendizado = () => {
                   key={discipline.id}
                   value={discipline.id}
                   className="border rounded-lg overflow-hidden"
+                  ref={(el) => {
+                    // Store references to all disciplines for scrolling
+                    accordionRefs.current[discipline.nome] = el;
+                  }}
                 >
-                  <AccordionTrigger className="px-4 py-3 hover:bg-gray-50">
+                  <AccordionTrigger className="px-4 py-3 hover:bg-gray-50" data-accordion-trigger>
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center">
                         <span className="text-lg font-medium">{discipline.nome}</span>

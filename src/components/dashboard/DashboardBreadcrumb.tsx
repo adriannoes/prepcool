@@ -11,15 +11,17 @@ import {
 } from '@/components/ui/breadcrumb';
 import { HomeIcon } from 'lucide-react';
 
-interface DashboardBreadcrumbProps {
-  currentPage: string;
-  parentPage?: {
-    name: string;
-    path: string;
-  };
+interface BreadcrumbPath {
+  name: string;
+  path: string;
 }
 
-const DashboardBreadcrumb = ({ currentPage, parentPage }: DashboardBreadcrumbProps) => {
+interface DashboardBreadcrumbProps {
+  currentPage: string;
+  paths?: BreadcrumbPath[];
+}
+
+const DashboardBreadcrumb = ({ currentPage, paths = [] }: DashboardBreadcrumbProps) => {
   return (
     <Breadcrumb className="mb-4">
       <BreadcrumbList>
@@ -34,20 +36,31 @@ const DashboardBreadcrumb = ({ currentPage, parentPage }: DashboardBreadcrumbPro
         
         <BreadcrumbSeparator />
         
-        {parentPage && (
-          <>
+        <BreadcrumbItem>
+          <BreadcrumbLink asChild>
+            <Link to="/dashboard">Dashboard</Link>
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        
+        {paths.map((path, index) => (
+          <React.Fragment key={path.path}>
+            <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={parentPage.path}>{parentPage.name}</Link>
+                <Link to={path.path}>{path.name}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
+          </React.Fragment>
+        ))}
+        
+        {currentPage !== "Dashboard" && (
+          <>
             <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{currentPage}</BreadcrumbPage>
+            </BreadcrumbItem>
           </>
         )}
-        
-        <BreadcrumbItem>
-          <BreadcrumbPage>{currentPage}</BreadcrumbPage>
-        </BreadcrumbItem>
       </BreadcrumbList>
     </Breadcrumb>
   );

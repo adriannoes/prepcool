@@ -1,8 +1,10 @@
-import React from 'react';
-import DisciplineProgressItem from './DisciplineProgressItem';
 
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import DisciplineProgressItem from './DisciplineProgressItem';
 import EmptyState from './EmptyState';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, BookOpen } from 'lucide-react';
 
 interface DisciplineProgressProps {
   disciplines: DisciplineProgressData[];
@@ -37,8 +39,21 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
                 topicsCompleted={item.topics_completed}
                 totalTopics={item.total_topics}
                 completionPercentage={item.completion_percentage}
+                linkToDiscipline={`/aprendizado?disciplina=${encodeURIComponent(item.discipline_name)}`}
               />
             ))}
+            
+            <div className="pt-4 mt-2 border-t border-gray-100">
+              <Link to="/aprendizado">
+                <Button 
+                  variant="outline"
+                  className="w-full text-[#5E60CE] border-[#5E60CE] hover:bg-[#5E60CE]/10"
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Acessar Trilha de Aprendizado
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </div>
