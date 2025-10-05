@@ -2,6 +2,7 @@
 import React from 'react';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import NotificationBell from '../NotificationBell';
 
 interface DashboardHeaderProps {
   userName: string;
@@ -21,14 +22,17 @@ const DashboardHeader = ({ userName, onSignOut }: DashboardHeaderProps) => {
               Bem-vindo de volta. Vamos continuar seus estudos?
             </p>
           </div>
-          <Button 
-            onClick={onSignOut}
-            variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 h-12 px-6 py-3 rounded-xl flex items-center gap-2 font-medium"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sair</span>
-          </Button>
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            <Button 
+              onClick={onSignOut}
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 h-12 px-6 py-3 rounded-xl flex items-center gap-2 font-medium"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sair</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

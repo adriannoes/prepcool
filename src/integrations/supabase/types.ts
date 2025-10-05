@@ -80,6 +80,44 @@ export type Database = {
         }
         Relationships: []
       }
+      notificacao: {
+        Row: {
+          created_at: string
+          id: string
+          lida: boolean
+          link_destino: string | null
+          mensagem: string
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          link_destino?: string | null
+          mensagem: string
+          tipo: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lida?: boolean
+          link_destino?: string | null
+          mensagem?: string
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_notificacao_usuario"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuario"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pergunta: {
         Row: {
           alternativa_correta: string

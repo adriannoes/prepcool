@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, HelpCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -72,7 +73,7 @@ const Navbar = () => {
       </button>
 
       {/* Desktop navigation */}
-      <div className="hidden md:flex space-x-8">
+      <div className="hidden md:flex items-center space-x-8">
         {!user && (
           <>
             <button 
@@ -99,12 +100,13 @@ const Navbar = () => {
             <Link to="/aprendizado" className="text-gray-700 hover:text-coral transition-colors font-medium">
               Aprendizado
             </Link>
+            <NotificationBell />
           </>
         )}
       </div>
 
       {/* Login/Logout button - always visible on desktop */}
-      <div className="hidden md:block">
+      <div className="hidden md:flex items-center space-x-4">
         {user ? (
           <Button 
             onClick={signOut} 
@@ -167,6 +169,10 @@ const Navbar = () => {
               >
                 Aprendizado
               </Link>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-gray-700 font-medium">Notificações</span>
+                <NotificationBell />
+              </div>
             </>
           )}
           <button 
