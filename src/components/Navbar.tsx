@@ -1,10 +1,14 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -15,6 +19,20 @@ const Navbar = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
+    setIsMenuOpen(false);
+  };
+
+  const handleAuthAction = () => {
+    if (user) {
+      signOut();
+    } else {
+      navigate('/login');
+      setIsMenuOpen(false);
+    }
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
     setIsMenuOpen(false);
   };
 
@@ -37,39 +55,55 @@ const Navbar = () => {
 
       {/* Desktop navigation */}
       <div className="hidden md:flex space-x-8">
-        <button 
-          onClick={() => scrollToSection('how-it-works')} 
-          className="text-gray-700 hover:text-coral transition-colors"
-        >
-          Como funciona
-        </button>
+        {!user && (
+          <button 
+            onClick={() => scrollToSection('how-it-works')} 
+            className="text-gray-700 hover:text-coral transition-colors"
+          >
+            Como funciona
+          </button>
+        )}
         <Link to="/sobre-nos" className="text-gray-700 hover:text-coral transition-colors">
           Sobre nós
         </Link>
-        <Link to="/" className="text-gray-700 hover:text-coral transition-colors">
-          Cursos
-        </Link>
+        {user && (
+          <Link to="/dashboard" className="text-gray-700 hover:text-coral transition-colors">
+            Dashboard
+          </Link>
+        )}
       </div>
 
-      {/* Login button - always visible on desktop */}
+      {/* Login/Logout button - always visible on desktop */}
       <div className="hidden md:block">
-        <Link 
-          to="/login" 
-          className="rounded-md py-2 px-4 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
-        >
-          Entrar
-        </Link>
+        {user ? (
+          <Button 
+            onClick={signOut} 
+            variant="outline"
+            className="border-coral text-coral hover:bg-coral/10"
+          >
+            Sair
+          </Button>
+        ) : (
+          <Link 
+            to="/login" 
+            className="rounded-md py-2 px-4 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+          >
+            Entrar
+          </Link>
+        )}
       </div>
 
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg p-4 flex flex-col space-y-4 animate-fade-in">
-          <button 
-            onClick={() => scrollToSection('how-it-works')}
-            className="text-gray-700 py-2 hover:text-coral transition-colors"
-          >
-            Como funciona
-          </button>
+          {!user && (
+            <button 
+              onClick={() => scrollToSection('how-it-works')}
+              className="text-gray-700 py-2 hover:text-coral transition-colors"
+            >
+              Como funciona
+            </button>
+          )}
           <Link 
             to="/sobre-nos" 
             className="text-gray-700 py-2 hover:text-coral transition-colors"
@@ -77,20 +111,23 @@ const Navbar = () => {
           >
             Sobre nós
           </Link>
-          <Link 
-            to="/" 
-            className="text-gray-700 py-2 hover:text-coral transition-colors"
-            onClick={() => setIsMenuOpen(false)}
+          {user && (
+            <button
+              onClick={handleDashboardClick}
+              className="text-gray-700 py-2 hover:text-coral transition-colors"
+            >
+              Dashboard
+            </button>
+          )}
+          <button 
+            onClick={handleAuthAction}
+            className={user ? 
+              "border border-coral text-coral py-2 px-4 rounded-md text-center hover:bg-coral/10 transition-colors" : 
+              "bg-coral text-white py-2 px-4 rounded-md text-center hover:bg-coral/90 transition-colors"
+            }
           >
-            Cursos
-          </Link>
-          <Link 
-            to="/login" 
-            className="bg-coral text-white py-2 px-4 rounded-md text-center hover:bg-coral/90 transition-colors"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Entrar
-          </Link>
+            {user ? "Sair" : "Entrar"}
+          </button>
         </div>
       )}
     </nav>

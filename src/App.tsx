@@ -4,8 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import RouteGuard from "./components/RouteGuard";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import SobreNos from "./pages/SobreNos";
 
@@ -17,13 +21,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/sobre-nos" element={<SobreNos />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/sobre-nos" element={<SobreNos />} />
+            
+            {/* Auth routes - accessible only when NOT logged in */}
+            <Route element={<RouteGuard requiresAuth={false} />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+            </Route>
+            
+            {/* Protected routes - require authentication */}
+            <Route element={<RouteGuard requiresAuth={true} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Add more protected routes here */}
+              {/* <Route path="/aprendizado" element={<Aprendizado />} /> */}
+              {/* <Route path="/simulado" element={<Simulado />} /> */}
+            </Route>
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
