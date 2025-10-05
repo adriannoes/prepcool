@@ -30,11 +30,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { supabase } from '@/integrations/supabase/client';
 import * as z from 'zod';
 
 const formSchema = z.object({
   assunto: z.string().min(1, 'Por favor, selecione um assunto'),
-  mensagem: z.string().min(1, 'Por favor, digite sua mensagem').max(500, 'A mensagem deve ter no máximo 500 caracteres'),
+  mensagem: z.string()
+    .min(10, 'A mensagem deve ter pelo menos 10 caracteres')
+    .max(1000, 'A mensagem deve ter no máximo 1000 caracteres')
+    .refine(
+      (val) => !/<script|javascript:|data:|vbscript:/i.test(val),
+      'Conteúdo não permitido na mensagem'
+    ),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -42,6 +49,7 @@ type FormData = z.infer<typeof formSchema>;
 const HelpButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSubmission, setLastSubmission] = useState<number>(0);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -63,29 +71,45 @@ const HelpButton = () => {
 
   const submitHelpRequest = async (data: FormData) => {
     try {
+      // Rate limiting - prevent spam submissions (1 minute between requests)
+      const now = Date.now();
+      if (now - lastSubmission < 60000) {
+        toast({
+          title: "Muitas solicitações",
+          description: "Por favor, aguarde 1 minuto antes de enviar outra solicitação.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setIsSubmitting(true);
 
-      const payload = {
-        usuario_id: user?.id,
-        nome: user?.user_metadata?.nome || 'Usuário não identificado',
-        email: user?.email,
-        assunto: data.assunto,
-        mensagem: data.mensagem,
-        origem: 'dashboard',
-      };
+      // Get auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Usuário não autenticado');
+      }
 
-      console.log('Sending help request:', payload);
+      console.log('Sending secure help request');
 
-      const response = await fetch('https://ipaas.pipefy.com/api/v1/webhooks/maeVD2oy3OKLjIqpVDj9h/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Call secure Edge Function instead of direct webhook
+      const { data: result, error } = await supabase.functions.invoke('help-request', {
+        body: {
+          assunto: data.assunto,
+          mensagem: data.mensagem,
         },
-        body: JSON.stringify(payload),
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      if (error) {
+        console.error('Error from Edge Function:', error);
+        throw error;
+      }
+
+      if (!result.success) {
+        throw new Error(result.message || 'Erro ao enviar solicitação');
       }
 
       toast({
@@ -95,6 +119,7 @@ const HelpButton = () => {
 
       form.reset();
       setIsOpen(false);
+      setLastSubmission(now);
     } catch (error) {
       console.error('Error submitting help request:', error);
       toast({
@@ -108,6 +133,16 @@ const HelpButton = () => {
   };
 
   const onSubmit = (data: FormData) => {
+    // Additional client-side validation
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para enviar uma solicitação.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     submitHelpRequest(data);
   };
 
@@ -179,14 +214,14 @@ const HelpButton = () => {
                       <Textarea
                         placeholder="Descreva sua dúvida ou problema..."
                         className="min-h-[120px] resize-none"
-                        maxLength={500}
+                        maxLength={1000}
                         {...field}
                       />
                     </FormControl>
                     <div className="flex justify-between items-center">
                       <FormMessage />
                       <span className="text-xs text-gray-500">
-                        {field.value.length}/500
+                        {field.value.length}/1000
                       </span>
                     </div>
                   </FormItem>
