@@ -9,11 +9,35 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import LoadingSpinner from '@/components/dashboard/LoadingSpinner';
 import DisciplinaPlano from '@/components/plano/DisciplinaPlano';
 
+interface TopicoInfo {
+  id: string;
+  nome: string;
+  disciplina: {
+    id: string;
+    nome: string;
+  };
+}
+
+interface PlanoItem {
+  id: string;
+  topico: TopicoInfo;
+  prioridade: number;
+  status: string;
+  tipo: string;
+  origem: string;
+}
+
+interface DisciplinaPlanoData {
+  id: string;
+  nome: string;
+  itens: PlanoItem[];
+}
+
 const Plano = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const { data: estudoPorDisciplina, isLoading } = useQuery({
+  const { data: estudoPorDisciplina, isLoading } = useQuery<DisciplinaPlanoData[]>({
     queryKey: ['plano-estudo'],
     queryFn: async () => {
       if (!user) return [];
@@ -42,7 +66,7 @@ const Plano = () => {
       if (error) throw error;
       
       // Group by discipline
-      const disciplinas = {};
+      const disciplinas: Record<string, DisciplinaPlanoData> = {};
       
       planoItems?.forEach(item => {
         if (!item.topico?.disciplina) return;
@@ -98,7 +122,7 @@ const Plano = () => {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Plano de Estudos</h1>
         
-        {estudoPorDisciplina?.length ? (
+        {estudoPorDisciplina && estudoPorDisciplina.length > 0 ? (
           <Tabs defaultValue="todos" className="w-full">
             <TabsList className="grid grid-cols-2 mb-6">
               <TabsTrigger value="todos">Todos os Tópicos</TabsTrigger>
@@ -106,7 +130,7 @@ const Plano = () => {
             </TabsList>
             
             <TabsContent value="todos" className="space-y-8">
-              {estudoPorDisciplina.map(disciplina => (
+              {estudoPorDisciplina.map((disciplina) => (
                 <DisciplinaPlano 
                   key={disciplina.id} 
                   disciplina={disciplina}
@@ -116,7 +140,7 @@ const Plano = () => {
             </TabsContent>
             
             <TabsContent value="pendentes" className="space-y-8">
-              {estudoPorDisciplina.map(disciplina => (
+              {estudoPorDisciplina.map((disciplina) => (
                 <DisciplinaPlano 
                   key={disciplina.id} 
                   disciplina={disciplina}

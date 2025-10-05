@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,11 +19,12 @@ interface Question {
 
 interface SimuladoQuestionProps {
   simuladoId: string;
+  onComplete?: () => Promise<void>; // Make onComplete optional
 }
 
 const alternativas = ['A', 'B', 'C', 'D', 'E'];
 
-const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
+const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -148,23 +148,28 @@ const SimuladoQuestion = ({ simuladoId }: SimuladoQuestionProps) => {
       
       // If this is the last question, finalize the simulado
       if (isLastQuestion) {
-        // Trigger webhook
-        await fetch('/webhook/simuladoDone', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            simulado_id: simuladoId,
-            usuario_id: user.id
-          }),
-        });
-        
-        // Show completion message
-        toast({
-          title: 'Simulado finalizado!',
-          description: 'Suas respostas foram salvas. Estamos gerando seu plano de estudos personalizado.',
-        });
+        // If onComplete prop is provided, call it
+        if (onComplete) {
+          await onComplete();
+        } else {
+          // Default behavior if no onComplete provided
+          await fetch('/webhook/simuladoDone', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              simulado_id: simuladoId,
+              usuario_id: user.id
+            }),
+          });
+          
+          // Show completion message
+          toast({
+            title: 'Simulado finalizado!',
+            description: 'Suas respostas foram salvas. Estamos gerando seu plano de estudos personalizado.',
+          });
+        }
         
         // Redirect to plano
         navigate('/plano');
