@@ -39,7 +39,7 @@ const Index = () => {
       <Hero />
       <HowItWorks />
       
-      {/* Substituindo o formulário estático por um botão que abre o modal */}
+      {/* Call to action section with button to open waitlist modal */}
       <section className="bg-gray-50 py-16 px-6" id="lead-form">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-8 md:p-12 text-center">
