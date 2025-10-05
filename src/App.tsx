@@ -21,6 +21,7 @@ import RedacaoFeedback from "./pages/RedacaoFeedback";
 import Diagnostico from "./pages/Diagnostico";
 import Plano from "./pages/Plano";
 import PlanoHistorico from "./pages/PlanoHistorico";
+import Admin from "./pages/Admin";
 import React from 'react';
 
 // Initialize the query client outside the component
@@ -66,6 +67,7 @@ function App() {
                     <Route path="/diagnostico" element={<Diagnostico />} />
                     <Route path="/plano" element={<Plano />} />
                     <Route path="/plano/historico" element={<PlanoHistorico />} />
+                    <Route path="/admin" element={<Admin />} />
                   </Route>
                   
                   {/* Catch-all route */}
