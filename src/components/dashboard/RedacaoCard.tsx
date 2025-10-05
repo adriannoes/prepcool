@@ -25,8 +25,8 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
               Seus textos e avaliações
             </CardDescription>
           </div>
-          <div className="bg-[#5E60CE]/10 p-3 rounded-2xl">
-            <FileText className="h-8 w-8 text-[#5E60CE]" />
+          <div className="bg-coral/10 p-3 rounded-2xl">
+            <FileText className="h-8 w-8 text-coral" />
           </div>
         </div>
       </CardHeader>
@@ -40,14 +40,14 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
           />
         ) : (
           <div className="text-center py-6">
-            <div className="text-5xl font-bold text-[#5E60CE] mb-2">{submitted}</div>
+            <div className="text-5xl font-bold text-coral mb-2">{submitted}</div>
             <div className="text-lg text-gray-600 mb-6">redações enviadas</div>
             
             {averageScore !== null && (
               <div className="flex justify-center">
                 <Badge 
                   variant="secondary" 
-                  className="text-base px-4 py-2 bg-[#5E60CE]/10 text-[#5E60CE] border-none rounded-lg font-medium"
+                  className="text-base px-4 py-2 bg-coral/10 text-coral border-none rounded-lg font-medium"
                 >
                   Nota média: {averageScore !== null ? String(Math.round(averageScore)) : "0"}
                 </Badge>
@@ -60,7 +60,7 @@ const RedacaoCard = ({ submitted, averageScore }: RedacaoCardProps) => {
       <CardFooter className="p-8 pt-4">
         <Button 
           asChild 
-          className="w-full h-12 bg-[#5E60CE] hover:bg-[#4e51b3] text-white rounded-xl px-6 py-3 font-semibold text-base transition-all duration-200"
+          className="w-full h-12 bg-coral hover:bg-coral/90 text-white rounded-xl px-6 py-3 font-semibold text-base transition-all duration-200"
         >
           <Link to="/redacao">
             <FileText className="mr-2 h-5 w-5" />

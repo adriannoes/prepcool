@@ -26,8 +26,8 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
               Suas provas e exercícios
             </CardDescription>
           </div>
-          <div className="bg-[#5E60CE]/10 p-3 rounded-2xl">
-            <Award className="h-8 w-8 text-[#5E60CE]" />
+          <div className="bg-coral/10 p-3 rounded-2xl">
+            <Award className="h-8 w-8 text-coral" />
           </div>
         </div>
       </CardHeader>
@@ -41,7 +41,7 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
           />
         ) : (
           <div className="text-center py-6">
-            <div className="text-5xl font-bold text-[#5E60CE] mb-2">{completed}</div>
+            <div className="text-5xl font-bold text-coral mb-2">{completed}</div>
             <div className="text-lg text-gray-600 mb-6">de {total} simulados completados</div>
             
             {total > 0 && (
@@ -59,7 +59,7 @@ const SimuladoCard = ({ completed, total }: SimuladoCardProps) => {
       
       <CardFooter className="p-8 pt-4">
         <Button 
-          className="w-full h-12 bg-[#5E60CE] hover:bg-[#4e51b3] text-white rounded-xl px-6 py-3 font-semibold text-base transition-all duration-200"
+          className="w-full h-12 bg-coral hover:bg-coral/90 text-white rounded-xl px-6 py-3 font-semibold text-base transition-all duration-200"
           asChild
         >
           <Link to="/simulado">

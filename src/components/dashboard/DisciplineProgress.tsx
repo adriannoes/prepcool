@@ -27,8 +27,8 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
           <h3 className="text-2xl font-bold text-gray-900 mb-2">Progresso por Disciplina</h3>
           <p className="text-base text-gray-600">Acompanhe seu avanço em cada matéria</p>
         </div>
-        <div className="bg-[#5E60CE]/10 p-3 rounded-2xl">
-          <GraduationCap className="h-8 w-8 text-[#5E60CE]" />
+        <div className="bg-coral/10 p-3 rounded-2xl">
+          <GraduationCap className="h-8 w-8 text-coral" />
         </div>
       </div>
       
@@ -42,7 +42,7 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
           <div className="flex justify-center mt-8">
             <Link to="/aprendizado">
               <Button 
-                className="bg-[#5E60CE] hover:bg-[#4e51b3] text-white rounded-xl px-8 py-3 h-12 font-semibold text-base"
+                className="bg-coral hover:bg-coral/90 text-white rounded-xl px-8 py-3 h-12 font-semibold text-base"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
                 Começar Aprendizado
@@ -69,7 +69,7 @@ const DisciplineProgress = ({ disciplines }: DisciplineProgressProps) => {
             <Link to="/aprendizado">
               <Button 
                 variant="outline"
-                className="border-[#5E60CE] text-[#5E60CE] hover:bg-[#5E60CE]/10 hover:border-[#4e51b3] rounded-xl px-8 py-3 h-12 font-semibold text-base"
+                className="border-coral text-coral hover:bg-coral/10 hover:border-coral rounded-xl px-8 py-3 h-12 font-semibold text-base"
               >
                 <BookOpen className="h-5 w-5 mr-2" />
                 Acessar Trilha de Aprendizado

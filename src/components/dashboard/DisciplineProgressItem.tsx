@@ -24,7 +24,7 @@ const DisciplineProgressItem = ({
       <div className="flex items-center justify-between mb-4">
         <h4 className="text-lg font-semibold text-gray-900">{name}</h4>
         {linkToDiscipline && (
-          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-[#5E60CE] transition-colors" />
+          <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-coral transition-colors" />
         )}
       </div>
       

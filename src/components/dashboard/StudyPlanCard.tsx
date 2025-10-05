@@ -55,7 +55,7 @@ const StudyPlanCard = () => {
           <CardTitle>Plano de Estudos</CardTitle>
           <CardDescription>Recomendações personalizadas</CardDescription>
         </div>
-        <TrendingUp className="h-6 w-6 text-[#5E60CE]" />
+        <TrendingUp className="h-6 w-6 text-coral" />
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -74,7 +74,7 @@ const StudyPlanCard = () => {
                 </p>
               </div>
               <Badge 
-                className="mt-2 sm:mt-0 text-sm bg-[#5E60CE]/10 text-[#5E60CE] border-none px-3 py-1"
+                className="mt-2 sm:mt-0 text-sm bg-coral/10 text-coral border-none px-3 py-1"
               >
                 Atualizado
               </Badge>
@@ -86,7 +86,7 @@ const StudyPlanCard = () => {
                 <ul className="space-y-1">
                   {planItems.pendingItems.map((item) => (
                     <li key={item.id} className="text-sm flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#5E60CE]"></span>
+                      <span className="h-2 w-2 rounded-full bg-coral"></span>
                       <span>{item.topico?.nome || 'Tópico'}</span>
                       <Badge variant="outline" className="ml-auto text-xs">
                         {item.tipo === 'video' ? 'Vídeo' : 'Exercício'}
@@ -114,7 +114,7 @@ const StudyPlanCard = () => {
       </CardContent>
       <CardFooter>
         <Button 
-          className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2"
+          className="w-full h-12 bg-coral hover:bg-coral/90 text-white rounded-md px-4 py-2"
           disabled={!hasStudyPlan}
           onClick={() => navigate('/plano')}
         >

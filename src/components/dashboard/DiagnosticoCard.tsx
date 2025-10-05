@@ -58,7 +58,7 @@ const DiagnosticoCard = () => {
             <CardTitle>Diagnóstico Inicial</CardTitle>
             <CardDescription>Seu perfil de estudos</CardDescription>
           </div>
-          <FileCheck className="h-6 w-6 text-[#5E60CE]" />
+          <FileCheck className="h-6 w-6 text-coral" />
         </CardHeader>
         <CardContent className="py-4">
           <LoadingSpinner />
@@ -74,7 +74,7 @@ const DiagnosticoCard = () => {
           <CardTitle>Diagnóstico Inicial</CardTitle>
           <CardDescription>Seu perfil de estudos</CardDescription>
         </div>
-        <FileCheck className="h-6 w-6 text-[#5E60CE]" />
+        <FileCheck className="h-6 w-6 text-coral" />
       </CardHeader>
       <CardContent>
         {hasDiagnostico ? (
@@ -107,7 +107,7 @@ const DiagnosticoCard = () => {
       </CardContent>
       <CardFooter>
         <Button 
-          className="w-full h-12 bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-md px-4 py-2"
+          className="w-full h-12 bg-coral hover:bg-coral/90 text-white rounded-md px-4 py-2"
           onClick={handleAction}
         >
           {hasDiagnostico ? 'Atualizar Diagnóstico' : 'Realizar Diagnóstico'} 
