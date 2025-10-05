@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -26,7 +28,8 @@ const formSchema = z.object({
       // Verifica se tem entre 10 e 11 dígitos (números fixos e celulares no Brasil)
       return numbers.length >= 10 && numbers.length <= 11;
     }, { message: "Telefone inválido. Use o formato: (XX) XXXXX-XXXX" }),
-  email: z.string().email({ message: "E-mail inválido" })
+  email: z.string().email({ message: "E-mail inválido" }),
+  objetivos: z.string().max(300, { message: "Máximo de 300 caracteres" }).optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +50,8 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
     defaultValues: {
       name: '',
       phone: '',
-      email: ''
+      email: '',
+      objetivos: ''
     },
   });
 
@@ -68,7 +72,8 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
         body: JSON.stringify({
           name: data.name,
           phone: phoneNumbers, // Envia apenas os números do telefone
-          email: data.email
+          email: data.email,
+          objetivos: data.objetivos || '' // Include objectives field
         }),
       });
       
@@ -121,6 +126,9 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
   const handleRetry = () => {
     setSubmissionStatus('idle');
   };
+
+  const objetivosValue = form.watch('objetivos') || '';
+  const remainingChars = 300 - objetivosValue.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -205,6 +213,29 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({ isOpen, onClose }) 
                         disabled={isSubmitting}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="objetivos"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">Quais objetivos você quer alcançar com a nossa plataforma?</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Ex: Quero passar no vestibular da UFPR estudando por conta própria" 
+                        className="border-gray-300 focus:ring-coral focus:border-coral min-h-[80px] max-h-[120px] resize-none"
+                        maxLength={300}
+                        {...field}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <div className="text-right text-xs text-gray-500 mt-1">
+                      {remainingChars} caracteres restantes
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
