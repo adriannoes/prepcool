@@ -58,7 +58,7 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
     },
     onSuccess: () => {
       toast({
-        title: "Tópico concluído!",
+        title: "Exercício marcado como concluído!",
         description: "Seu progresso foi atualizado.",
       });
       queryClient.invalidateQueries({ queryKey: ['plano-estudo'] });
@@ -91,7 +91,9 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
             <li 
               key={item.id}
               className={`p-4 hover:bg-gray-50 transition-colors ${
-                item.status === 'concluido' ? 'bg-gray-50' : ''
+                item.status === 'concluido' 
+                  ? 'bg-coral/10 border-l-4 border-coral' 
+                  : ''
               }`}
             >
               <div className="flex items-center justify-between">
@@ -106,7 +108,9 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
                     )}
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">
+                    <h3 className={`text-sm font-medium ${
+                      item.status === 'concluido' ? 'text-coral' : 'text-gray-900'
+                    }`}>
                       {item.topico.nome}
                       {item.origem === 'diagnostico' && (
                         <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">
@@ -121,15 +125,30 @@ const DisciplinaPlano: React.FC<DisciplinaPlanoProps> = ({ disciplina, filtroSta
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  {item.status === 'pendente' ? (
-                    <button 
-                      onClick={() => marcarComoConcluido.mutate(item.id)}
-                      className="p-1.5 rounded-full text-gray-400 hover:bg-gray-200 hover:text-green-600"
-                      title="Marcar como concluído"
-                    >
-                      <Check size={16} />
-                    </button>
-                  ) : (
+                  {/* Only show completion control for exercise items */}
+                  {item.tipo === 'exercicio' && (
+                    <>
+                      {item.status === 'pendente' ? (
+                        <button 
+                          onClick={() => marcarComoConcluido.mutate(item.id)}
+                          disabled={marcarComoConcluido.isPending}
+                          className="flex items-center space-x-1 px-3 py-1.5 text-xs font-medium text-coral border border-coral rounded-md hover:bg-coral hover:text-white transition-colors disabled:opacity-50"
+                          title="Marcar como concluído"
+                        >
+                          <Check size={14} />
+                          <span>Marcar como concluído</span>
+                        </button>
+                      ) : (
+                        <span className="flex items-center space-x-1 text-xs font-medium text-coral bg-coral/10 border border-coral px-3 py-1.5 rounded-md">
+                          <Check size={14} />
+                          <span>Concluído</span>
+                        </span>
+                      )}
+                    </>
+                  )}
+                  
+                  {/* Show completion status for video items (non-interactive) */}
+                  {item.tipo === 'video' && item.status === 'concluido' && (
                     <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
                       Concluído
                     </span>
