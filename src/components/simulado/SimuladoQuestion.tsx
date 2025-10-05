@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +8,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { Badge } from '@/components/ui/badge';
 
 interface Question {
@@ -19,7 +19,7 @@ interface Question {
 
 interface SimuladoQuestionProps {
   simuladoId: string;
-  onComplete?: () => Promise<void>; // Make onComplete optional
+  onComplete?: () => Promise<void>;
 }
 
 const alternativas = ['A', 'B', 'C', 'D', 'E'];
@@ -200,7 +200,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-12 w-12 animate-spin text-[#5E60CE]" />
+        <Loader2 className="h-12 w-12 animate-spin text-[#F26E5B]" />
         <p className="mt-4 text-gray-600">Carregando simulado...</p>
       </div>
     );
@@ -209,12 +209,12 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
   if (questions.length === 0 || !simuladoInfo) {
     return (
       <div className="text-center py-12">
-        <AlertCircle className="h-12 w-12 mx-auto text-orange-500" />
+        <AlertCircle className="h-12 w-12 mx-auto text-[#F26E5B]" />
         <h2 className="text-2xl font-bold mt-4 mb-4">Simulado não encontrado</h2>
         <p className="text-gray-600 mb-6">Este simulado não possui questões ou não foi encontrado.</p>
         <Button 
           onClick={() => navigate('/simulado')}
-          className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white rounded-xl px-6 py-3"
+          className="bg-[#F26E5B] hover:bg-[#F26E5B]/90 text-white rounded-xl px-6 py-3"
         >
           Voltar aos Simulados
         </Button>
@@ -223,21 +223,13 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
   }
   
   return (
-    <>
-      <DashboardBreadcrumb 
-        currentPage={`Questão ${currentQuestionIndex + 1}`}
-        paths={[
-          { name: 'Dashboard', path: '/dashboard' },
-          { name: 'Simulados', path: '/simulado' }
-        ]}
-      />
-      
+    <>      
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">
             {simuladoInfo?.instituicao} {simuladoInfo?.ano}
           </h1>
-          <Badge className="text-sm bg-[#5E60CE] text-white px-4 py-2 rounded-xl font-semibold">
+          <Badge className="text-sm bg-[#F26E5B] hover:bg-[#F26E5B] text-white px-4 py-2 rounded-xl font-semibold">
             {currentQuestion?.disciplina}
           </Badge>
         </div>
@@ -263,7 +255,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
             >
               {alternativas.map(option => (
                 <div key={option} className="flex items-center space-x-4 p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors">
-                  <RadioGroupItem value={option} id={`option-${option}`} className="border-[#5E60CE] text-[#5E60CE]" />
+                  <RadioGroupItem value={option} id={`option-${option}`} className="border-[#F26E5B] text-[#F26E5B]" />
                   <label 
                     htmlFor={`option-${option}`}
                     className="text-lg font-medium flex-grow cursor-pointer text-gray-800"
@@ -280,7 +272,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
             <Button 
               variant="outline"
               onClick={handlePreviousQuestion}
-              className="w-full md:w-auto border-[#5E60CE] text-[#5E60CE] hover:bg-[#5E60CE] hover:text-white rounded-xl px-6 py-3 font-semibold"
+              className="w-full md:w-auto border-[#F26E5B] text-[#F26E5B] hover:bg-[#F26E5B] hover:text-white rounded-xl px-6 py-3 font-semibold"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Questão anterior
@@ -288,7 +280,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
           )}
           
           <Button 
-            className="bg-[#5E60CE] hover:bg-[#5E60CE]/90 text-white w-full md:w-auto ml-auto rounded-xl px-6 py-3 font-semibold"
+            className="bg-[#F26E5B] hover:bg-[#F26E5B]/90 text-white w-full md:w-auto ml-auto rounded-xl px-6 py-3 font-semibold"
             onClick={handleSubmitAnswer}
             disabled={!selectedOption || isSaving}
           >
@@ -314,7 +306,7 @@ const SimuladoQuestion = ({ simuladoId, onComplete }: SimuladoQuestionProps) => 
       
       <div className="w-full bg-gray-100 rounded-full h-3">
         <div 
-          className="bg-[#5E60CE] h-3 rounded-full transition-all duration-300" 
+          className="bg-[#F26E5B] h-3 rounded-full transition-all duration-300" 
           style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
         />
       </div>

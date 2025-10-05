@@ -58,16 +58,18 @@ const Simulado = () => {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4">
-      <DashboardBreadcrumb 
-        currentPage="Simulado em Andamento"
-        paths={[{ name: 'Simulados', path: '/simulado' }]}
-      />
-      
-      <SimuladoQuestion 
-        simuladoId={id}
-        onComplete={onSimuladoComplete} 
-      />
+    <div className="min-h-screen bg-[#F9F9F9]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <DashboardBreadcrumb 
+          currentPage="Simulado em Andamento"
+          paths={[{ name: 'Simulados', path: '/simulado' }]}
+        />
+        
+        <SimuladoQuestion 
+          simuladoId={id}
+          onComplete={onSimuladoComplete} 
+        />
+      </div>
     </div>
   );
 };
