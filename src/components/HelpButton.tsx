@@ -120,9 +120,9 @@ const HelpButton = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-10 w-10 rounded-full hover:bg-gray-100 transition-colors animate-pulse hover:animate-none bg-blue-50 border border-blue-200 hover:bg-blue-100"
+                className="relative h-12 w-12 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-200 hover:border-[#5E60CE] hover:shadow-sm group"
               >
-                <HelpCircle className="h-5 w-5 text-blue-600" />
+                <HelpCircle className="h-5 w-5 text-[#5E60CE] group-hover:text-coral transition-colors duration-200" />
               </Button>
             </DialogTrigger>
           </TooltipTrigger>
