@@ -31,16 +31,16 @@ const SimuladosList = () => {
   useEffect(() => {
     const fetchSimulados = async () => {
       try {
-        // Fetch simulados with question counts
-        const { data, error } = await supabase
+        // Fetch simulados
+        const { data: simuladosData, error } = await supabase
           .from('simulado')
           .select('id, instituicao, ano');
 
         if (error) throw error;
 
-        if (data && data.length > 0) {
+        if (simuladosData && simuladosData.length > 0) {
           // Get question counts for each simulado
-          const simuladoIds = data.map(s => s.id);
+          const simuladoIds = simuladosData.map(s => s.id);
 
           const { data: questionCounts, error: countError } = await supabase
             .from('pergunta')
@@ -51,7 +51,7 @@ const SimuladosList = () => {
           if (countError) throw countError;
 
           // Add question count to each simulado
-          const simuladosWithCount = data.map(simulado => {
+          const simuladosWithCount = simuladosData.map(simulado => {
             const countObj = questionCounts?.find(qc => qc.simulado_id === simulado.id);
             return {
               ...simulado,
