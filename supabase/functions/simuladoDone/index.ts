@@ -5,10 +5,26 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { z } from 'https://esm.sh/zod@3.23.8'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
+import { uuidSchema } from '../_shared/validation.ts'
+import { checkRateLimit, RateLimitPresets } from '../_shared/rateLimit.ts'
 
-console.log("Hello from simuladoDone webhook!")
+// Zod schema for request body validation
+const simuladoDoneSchema = z.object({
+  simulado_id: uuidSchema,
+  usuario_id: uuidSchema
+})
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin')
+
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return handleCorsPreflight(origin)
+  }
+
+  const corsHeaders = getCorsHeaders(origin)
   // Create a Supabase client with the Auth context of the logged in user
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -24,17 +40,116 @@ serve(async (req) => {
   const {
     data: { session },
   } = await supabaseClient.auth.getSession()
-
-  // Extract the request body
-  const { simulado_id, usuario_id } = await req.json()
-  
-  console.log(`Processing simulado completion for user ${usuario_id}, simulado ${simulado_id}`)
   
   if (!session) {
     return new Response(JSON.stringify({ error: "not_authenticated" }), {
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 401,
     })
+  }
+
+  // Rate limiting: 5 requests per minute per user
+  const rateLimitResult = checkRateLimit(
+    session.user.id,
+    'simuladoDone',
+    RateLimitPresets.USER_NOTIFICATION.maxRequests, // Reuse notification preset (10 per minute)
+    RateLimitPresets.USER_NOTIFICATION.windowMs
+  )
+
+  if (!rateLimitResult.allowed) {
+    const retryAfter = rateLimitResult.retryAfter || 60
+    return new Response(
+      JSON.stringify({
+        error: "rate_limit_exceeded",
+        message: "Too many requests. Please wait before processing another simulado.",
+        retryAfter
+      }),
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Retry-After": retryAfter.toString(),
+          "X-RateLimit-Limit": RateLimitPresets.USER_NOTIFICATION.maxRequests.toString(),
+          "X-RateLimit-Remaining": "0"
+        },
+        status: 429,
+      }
+    )
+  }
+
+  // Extract and validate request body
+  let body
+  try {
+    body = await req.json()
+  } catch (e) {
+    return new Response(
+      JSON.stringify({ 
+        error: "invalid_json",
+        message: "Invalid JSON format in request body"
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    )
+  }
+
+  // Validate request body with Zod schema
+  const validationResult = simuladoDoneSchema.safeParse(body)
+  
+  if (!validationResult.success) {
+    const errors = validationResult.error.errors.map(err => ({
+      field: err.path.join('.'),
+      message: err.message
+    }))
+    
+    return new Response(
+      JSON.stringify({ 
+        error: "validation_error",
+        message: "Invalid input data",
+        details: errors
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    )
+  }
+
+  const { simulado_id, usuario_id } = validationResult.data
+
+  // Verify that the authenticated user matches the usuario_id in the request
+  if (session.user.id !== usuario_id) {
+    return new Response(
+      JSON.stringify({ 
+        error: "unauthorized",
+        message: "User can only process their own simulados"
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403,
+      }
+    )
+  }
+
+  // Verify that the simulado exists and belongs to the user
+  const { data: simulado, error: simuladoError } = await supabaseClient
+    .from('simulado')
+    .select('id')
+    .eq('id', simulado_id)
+    .single()
+
+  if (simuladoError || !simulado) {
+    return new Response(
+      JSON.stringify({ 
+        error: "not_found",
+        message: "Simulado not found or access denied"
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 404,
+      }
+    )
   }
   
   try {
@@ -142,14 +257,21 @@ serve(async (req) => {
         success: true,
         items_created: studyPlanItems.length
       }),
-      { headers: { "Content-Type": "application/json" } }
+      {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "X-RateLimit-Limit": RateLimitPresets.USER_NOTIFICATION.maxRequests.toString(),
+          "X-RateLimit-Remaining": (rateLimitResult.remaining || 0).toString()
+        }
+      }
     )
   } catch (error) {
     console.error("Error processing webhook:", error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
-        headers: { "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
       }
     )
