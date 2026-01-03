@@ -3,8 +3,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { formSchema, FormValues } from './types';
+import { validateWebhookUrl } from '@/utils/webhookValidation';
+import { error as logError } from '@/utils/logger';
 
-const PIPEFY_WEBHOOK_URL = 'https://ipaas.pipefy.com/api/v1/webhooks/5OGl3Tq0S97bvsfpG4X0b/sync';
+const PIPEFY_WEBHOOK_URL = import.meta.env.VITE_PIPEFY_WEBHOOK_URL;
+
+// Validate webhook URL at module load time
+const webhookValidation = validateWebhookUrl(PIPEFY_WEBHOOK_URL);
+if (!webhookValidation.isValid) {
+  throw new Error(
+    `Invalid webhook URL configuration: ${webhookValidation.error}. Please check your .env file and ensure VITE_PIPEFY_WEBHOOK_URL is set to a valid HTTPS URL.`
+  );
+}
 
 const useLeadCaptureForm = (onClose: () => void) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +34,16 @@ const useLeadCaptureForm = (onClose: () => void) => {
     setIsSubmitting(true);
     setSubmissionStatus('idle');
     try {
+      // Validate webhook URL before making request
+      const validation = validateWebhookUrl(PIPEFY_WEBHOOK_URL);
+      if (!validation.isValid) {
+        // Provide user-friendly error message
+        const userMessage = !PIPEFY_WEBHOOK_URL
+          ? 'Serviço de inscrição não configurado. Por favor, entre em contato com o suporte.'
+          : 'Configuração do serviço de inscrição inválida. Por favor, entre em contato com o suporte.';
+        throw new Error(userMessage);
+      }
+
       const phoneNumbers = data.phone.replace(/\D/g, '');
       const response = await fetch(PIPEFY_WEBHOOK_URL, {
         method: 'POST',
@@ -47,12 +67,26 @@ const useLeadCaptureForm = (onClose: () => void) => {
       } else {
         setSubmissionStatus('error');
         toast.error('Tivemos um problema. Por favor, tente novamente.');
-        console.error('Form submission error:', response.status, response.statusText);
+        logError('Form submission error:', { status: response.status, statusText: response.statusText });
       }
     } catch (error) {
       setSubmissionStatus('error');
-      toast.error('Tivemos um problema. Por favor, tente novamente.');
-      console.error('Form submission error:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Tivemos um problema. Por favor, tente novamente.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('não configurado') || error.message.includes('Configuração')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('Invalid webhook URL')) {
+          errorMessage = 'Serviço de inscrição temporariamente indisponível. Por favor, tente novamente mais tarde ou entre em contato com o suporte.';
+        } else {
+          errorMessage = error.message || 'Tivemos um problema. Por favor, tente novamente.';
+        }
+      }
+      
+      toast.error(errorMessage);
+      logError('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
     }

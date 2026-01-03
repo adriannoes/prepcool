@@ -11,6 +11,8 @@ import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { validateWebhookUrl } from '@/utils/webhookValidation';
+import { log, error as logError, sanitizeForLogging } from '@/utils/logger';
 
 interface ModeloRedacao {
   id: string;
@@ -27,7 +29,15 @@ interface WebhookResponse {
   comentario_final: string;
 }
 
-const WEBHOOK_URL = 'https://no-code-n8n.vf5y6u.easypanel.host/webhook/correcao-de-redacoes-215j3hb5hj34b4';
+const WEBHOOK_URL = import.meta.env.VITE_REDACAO_WEBHOOK_URL;
+
+// Validate webhook URL at module load time
+const webhookValidation = validateWebhookUrl(WEBHOOK_URL);
+if (!webhookValidation.isValid) {
+  throw new Error(
+    `Invalid webhook URL configuration: ${webhookValidation.error}. Please check your .env file and ensure VITE_REDACAO_WEBHOOK_URL is set to a valid HTTPS URL.`
+  );
+}
 
 const Redacao = () => {
   const { user } = useAuth();
@@ -53,7 +63,7 @@ const Redacao = () => {
         if (error) throw error;
         setModelos(data || []);
       } catch (error) {
-        console.error('Error fetching modelo redacoes:', error);
+        logError('Error fetching modelo redacoes:', error);
         toast({
           title: 'Erro',
           description: 'Não foi possível carregar os modelos de redação.',
@@ -79,6 +89,16 @@ const Redacao = () => {
 
   // Submit essay to webhook
   const submitToWebhook = async (payload: any): Promise<WebhookResponse> => {
+    // Validate webhook URL before making request
+    const validation = validateWebhookUrl(WEBHOOK_URL);
+    if (!validation.isValid) {
+      // Provide user-friendly error message
+      const userMessage = !WEBHOOK_URL
+        ? 'Serviço de correção não configurado. Por favor, entre em contato com o suporte.'
+        : 'Configuração do serviço de correção inválida. Por favor, entre em contato com o suporte.';
+      throw new Error(userMessage);
+    }
+
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: {
@@ -92,7 +112,11 @@ const Redacao = () => {
     }
 
     const rawResponse = await response.json();
-    console.log('Raw webhook response:', rawResponse);
+    // Log response structure without sensitive data
+    log('Raw webhook response received', { 
+      isArray: Array.isArray(rawResponse),
+      hasOutput: Array.isArray(rawResponse) && rawResponse[0]?.output ? true : false
+    });
 
     // Process the nested response structure
     let parsedResponse: WebhookResponse;
@@ -102,11 +126,15 @@ const Redacao = () => {
       if (Array.isArray(rawResponse) && rawResponse.length > 0 && rawResponse[0].output) {
         // Extract the JSON string from the output property
         const outputString = rawResponse[0].output;
-        console.log('Output string:', outputString);
+        log('Processing nested response structure');
         
         // Parse the escaped JSON string
         parsedResponse = JSON.parse(outputString);
-        console.log('Parsed response:', parsedResponse);
+        // Log only non-sensitive metadata
+        log('Response parsed successfully', { 
+          hasNota: !!parsedResponse.nota,
+          hasTema: !!parsedResponse.tema 
+        });
       } else if (rawResponse.nota && rawResponse.tema) {
         // Direct response format (fallback)
         parsedResponse = rawResponse;
@@ -121,8 +149,8 @@ const Redacao = () => {
 
       return parsedResponse;
     } catch (parseError) {
-      console.error('Error parsing webhook response:', parseError);
-      console.error('Raw response was:', rawResponse);
+      logError('Error parsing webhook response:', parseError);
+      // Don't log raw response as it may contain sensitive data
       throw new Error('Failed to parse AI response. Please try again.');
     }
   };
@@ -176,7 +204,11 @@ const Redacao = () => {
         redacao: studentEssay,
       };
 
-      console.log('Submitting to webhook:', payload);
+      // Log submission without sensitive payload data
+      log('Submitting essay to webhook', { 
+        hasTema: !!payload.tema,
+        essayLength: payload.redacao?.length || 0
+      });
       
       // Submit to webhook with timeout
       const timeoutPromise = new Promise((_, reject) => 
@@ -222,12 +254,23 @@ const Redacao = () => {
       navigate('/redacao/feedback');
       
     } catch (error) {
-      console.error('Error submitting essay:', error);
+      logError('Error submitting essay:', error);
       setIsProcessingDialogOpen(false);
       
-      const errorMessage = error instanceof Error && error.message === 'Timeout' 
-        ? 'A correção está demorando mais que o esperado. Tente novamente.'
-        : 'Tivemos um erro. Tente novamente.';
+      let errorMessage = 'Tivemos um erro. Tente novamente.';
+      
+      if (error instanceof Error) {
+        // Check for specific error types and provide user-friendly messages
+        if (error.message === 'Timeout') {
+          errorMessage = 'A correção está demorando mais que o esperado. Tente novamente.';
+        } else if (error.message.includes('não configurado') || error.message.includes('Configuração')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('Invalid webhook URL')) {
+          errorMessage = 'Serviço de correção temporariamente indisponível. Por favor, tente novamente mais tarde ou entre em contato com o suporte.';
+        } else {
+          errorMessage = error.message || 'Tivemos um erro. Tente novamente.';
+        }
+      }
       
       setSubmitError(errorMessage);
       
