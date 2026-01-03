@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Bell, Send, Users, User, Eye, AlertTriangle } from 'lucide-react';
+import { error as logError } from '@/utils/logger';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { sanitizeInput, validateNotificationMessage, validateUrl } from '@/utils/inputValidation';
@@ -67,7 +68,7 @@ const NotificationManager = () => {
       if (error) throw error;
       setUsuarios(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logError('Error fetching users:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os usuários.',
@@ -94,7 +95,7 @@ const NotificationManager = () => {
       if (error) throw error;
       setNotifications(data || []);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logError('Error fetching notifications:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar as notificações.',
@@ -224,7 +225,7 @@ const NotificationManager = () => {
       // Refresh notifications list
       fetchNotifications();
     } catch (error) {
-      console.error('Error sending notification:', error);
+      logError('Error sending notification:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível enviar a notificação.',
