@@ -157,6 +157,164 @@ All tables enforce Row Level Security (RLS) keyed on jwt.sub.
 - Form validation with Zod schemas prevents XSS and injection attacks
 - Rate limiting implemented in Edge Functions for security
 
+## Security
+
+### Environment Variables
+
+All sensitive configuration is managed through environment variables. See `.env.example` for required variables.
+
+**Required Variables:**
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous/public key
+- `VITE_REDACAO_WEBHOOK_URL` - Essay correction service webhook (HTTPS required)
+- `VITE_PIPEFY_WEBHOOK_URL` - Pipefy CRM webhook URL (HTTPS required)
+- `ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins for Edge Functions
+
+### CORS Configuration
+
+Edge Functions enforce strict CORS policies to prevent unauthorized cross-origin requests:
+
+1. **Configure ALLOWED_ORIGINS**: Set the `ALLOWED_ORIGINS` environment variable in your Supabase project settings with a comma-separated list of allowed origins:
+   ```
+   https://yourdomain.com,https://www.yourdomain.com,https://staging.yourdomain.com
+   ```
+
+2. **Development**: For local development, you can include localhost origins:
+   ```
+   http://localhost:5173,http://localhost:3000,https://yourdomain.com
+   ```
+
+3. **Wildcard Support**: Wildcard subdomains are supported (e.g., `*.yourdomain.com`)
+
+4. **Security**: If `ALLOWED_ORIGINS` is not configured, all CORS requests will be denied by default (security by default).
+
+All Edge Functions use the shared CORS utility (`supabase/functions/_shared/cors.ts`) which validates request origins against the configured allowlist.
+
+### Credential Management
+
+- Never commit credentials to version control
+- Rotate credentials regularly (see `.cursor/dev-planning/docs/credential-rotation-guide.md`)
+- Use different credentials for development, staging, and production
+- Monitor for exposed credentials in logs and error messages
+
+### Webhook Security
+
+- All webhook URLs must use HTTPS protocol
+- Webhook URLs are validated before requests are made
+- User-friendly error messages are shown if webhooks are misconfigured
+
+### Rate Limiting
+
+Rate limiting is implemented in Edge Functions to prevent abuse and ensure fair resource usage:
+
+**Implementation:**
+- In-memory rate limiting for development and small-scale deployments
+- Rate limits are tracked per user ID (for authenticated endpoints) or IP address (for public endpoints)
+- Automatic cleanup of expired rate limit entries every 5 minutes
+
+**Rate Limit Presets:**
+- **Help Requests**: 5 requests per minute per user
+- **Notifications**: 10 requests per minute per IP
+- **Study Plan Generation**: 3 requests per minute per user
+- **Simulado Completion**: 10 requests per minute per user
+- **Public Webhooks**: 10 requests per minute per IP
+
+**Rate Limit Headers:**
+When rate limited, responses include:
+- `429 Too Many Requests` status code
+- `Retry-After` header (seconds until retry is allowed)
+- `X-RateLimit-Limit`: Maximum requests allowed
+- `X-RateLimit-Remaining`: Remaining requests in current window
+
+**Client-Side Rate Limiting:**
+- Help request form includes client-side rate limiting (60 second cooldown)
+- Prevents unnecessary API calls and improves user experience
+
+**Production Considerations:**
+For production at scale, consider migrating to Redis-based rate limiting (e.g., Upstash) for distributed rate limiting across multiple Edge Function instances.
+
+**Authentication Rate Limiting:**
+Supabase Auth handles rate limiting for login/signup flows automatically. No additional configuration needed.
+
+### Admin Access Control
+
+The application implements a robust admin access control system:
+
+**Database Structure:**
+- `admin_users` table: Stores admin user IDs with audit trail
+- `admin_audit_log` table: Logs all admin actions for compliance and security
+
+**Access Control:**
+- Admin status is verified via `verify-admin` Edge Function
+- Uses JWT token validation and database lookup (not hardcoded emails)
+- Admin check is cached client-side to reduce API calls
+- Route protection via `RouteGuard` component
+
+**Admin Verification Flow:**
+1. User authenticates via Supabase Auth
+2. `useAdminCheck` hook calls `verify-admin` Edge Function
+3. Edge Function validates JWT and checks `admin_users` table
+4. Admin status is cached in memory/session
+5. Routes and components check cached admin status
+
+**Audit Logging:**
+- All admin actions are logged to `admin_audit_log` table
+- Includes: user ID, action type, resource type, resource ID, metadata, timestamp
+- Used for security audits and compliance
+
+**Migration:**
+- Existing admin users can be migrated via migration script
+- See `supabase/migrations/20260102225327_migrate_existing_admin.sql`
+
+### Environment Variable Setup
+
+**Local Development:**
+1. Create `.env` file in project root (copy from `.env.example` if available)
+2. Add all required variables (see [Environment Variables](#environment-variables) section)
+3. Restart development server after adding variables
+
+**Production/Staging:**
+1. Set environment variables in hosting platform (Vercel, Netlify, etc.)
+2. For Supabase Edge Functions, set variables in Supabase dashboard:
+   - Go to Project Settings → Edge Functions → Environment Variables
+   - Add each variable with appropriate value
+3. Redeploy application after setting variables
+
+**Verification:**
+- Test authentication and database access
+- Verify CORS configuration works
+- Check Edge Functions execute correctly
+- Monitor error logs for missing variable warnings
+
+### Security Best Practices for Developers
+
+1. **Input Validation**: Always validate user input with Zod schemas
+2. **XSS Prevention**: Never use `dangerouslySetInnerHTML` without sanitization
+3. **SQL Injection**: Use Supabase client (parameterized queries), never raw SQL
+4. **Authentication**: Always verify user authentication in protected routes
+5. **Authorization**: Check admin status for admin-only features
+6. **Rate Limiting**: Implement rate limiting for public endpoints
+7. **Error Handling**: Don't expose sensitive information in error messages
+8. **Logging**: Never log sensitive data (tokens, passwords, user IDs)
+9. **Dependencies**: Keep dependencies updated, check for security vulnerabilities
+10. **Secrets**: Never commit credentials, use environment variables
+
+For a comprehensive security checklist, see [Security Documentation](.cursor/dev-planning/docs/security.md#security-checklist-for-new-features).
+
+### Security Resources
+
+**Internal Documentation:**
+- [Security Documentation](.cursor/dev-planning/docs/security.md) - Comprehensive security guide
+- [Credential Rotation Guide](.cursor/dev-planning/docs/credential-rotation-guide.md) - How to rotate credentials
+
+**External Resources:**
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/) - Common security vulnerabilities
+- [Supabase Security Docs](https://supabase.com/docs/guides/platform/security) - Supabase-specific security
+- [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security) - Row Level Security
+- [React Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/React_Security_Cheat_Sheet.html) - React security best practices
+
+For detailed security documentation, see `.cursor/dev-planning/docs/security.md`.
+
 8. Design System & Brand Tokens
 - Primary Coral: #F26E5B
 - Secondary Purple: #5E60CE  
