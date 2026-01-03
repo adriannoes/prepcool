@@ -1,22 +1,26 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { z } from 'https://esm.sh/zod@3.23.8'
+import { getCorsHeaders, handleCorsPreflight } from '../_shared/cors.ts'
+import { nonEmptyStringSchema, sanitizeHtml } from '../_shared/validation.ts'
+import { checkRateLimit, RateLimitPresets } from '../_shared/rateLimit.ts'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-interface HelpRequest {
-  assunto: string;
-  mensagem: string;
-}
+// Zod schema for request body validation
+const helpRequestSchema = z.object({
+  assunto: nonEmptyStringSchema(200, 'Assunto'),
+  mensagem: nonEmptyStringSchema(1000, 'Mensagem')
+})
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin')
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return handleCorsPreflight(origin)
   }
+
+  const corsHeaders = getCorsHeaders(origin)
 
   try {
     // Initialize Supabase client
@@ -43,13 +47,67 @@ serve(async (req) => {
       )
     }
 
-    // Parse and validate request body
-    const body: HelpRequest = await req.json()
-    
-    // Input validation
-    if (!body.assunto || !body.mensagem) {
+    // Rate limiting: 5 requests per minute per user
+    const rateLimitResult = checkRateLimit(
+      user.id,
+      'help-request',
+      RateLimitPresets.USER_HELP_REQUEST.maxRequests,
+      RateLimitPresets.USER_HELP_REQUEST.windowMs
+    )
+
+    if (!rateLimitResult.allowed) {
+      const retryAfter = rateLimitResult.retryAfter || 60
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({
+          error: 'rate_limit_exceeded',
+          message: 'Too many requests. Please wait before sending another request.',
+          retryAfter
+        }),
+        {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': RateLimitPresets.USER_HELP_REQUEST.maxRequests.toString(),
+            'X-RateLimit-Remaining': '0'
+          },
+          status: 429
+        }
+      )
+    }
+
+    // Parse and validate request body
+    let body
+    try {
+      body = await req.json()
+    } catch (e) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'invalid_json',
+          message: 'Invalid JSON format in request body'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
+    }
+    
+    // Validate request body with Zod schema
+    const validationResult = helpRequestSchema.safeParse(body)
+    
+    if (!validationResult.success) {
+      const errors = validationResult.error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message
+      }))
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'validation_error',
+          message: 'Invalid input data',
+          details: errors
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400 
@@ -57,13 +115,17 @@ serve(async (req) => {
       )
     }
 
-    // Sanitize inputs
-    const sanitizedAssunto = body.assunto.trim().substring(0, 200)
-    const sanitizedMensagem = body.mensagem.trim().substring(0, 1000)
+    // Sanitize inputs to remove HTML/script tags
+    const sanitizedAssunto = sanitizeHtml(validationResult.data.assunto.trim())
+    const sanitizedMensagem = sanitizeHtml(validationResult.data.mensagem.trim())
     
+    // Double-check after sanitization (in case sanitization removed everything)
     if (!sanitizedAssunto || !sanitizedMensagem) {
       return new Response(
-        JSON.stringify({ error: 'Invalid input data' }),
+        JSON.stringify({ 
+          error: 'invalid_input',
+          message: 'Input data is invalid after sanitization'
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400 
@@ -128,7 +190,12 @@ serve(async (req) => {
         message: 'Solicitação enviada com sucesso!' 
       }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': RateLimitPresets.USER_HELP_REQUEST.maxRequests.toString(),
+          'X-RateLimit-Remaining': (rateLimitResult.remaining || 0).toString()
+        },
         status: 200 
       }
     )
