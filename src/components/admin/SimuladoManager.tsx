@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { logCreate, logUpdate, logDelete } from '@/utils/adminAudit';
 
 interface Simulado {
   id: string;
@@ -105,13 +106,25 @@ const SimuladoManager = () => {
           .eq('id', editingSimuladoId);
 
         if (error) throw error;
+        
+        // Log admin action
+        await logUpdate('simulado', editingSimuladoId, { instituicao: simuladoForm.instituicao, ano: simuladoForm.ano });
+        
         toast({ title: "Simulado atualizado com sucesso!" });
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('simulado')
-          .insert([simuladoForm]);
+          .insert([simuladoForm])
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Log admin action
+        if (data?.id) {
+          await logCreate('simulado', data.id, { instituicao: simuladoForm.instituicao, ano: simuladoForm.ano });
+        }
+        
         toast({ title: "Simulado criado com sucesso!" });
       }
 
@@ -143,13 +156,25 @@ const SimuladoManager = () => {
           .eq('id', editingPerguntaId);
 
         if (error) throw error;
+        
+        // Log admin action
+        await logUpdate('pergunta', editingPerguntaId, { disciplina: perguntaForm.disciplina, simulado_id: selectedSimulado });
+        
         toast({ title: "Pergunta atualizada com sucesso!" });
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('pergunta')
-          .insert([perguntaData]);
+          .insert([perguntaData])
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Log admin action
+        if (data?.id) {
+          await logCreate('pergunta', data.id, { disciplina: perguntaForm.disciplina, simulado_id: selectedSimulado });
+        }
+        
         toast({ title: "Pergunta criada com sucesso!" });
       }
 
@@ -176,6 +201,10 @@ const SimuladoManager = () => {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Log admin action
+      await logDelete('simulado', id);
+      
       toast({ title: "Simulado excluído com sucesso!" });
       fetchSimulados();
       if (selectedSimulado === id) {
@@ -201,6 +230,10 @@ const SimuladoManager = () => {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Log admin action
+      await logDelete('pergunta', id);
+      
       toast({ title: "Pergunta excluída com sucesso!" });
       if (selectedSimulado) {
         fetchPerguntas(selectedSimulado);

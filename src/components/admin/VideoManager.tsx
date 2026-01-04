@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { logCreate, logUpdate, logDelete } from '@/utils/adminAudit';
+import { log, error as logError } from '@/utils/logger';
 
 interface Video {
   id: string;
@@ -58,7 +60,7 @@ const VideoManager = () => {
         .or('titulo.ilike.%intro%botânica%,titulo.ilike.%botânica%introdução%');
 
       if (error) {
-        console.error('Erro ao buscar vídeo de botânica:', error);
+        logError('Erro ao buscar vídeo de botânica:', error);
         return;
       }
 
@@ -74,9 +76,9 @@ const VideoManager = () => {
             .eq('id', botanicaVideo.id);
 
           if (updateError) {
-            console.error('Erro ao atualizar vídeo:', updateError);
+            logError('Erro ao atualizar vídeo:', updateError);
           } else {
-            console.log('✅ Vídeo de Introdução à Botânica atualizado com sucesso!');
+            log('✅ Vídeo de Introdução à Botânica atualizado com sucesso!');
             toast({
               title: "Vídeo atualizado!",
               description: "O link do vídeo de Introdução à Botânica foi atualizado automaticamente.",
@@ -87,7 +89,7 @@ const VideoManager = () => {
         }
       }
     } catch (error) {
-      console.error('Erro na atualização automática:', error);
+      logError('Erro na atualização automática:', error);
     }
   }, [toast]);
 
@@ -144,13 +146,25 @@ const VideoManager = () => {
           .eq('id', editingId);
 
         if (error) throw error;
+        
+        // Log admin action
+        await logUpdate('video', editingId, { titulo: formData.titulo, url: formData.url });
+        
         toast({ title: "Vídeo atualizado com sucesso!" });
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('video')
-          .insert([formData]);
+          .insert([formData])
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Log admin action
+        if (data?.id) {
+          await logCreate('video', data.id, { titulo: formData.titulo, url: formData.url });
+        }
+        
         toast({ title: "Vídeo criado com sucesso!" });
       }
 
@@ -188,6 +202,10 @@ const VideoManager = () => {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Log admin action
+      await logDelete('video', id);
+      
       toast({ title: "Vídeo excluído com sucesso!" });
       fetchData();
     } catch (error) {
