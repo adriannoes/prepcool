@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { error as logError } from '@/utils/logger';
 
 interface PlanoEstudo {
   id: string;
@@ -73,7 +74,7 @@ const PlanoViewer = () => {
 
       setPlanos(planosWithUsers);
     } catch (error) {
-      console.error('Error fetching planos:', error);
+      logError('Error fetching planos:', error);
       toast({
         title: "Erro ao carregar planos",
         description: "Não foi possível carregar os planos de estudo.",
