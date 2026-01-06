@@ -65,6 +65,90 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+/**
+ * Sanitizes CSS color values to prevent XSS attacks
+ * 
+ * Only allows valid CSS color formats (hex, rgb, rgba, hsl, hsla, named colors)
+ * and CSS custom properties (var(...))
+ * 
+ * @param color - Color value to sanitize
+ * @returns Sanitized color value or empty string if invalid
+ */
+function sanitizeCssColor(color: string | undefined): string {
+  if (!color || typeof color !== 'string') {
+    return ''
+  }
+
+  // Remove whitespace
+  const trimmed = color.trim()
+
+  // Allow CSS custom properties (var(--variable-name))
+  if (trimmed.startsWith('var(') && trimmed.endsWith(')')) {
+    const varContent = trimmed.slice(4, -1).trim()
+    // Validate variable name: only alphanumeric, hyphens, underscores
+    if (/^--[a-zA-Z0-9_-]+$/.test(varContent)) {
+      return `var(${varContent})`
+    }
+    return ''
+  }
+
+  // Allow hex colors (#rgb, #rrggbb, #rrggbbaa)
+  if (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/.test(trimmed)) {
+    return trimmed
+  }
+
+  // Allow rgb/rgba/hsl/hsla functions
+  if (/^(rgb|rgba|hsl|hsla)\([^)]+\)$/.test(trimmed)) {
+    // Additional validation: ensure no script injection
+    if (!/[<>"'`]/.test(trimmed) && !/javascript:/i.test(trimmed)) {
+      return trimmed
+    }
+    return ''
+  }
+
+  // Allow named CSS colors (basic set)
+  const namedColors = [
+    'transparent', 'currentColor', 'inherit', 'initial', 'unset',
+    'black', 'white', 'red', 'green', 'blue', 'yellow', 'cyan', 'magenta',
+    'gray', 'grey', 'orange', 'purple', 'pink', 'brown'
+  ]
+  if (namedColors.includes(trimmed.toLowerCase())) {
+    return trimmed.toLowerCase()
+  }
+
+  // Reject anything else to prevent XSS
+  return ''
+}
+
+/**
+ * Sanitizes CSS variable name to prevent injection
+ * 
+ * @param key - Variable name key
+ * @returns Sanitized key safe for use in CSS
+ */
+function sanitizeCssVariableName(key: string): string {
+  // Only allow alphanumeric, hyphens, underscores
+  return key.replace(/[^a-zA-Z0-9_-]/g, '')
+}
+
+/**
+ * ChartStyle component generates dynamic CSS for chart color theming
+ * 
+ * SECURITY NOTE: Uses dangerouslySetInnerHTML to inject CSS styles dynamically.
+ * This is necessary because:
+ * 1. React doesn't support dynamic style tag content via props
+ * 2. CSS custom properties (--color-*) need to be injected as raw CSS
+ * 3. The content is generated from controlled config objects, not user input
+ * 
+ * Security measures:
+ * - All color values are sanitized before injection
+ * - CSS variable names are sanitized
+ * - Only valid CSS color formats are allowed
+ * - No user-generated content reaches this component directly
+ * 
+ * @param id - Unique chart identifier
+ * @param config - Chart configuration object (from controlled sources only)
+ */
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([_, config]) => config.theme || config.color
@@ -74,25 +158,34 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+  // Sanitize chart ID to prevent injection
+  const sanitizedId = sanitizeCssVariableName(id)
+
+  // Generate CSS with sanitized values
+  const cssContent = Object.entries(THEMES)
+    .map(
+      ([theme, prefix]) => `
+${prefix} [data-chart=${sanitizedId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color =
+    const rawColor =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    const color = sanitizeCssColor(rawColor)
+    const sanitizedKey = sanitizeCssVariableName(key)
+    return color ? `  --color-${sanitizedKey}: ${color};` : null
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `
-          )
-          .join("\n"),
+    )
+    .join("\n")
+
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: cssContent,
       }}
     />
   )
