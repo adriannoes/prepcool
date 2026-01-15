@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { log, error as logError, sanitizeForLogging } from '@/utils/logger';
 
 interface AuthContextType {
   session: Session | null;
@@ -23,15 +24,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('🔄 AuthContext: Initializing');
+    log('🔄 AuthContext: Initializing');
     
     // Configurar listener primeiro
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
-        console.log('🔔 AuthContext: Auth state change', { 
+        // Log auth state change without sensitive data
+        log('🔔 AuthContext: Auth state change', { 
           event, 
-          hasSession: !!currentSession,
-          userEmail: currentSession?.user?.email 
+          hasSession: !!currentSession
         });
         
         setSession(currentSession);
@@ -43,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         
         if (event === 'SIGNED_IN') {
-          console.log('🚀 AuthContext: User signed in, redirecting to dashboard');
+          log('🚀 AuthContext: User signed in, redirecting to dashboard');
           navigate('/dashboard');
         }
       }
@@ -53,9 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getInitialSession = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
-        console.log('📱 AuthContext: Initial session check', { 
-          hasSession: !!initialSession,
-          userEmail: initialSession?.user?.email 
+        // Log without sensitive session data
+        log('📱 AuthContext: Initial session check', { 
+          hasSession: !!initialSession
         });
         
         if (initialSession) {
@@ -64,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setLoading(false);
       } catch (error) {
-        console.error('❌ AuthContext: Error getting initial session:', error);
+        logError('❌ AuthContext: Error getting initial session:', error);
         setLoading(false);
       }
     };
@@ -149,9 +150,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  console.log('🎯 AuthContext: Current state', { 
+  // Log current state without sensitive user data
+  log('🎯 AuthContext: Current state', { 
     hasUser: !!user,
-    userEmail: user?.email,
     loading 
   });
 
