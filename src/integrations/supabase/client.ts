@@ -5,9 +5,15 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+if (!SUPABASE_URL) {
   throw new Error(
-    'Missing Supabase environment variables. Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.'
+    'Missing required environment variable: VITE_SUPABASE_URL. Please check your .env file and ensure VITE_SUPABASE_URL is set. You can find this value in your Supabase project settings at https://app.supabase.com/project/_/settings/api'
+  );
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    'Missing required environment variable: VITE_SUPABASE_ANON_KEY. Please check your .env file and ensure VITE_SUPABASE_ANON_KEY is set. You can find this value in your Supabase project settings at https://app.supabase.com/project/_/settings/api'
   );
 }
 
