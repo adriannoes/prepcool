@@ -28,3 +28,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build and cache
+coverage/
+.nyc_output/
+.cache/
+.turbo/
+*.tsbuildinfo
+
+# Package manager lock files (keep only one)
+bun.lockb
+pnpm-lock.yaml
+yarn.lock
